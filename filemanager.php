@@ -1146,7 +1146,7 @@ function alert($message)
         overflow: hidden;
         text-align: left;
         border-radius:10px;
-        height:98%;
+        max-height:98%;
         background: #fff;
         width:50%;
     }
@@ -1157,7 +1157,7 @@ function alert($message)
         padding-left:20px;
         padding-right: 20px;
         overflow-x: hidden;
-        height:75%;
+        max-height:75%;
 
     }
     .rewrite-success {
