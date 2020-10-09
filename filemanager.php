@@ -43,7 +43,7 @@ class XN
             $filepath=$filename;
             if(!realpath($filepath)){$filepath=$_SERVER['DOCUMENT_ROOT'].$filepath;}
             $filesize=filesize($filepath);
-            $array=["TB","GB","MB","KB","Byte"];
+            $array=[" TB"," GB"," MB"," KB"," Byte"];
             $total=count($array);
             while($total--&&$filesize>1024){$filesize/=1024;}
             return round($filesize,2)."".$array[$total];
