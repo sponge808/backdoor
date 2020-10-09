@@ -1,3 +1,4 @@
+<title>Untitled</title>
 <meta name="viewport" content="width=device-width,height=device-height initial-scale=1">
 <?php
 date_default_timezone_set("Asia/Jakarta");
@@ -1586,7 +1587,7 @@ function filterTable() {
     <div class="table">
     <table id="myTable">
         <?php
-        if (!XN::countDir(getcwd())){?><div class="nothing">Not files in here</div>
+        if (!XN::countDir(getcwd())){alert("Not files in here");?><div class="nothing">Not files in here</div>
     	<?php }
         foreach (XN::files('dir') as $dir) { ?>
             <tr>
