@@ -600,6 +600,17 @@ function alert($message)
         padding-left: 25px;
         padding-right: 25px;
     }
+    .upload input[type=file] {
+    	width: 100%;
+        border-radius: 5px;
+        font-size: 15px;
+        background: #e7f3ff;
+        outline: none;
+        border: 1px solid #e7f3ff;
+        color: #1889f5;
+        font-weight: bold;
+        padding: 6px;
+    }
     .info table {
         width:100%;
         overflow: hidden;
