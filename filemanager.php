@@ -116,8 +116,8 @@ class XN
             case 'mp4':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306142.svg');break;
             case 'log':
             case 'log1':
-            case 'psd':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306166.svg');break;
             case 'log2':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306124.svg');break;
+            case 'psd':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306166.svg');break;
             case 'dat':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306050.svg');break;
             case 'exe':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306085.svg');break;
             case 'apk':self::vers('https://www.flaticon.com/svg/static/icons/svg/2306/2306016.svg');break;
