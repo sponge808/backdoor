@@ -1895,9 +1895,32 @@ function WinMain()
 				color:#000000;
 				background: #888888;
 			}
-			.listbg {font-family:'lucida grande',tahoma,helvetica,arial,'bitstream vera sans',sans-serif;font-size:13px;width:130px;}
-			.listbg li{padding:3px;color:#000000;height:25px;display:block;line-height:26px;text-indent:0px;}
-			.listbg li a{padding-top:2px;background:#BBBBBB;color:#000000;height:25px;display:block;line-height:24px;text-indent:0px;border-color:#999999 #999999 #999999 #999999;border-style:solid;border-width:1px;text-decoration:none;}
+			.listbg {
+				font-family:'lucida grande',tahoma,helvetica,arial,'bitstream vera sans',sans-serif;
+				font-size:13px;
+				width:130px;
+			}
+			.listbg li{
+				padding:3px;
+				color:#000000;
+				height:25px;
+				display:block;
+				line-height:26px;
+				text-indent:0px;
+			}
+			.listbg li a{
+				padding-top:2px;
+				background:#BBBBBB;
+				color:#000000;
+				height:25px;
+				display:block;
+				line-height:24px;
+				text-indent:0px;
+				border-color:#999999 #999999 #999999 #999999;
+				border-style:solid;
+				border-width:1px;
+				text-decoration:none;
+			}
 		</style>
 		<script language="JavaScript">
 			function switchTab(tabid)
