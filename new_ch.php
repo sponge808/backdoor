@@ -1,6 +1,6 @@
 <?php
 
-$password = "x";//设置密码
+$password = "x";
 
 error_reporting(E_ERROR);
 header("content-Type: text/html; charset=gb2312");
