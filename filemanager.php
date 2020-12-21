@@ -31,7 +31,7 @@ class XN
         }return self::$array;
     }
     public static function ago($time){ //[49]
-	   	$periods = array("second", "minute", "hour", "day", "week", "month", "year", "decade"); //[50]
+	   	$periods = array("seconds", "minutes", "hours", "days", "weeks", "months", "years", "decades"); //[50]
 	   	$lengths = array("60","60","24","7","4.35","12","10"); //[51]
 	    $difference     = time() - $time; //[52]
 	   	for($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) { //[53]
