@@ -22,7 +22,7 @@ class XN
             }
             $filename['names'] = basename($filename['name']);
             $filename['owner'] = self::owner($filename['name']);
-            $filename['ftime'] = self::ftime($filename['name']);
+            $filename['ftime'] = self::ago(filemtime($filename['name']))." on ".self::ftime($filename['name']);
             $filename['size'] = is_dir($filename['name'])
                 ? self::countDir($filename['name']) . " items"
                 : self::size($filename['name']);
@@ -30,6 +30,16 @@ class XN
             self::$array[] = $filename;
         }return self::$array;
     }
+    public static function ago($time){ //[49]
+	   	$periods = array("second", "minute", "hour", "day", "week", "month", "year", "decade"); //[50]
+	   	$lengths = array("60","60","24","7","4.35","12","10"); //[51]
+	    $difference     = time() - $time; //[52]
+	   	for($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) { //[53]
+	    	$difference /= $lengths[$j]; //[54]
+	   	}
+	   	$difference = round($difference); 
+	   	return "$difference $periods[$j] ago";
+	}
     public static function save($filename, $data)
     {
         self::$handle = fopen($filename, "w");
@@ -244,7 +254,7 @@ class XN
         else {self::$group=filegroup($filename);}
         return self::$owner."<span class='group'>/".self::$group."</span>";
     }
-    public static function ftime($filename){return date('d M Y - H:i A', @filemtime($filename));}
+    public static function ftime($filename){return date('d M Y', @filemtime($filename));}
     public static function renames($filename, $newname){return rename($filename, $newname);}
     public static function cd($directory){return @chdir($directory);}
     public static function countDir($filename){return @count(scandir($filename)) - 2;}
@@ -1138,10 +1148,14 @@ function alert($message)
     .box > h2 {
         text-align: left;
     }
+    ::selection {
+  		color: #fff;
+  		background: #f7adad;
+	}
     .nothing {
         background: rgba(255, 0, 0, 0.2);
         color: rgba(255, 0, 0, 0.6);
-        border-radius:15px;
+        border-radius:5px;
         padding:15px;
         text-align: center;
         font-style: italic;
@@ -1548,7 +1562,7 @@ function filterTable() {
                     <tr>
                         <td> Last Modif</td>
                         <td>:</td>
-                        <td><?= XN::ftime($_POST['file']) ?></td>
+                        <td><?= XN::ago(filemtime($_POST['file'])) ." on ". XN::ftime($_POST['file']) ?></td>
                     </tr>
                     <tr>
                         <form method="post">
@@ -1615,7 +1629,7 @@ function filterTable() {
     <div class="table">
     <table id="myTable">
         <?php
-        if (!XN::countDir(getcwd())){alert("Not files in here");?><div class="nothing">Not files in here</div>
+        if (!XN::countDir(getcwd())){?><div class="nothing">Not files in here</div>
         <?php }
         foreach (XN::files('dir') as $dir) { ?>
             <tr>
