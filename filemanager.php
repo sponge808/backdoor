@@ -1453,8 +1453,8 @@ function filterTable() {
                 for ($i = 0; $i < count($dirname); $i++) {
                     $explode = explode(' ', $dirname[$i]);
                     foreach ($explode as $value) {
-                        if (XN::addfolder($value)){alert('failed');}
-                        else{alert("success");}
+                        if (XN::addfolder($value)){alert('success');}
+                        else{alert("failed");}
                     }
                 }
             }
