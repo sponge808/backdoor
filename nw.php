@@ -5,7 +5,7 @@ if (@$_GET['raw'] == 'file') {
 	?><pre><?= freadf($_GET['file']) ?></pre><?php
 	exit();
 }
-function files($type, $relativePath = false, $pattern = '', $result = array()) {
+function files($type, $pattern = '', $result = array()) {
 	$result = [];
 	foreach (scandir(getcwd()) as $key => $value) {
 		$file['name'] = getcwd().DIRECTORY_SEPARATOR.$value;
@@ -249,3 +249,4 @@ if (isset($_GET['cd'])) {
 		}
 	</script>
 </table>
+<?php
