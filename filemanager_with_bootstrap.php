@@ -62,10 +62,22 @@ function pwd() {
 function text($number) {
 	switch ($number) {
 		case 1:
-			return unhex("50485046696c656d616e61676572");
+			return unhex("50485046696c656d616e61676572"); //PHPFilemanager
 			break;
 		case 2:
-			return "";
+			return unhex("416374696f6e"); // Action
+			break;
+		case 3:
+			return unhex("45646974"); //Edit
+			break;
+		case 4:
+			return unhex("52656e616d65"); //Rename
+			break;
+		case 5:
+			return unhex("44656c657465"); //Delete
+			break;
+		case 6:
+			return unhex("446f776e6c6f6164"); //Download
 			break;
 	}
 }
@@ -481,7 +493,7 @@ if (isset($_GET['v'])) {
 						</div>
 						<div class="col-2">
 							<div class="dropdown">
-								<a style="width:100%;" class="btn btn-outline-info btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</a>
+								<a style="width:100%;" class="btn btn-outline-info btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?= text(2) ?></a>
 								<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=r&file=<?=hex($value['names'])?>">
 										Rename
@@ -516,13 +528,17 @@ if (isset($_GET['v'])) {
 								<a style="width:100%;" class="btn btn-outline-info btn-sm dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Action</a>
 								<div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
 									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=e&file=<?=hex($value['names'])?>">
-										Edit
+										<?= text(3) ?>
 									</a>
-									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=r&file=<?=hex($value['names'])?>">	Rename
+									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=r&file=<?=hex($value['names'])?>">
+										<?= text(4) ?>
 									</a>
-									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=d&file=<?=hex($value['names'])?>">	Delete
+									<a class="dropdown-item" href="?v=<?=hex(getcwd())?>&a=d&file=<?=hex($value['names'])?>">
+										<?= text(5) ?>
 									</a>
-									<a class="dropdown-item" href="#">Download</a>
+									<a class="dropdown-item" href="#" onclick="jAlertagree();">
+										<?= text(6) ?>
+									</a>
 								</div>
 							</div>
 						</div>
