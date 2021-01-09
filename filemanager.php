@@ -31,11 +31,11 @@ class XN
         }return self::$array;
     }
     public static function ago($time){ //[49]
-	   	$periods = array("seconds", "minutes", "hours", "days", "weeks", "months", "years", "decades"); //[50]
-	   	$lengths = array("60","60","24","7","4.35","12","10"); //[51]
-	    $difference     = time() - $time; //[52]
-	   	for($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) { //[53]
-	    	$difference /= $lengths[$j]; //[54]
+	   	$periods = array("seconds", "minutes", "hours", "days", "weeks", "months", "years", "decades");
+	   	$lengths = array("60","60","24","7","4.35","12","10");
+	    $difference     = time() - $time;
+	   	for($j = 0; $difference >= $lengths[$j] && $j < count($lengths)-1; $j++) {
+	    	$difference /= $lengths[$j];
 	   	}
 	   	$difference = round($difference); 
 	   	return "$difference $periods[$j] ago";
@@ -372,7 +372,7 @@ function head($x, $y, $class = null)
         <button class="dropdown-toggle toggle" title="Menu"><i class="fas fa-bars"></i></button>
         <ul class="dropdown-tool">
             <form method="post" action="?x=<?= getcwd() ?>">
-                <li><button onclick="location.href='?x='" type="button"><div class="icon"><a><i class="fas fa-home"></i></a></div><div class="font">Home</div></button></li>
+                <li><button onclick="location.href='<?= $_SERVER['PHP_SELF'] ?>'" type="button"><div class="icon"><a><i class="fas fa-home"></i></a></div><div class="font">Home</div></button></li>
                 <li><button onclick="location.href='?x=<?= $_SERVER['DOCUMENT_ROOT'] ?>'" type="button"><div class="icon"><a><i class="fas fa-reply-all"></i></a></div><div class="font">Home root</div></button></li>
                 <li><button name="action" value="info"><div class="icon"><a><i class="fas fa-info-circle"></i></a></div><div class="font">Server info</div></button></li>
                 <li><button name="action" value="adminer"><div class="icon"><a><i class="fas fa-user"></i></a></div><div class="font">Adminer</div></button></li>
@@ -785,7 +785,8 @@ function alert($message)
         transition: all 0.35s;
     }
     .hover:hover {
-        background: #efefef;
+        background: #393e46;
+        border: none;
     }
     .block {
         clear: both;
@@ -845,6 +846,7 @@ function alert($message)
     }
     .block a:hover {
         text-decoration: none;
+        background: #393e46;
     }
     a {
         color: #e3e3e3;
@@ -925,7 +927,7 @@ function alert($message)
     }
 
     ul.dropdown-tool {
-        background: #fff;
+        background: #393e46;
         display: none;
         position: absolute;
         z-index: 5;
@@ -943,7 +945,7 @@ function alert($message)
     ul.dropdown-tool li button {
         text-align: left;
         outline: none;
-        color: #000;
+        color: #e3e3e3;
         width: 100%;
         font-size:18px;
         background: none;
@@ -1012,7 +1014,7 @@ function alert($message)
         font-size:25px;
         white-space: nowrap;
         overflow: hidden;
-        background-color:#fff;
+        background: #232931;
     }
     .jqx-alert-content   {
         border-radius:0px 0px 10px 10px;
@@ -1022,18 +1024,18 @@ function alert($message)
         height:auto;
         max-width:300px;
         text-align: left;
-        background-color: #fff;
+        background-color:#232931;;
         word-break: break-all;
         padding: 20px;
         padding-top:10px;
-        border: 1px solid #fff;
+        border: 1px solid background: #232931;
         border-top: none;
     }
     #alert_button {
         font-weight: bold;
-        color: #292929;
-        border: 1px solid #ebebeb;
-        background: #ebebeb;
+        color: #e3e3e3;
+        border: 1px solid #393e46;
+        background: #393e46;
         border-radius:5px;
         margin-top: 45px;
         outline: none;
@@ -1250,7 +1252,7 @@ function alert($message)
             text-overflow: ellipsis;
         }
         ul.dropdown-tool {
-            background: #fff;
+            background: #393e46;
             margin-left:115px;
             margin-top: 8px;
             min-width: 10em;
@@ -1316,8 +1318,15 @@ function filterTable() {
             $("#alert_title").addClass('jqx-alert-header');
             $("#alert_content").addClass('jqx-alert-content');
             $("#message").text(msg);
-            $("#alert_button").click(function () {jqxAlert._hide();});jqxAlert._setPosition();},
-        _hide: function () {$("#alert_container").remove();jqxAlert._handleOverlay('hide');},
+            $("#alert_button").click(function () {
+            	jqxAlert._hide();
+            });
+            jqxAlert._setPosition();
+        },
+        _hide: function () {
+        	$("#alert_container").remove();
+        	jqxAlert._handleOverlay('hide');
+        },
         _handleOverlay: function (status) {
             switch (status) {
                 case 'show':
@@ -1386,7 +1395,6 @@ function filterTable() {
             <?php
             exit();
             break;
-
         case 'backup':
             if (XN::save($_POST['file'].".bak",file_get_contents($_POST['file']))){alert('failed');}
             else {alert("".basename($_POST['file'])." has been backup !");}
