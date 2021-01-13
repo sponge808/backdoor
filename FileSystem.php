@@ -247,7 +247,6 @@ class Action extends FileSystem
 		return (!empty($data)) ? fwrite($this->resource, $data) : false;
 	}
 }
-github.com/rabbitx1337/pesing
 /**
  * 
  */
@@ -269,24 +268,23 @@ class multiUpload extends FileSystem
 	{
 		$files = count($this->source['tmp_name']);
 		for ($i=0; $i < $files ; $i++) { 
-			$this->getErrorUpload = copy($this->source['tmp_name'][$i], $this->pathUpload . DIRECTORY_SEPARATOR . $this->source['name'][$i]);
-
-			return $this->getErrorUpload;
+			copy($this->source['tmp_name'][$i], $this->pathUpload . DIRECTORY_SEPARATOR . $this->source['name'][$i]);
 		}
 	}
 
 	public function getInfoUpload()
 	{
-		$json[] = [
+		$json[] = array(
 			"fileName" => $this->source['name'],
 			"fileSize" => $this->source['size'],
 			"filePath" => $this->pathUpload
-		];
-		return json_encode($json);
+		);
+		$json_arr = json_encode($json);
+		return json_decode($json_arr);
 	}
 }
 
-/*// $FileSystem = new FileSystem(getcwd());
+// $FileSystem = new FileSystem(getcwd());
 
 // $Tools = new Tools(getcwd());
 
@@ -294,11 +292,13 @@ class multiUpload extends FileSystem
 // 	$Upload = new multiUpload($_FILES['file']);
 // 	$Upload->pathUpload($_POST['dir']);
 // 	$Upload->Upload();
+// 	$Upload->getInfoUpload();
 
 // }
+?>
 <!-- <form method="post" enctype="multipart/form-data">
 	<input type="file" name="file[]" multiple>
 	<input type="hidden" name="dir" value="<?= $Tools->getPath() ?>/img">
 	<input type="submit" name="sub">
-</form> -->*/
+</form> -->
 
