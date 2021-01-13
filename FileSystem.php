@@ -14,7 +14,7 @@ class FileSystem
 		return $_SERVER['PHP_SELF'];
 	}
 
-	public function homeRoot()
+	public function root()
 	{
 		return $_SERVER['DOCUMENT_ROOT'];
 	}
@@ -113,6 +113,45 @@ class FileSystem
 /**
  * 
  */
+class Tools extends FileSystem
+{
+
+	function __construct(protected $path)
+	{
+		
+	}
+
+	public function Zip($source)
+	{
+	    $result = (@opendir($source) === false ? false : true);
+	    $rootPath = realpath($source);
+	    $zip = new ZipArchive();
+	    $zipfilename = date("d-m-Y") . "-" . basename($source) . ".zip";
+	    $zip->open($zipfilename, ZipArchive::CREATE | ZipArchive::OVERWRITE );
+
+	    if ($result !== false) {
+	        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($rootPath), RecursiveIteratorIterator::LEAVES_ONLY);
+	         
+	        foreach ($files as $name => $file) {
+	            if (!$file->isDir()) {
+	                $filePath = $file->getRealPath();
+	                $relativePath = substr($filePath, strlen($rootPath) + 1);
+	                $zip->addFile($filePath, $relativePath);
+	            }
+	        }
+	        $zip->close();
+	        return TRUE;
+	    } else {
+	    	if ($this->isFile($source)) {
+	    		$zip->addFromString(basename($source), file_get_contents($source));
+	    	}
+	    }
+	}
+}
+
+/**
+ * 
+ */
 class Action extends FileSystem
 {
 	protected $resource;
@@ -148,6 +187,15 @@ class Action extends FileSystem
 				@flush();
 			}
 			fclose($handle);
+		}
+	}
+
+	public function move($destinantion)
+	{
+		if (file_exists($this->filename)) {
+			$this->renames($destinantion . DIRECTORY_SEPARATOR . $this->filename);
+		} else {
+			print("Nonfounf");
 		}
 	}
 
@@ -198,4 +246,59 @@ class Action extends FileSystem
 	{
 		return (!empty($data)) ? fwrite($this->resource, $data) : false;
 	}
-}	
+}
+github.com/rabbitx1337/pesing
+/**
+ * 
+ */
+class multiUpload extends FileSystem
+{
+	protected $getErrorUpload;
+	
+	function __construct(protected $source, protected $pathUpload = null,)
+	{
+		parent::__construct(getcwd());
+	}
+
+	public function pathUpload($pathUpload)
+	{
+		return $this->pathUpload = $pathUpload;
+	}
+
+	public function Upload()
+	{
+		$files = count($this->source['tmp_name']);
+		for ($i=0; $i < $files ; $i++) { 
+			$this->getErrorUpload = copy($this->source['tmp_name'][$i], $this->pathUpload . DIRECTORY_SEPARATOR . $this->source['name'][$i]);
+
+			return $this->getErrorUpload;
+		}
+	}
+
+	public function getInfoUpload()
+	{
+		$json[] = [
+			"fileName" => $this->source['name'],
+			"fileSize" => $this->source['size'],
+			"filePath" => $this->pathUpload
+		];
+		return json_encode($json);
+	}
+}
+
+/*// $FileSystem = new FileSystem(getcwd());
+
+// $Tools = new Tools(getcwd());
+
+// if (isset($_POST['sub'])) {
+// 	$Upload = new multiUpload($_FILES['file']);
+// 	$Upload->pathUpload($_POST['dir']);
+// 	$Upload->Upload();
+
+// }
+<!-- <form method="post" enctype="multipart/form-data">
+	<input type="file" name="file[]" multiple>
+	<input type="hidden" name="dir" value="<?= $Tools->getPath() ?>/img">
+	<input type="submit" name="sub">
+</form> -->*/
+
