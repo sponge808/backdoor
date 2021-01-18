@@ -242,9 +242,9 @@ class FileSystem
     public function wr($filename, $perms)
     {
         if (is_writable($filename)) {
-            print("<font color='green'>{$perms}</font>");
+            return ("<font color='green'>{$perms}</font>");
         } else {
-            print("<font color='red'>{$perms}</font>");
+            return ("<font color='red'>{$perms}</font>");
         }
     }
 
@@ -320,36 +320,69 @@ class FileSystem
         } return false;
     }
 
-    public function countDir($directory)
-    {
-        $dir = @opendir($directory);
-        $c = 0;
-        while (($file = readdir($dir)) !== false)
-            if (!in_array($file, array('.', '..')))
-                $c++;
-            closedir($dir);
-            return $c;
-        }
+    function sizeFormat($bytes){ 
+		$kb = 1024;
+		$mb = $kb * 1024;
+		$gb = $mb * 1024;
+		$tb = $gb * 1024;
 
-        public function pwd() {
-            $dir = preg_split("/(\\\|\/)/", getcwd());
-            foreach ($dir as $key => $value) {
-                if($value=='' && $key==0) {
-                    echo '<a href="?x=2f">/</a>';
-                }
-                if($value == '') { 
-                    continue;
-                }
-                echo '<a href="?x=';
-                for ($i = 0; $i <= $key; $i++) {
-                    echo FileSystem::hex($dir[$i]); 
-                    if($i != $key) {
-                        echo '2f';
-                    }
-                }
-                print('">'.$value.'</a>/');
-            }
-        }
+		if (($bytes >= 0) && ($bytes < $kb)) {
+			return $bytes . ' B';
+		} elseif (($bytes >= $kb) && ($bytes < $mb)) {
+			return ceil($bytes / $kb) . ' KB';
+		} elseif (($bytes >= $mb) && ($bytes < $gb)) {
+			return ceil($bytes / $mb) . ' MB';
+		} elseif (($bytes >= $gb) && ($bytes < $tb)) {
+			return ceil($bytes / $gb) . ' GB';
+		} elseif ($bytes >= $tb) {
+			return ceil($bytes / $tb) . ' TB';
+		} else {
+			return $bytes . ' B';
+		}
+	}
+
+	public function getSize($path, $digits = 2)
+	{
+		$countSize = 0;
+		$count = 0;
+		if (is_dir($path)) {
+			foreach (scandir($path) as $key => $value) {
+				if ($value != ".." && $value != ".") {
+					$countSize = $countSize + $this->getSize($path . DIRECTORY_SEPARATOR . $value);
+				} elseif ($path . DIRECTORY_SEPARATOR . $value) {
+					$countSize = $countSize + fileSize($path . DIRECTORY_SEPARATOR . $value);
+					$count++;
+				}
+			} return $countSize;
+		} else if (is_file($path)) {
+			return filesize($path);
+		}
+	}
+
+	public function size($filename)
+	{
+		return $this->sizeFormat($this->getSize($filename));
+	}
+
+    public function pwd() {
+    	$dir = preg_split("/(\\\|\/)/", getcwd());
+    	foreach ($dir as $key => $value) {
+    		if($value=='' && $key==0) {
+    			echo '<a href="?x=2f">/</a>';
+    		}
+    		if($value == '') { 
+    			continue;
+    		}
+    		echo '<a href="?x=';
+    		for ($i = 0; $i <= $key; $i++) {
+    			echo FileSystem::hex($dir[$i]); 
+    			if($i != $key) {
+    				echo '2f';
+    			}
+    		}
+    		print('">'.$value.'</a>/');
+    	}
+    }
 
 
         public function getFileTime($filename)
@@ -364,9 +397,9 @@ class FileSystem
                 $filename = [
                     "pathName"      => $this->path . DIRECTORY_SEPARATOR . $value,
                     "singlePath"    => $value,
-                    "filePerms"     => $this->perms($value),
+                    "filePerms"     => $this->wr($value, $this->perms($value)),
                     "fileTime"      => $this->getFileTime($value),
-                    "getSize"       => $this->isDir($value) ? $this->countDir($value) : false,
+                    "getSize"       => $this->size($value),
                     "modeChmod"     => substr(sprintf("%o", fileperms($value)), -4),
                     "getIcon"       => $this->isDir($value) ? $this->getIcon($value, "dir") : false
                 ];
@@ -382,9 +415,9 @@ class FileSystem
                 $filename = [
                     "pathName"      => $this->path . DIRECTORY_SEPARATOR . $value,
                     "singlePath"    => $value,
-                    "filePerms"     => $this->perms($value),
+                    "filePerms"     => $this->wr($value, $this->perms($value)),
                     "fileTime"      => $this->getFileTime($value),
-                    "getSize"       => $this->isFile($value) ? $this->getFileSize($value) : false,
+                    "getSize"       => $this->size($value),
                     "modeChmod"     => substr(sprintf("%o", fileperms($value)), -4),
                     "getIcon"       => $this->isFile($value) ? $this->getIcon($value, "file") : false
                 ];
@@ -523,13 +556,6 @@ class Action extends FileSystem
         return rename($this->filename, $this->getPath() . DIRECTORY_SEPARATOR . $newname);
     }
 
-    // public function open($mode)
-    // {
-    //  if (!empty(trim($this->filename))) {
-    //      $this->resource = fopen($this->filename, $this->modes[$mode]);
-    //      return $this->resource;
-    //  }
-    // }
     public function write($data, $mode)
     {
         $this->resource = fopen($this->filename, $this->modes[$mode]);
@@ -904,3 +930,5 @@ class multiUpload extends FileSystem
         }
     }
 }
+$p = new FileSystem(getcwd());
+var_dump($p->Dir());
