@@ -1,5 +1,4 @@
 <?php
-$auth = new auth('$2y$10$PfttDQnvDLNwYeJGF.m.c.Caf/IJ5Sxx3OWcS7ehne2ghgdec3Eka');
 class auth
 {
 	private $password;
