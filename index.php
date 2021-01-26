@@ -382,13 +382,13 @@ class Action extends Tools
 			}
 		} else {
 			$get = [
-				"url" => $url,
-				"filename" => $filename
+				$url,
+				$filename
 			];
 
-			$handle = fopen($get["filename"], "w+");
+			$handle = fopen($get[1], "w+");
 			$ch = curl_init();
-				  curl_setopt($ch, CURLOPT_URL, $get["url"]);
+				  curl_setopt($ch, CURLOPT_URL, $get[0]);
 				  curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
 				  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
