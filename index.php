@@ -107,6 +107,11 @@ class listFiles
 		return str_replace("/", "", $_SERVER['PHP_SELF']);
 	}
 
+	public function homeroot()
+	{
+		return $_SERVER['DOCUMENT_ROOT'];
+	}
+
 	public function folders()
 	{
 		return $this->list("dir");
@@ -788,7 +793,7 @@ $Tools = new Tools;
 			<div id="nav">
 				<i class="dropdown-toggle material-icons menu">menu</i>
 				<ul class="dropdown">
-					<li><a href="#">Home root</a></li>
+					<li><a href="?x=<?= $listFiles->homeroot() ?>">Home root</a></li>
 					<li><a href="#">Upload</a></li>
 					<li><a href="#">New Folder</a></li>
 					<li><a href="#">New File</a></li>
