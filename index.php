@@ -42,6 +42,8 @@ class auth
 				if (password_verify($this->post["pass"], $this->password)) {
 					setcookie("pass", $this->password, time() + $this->expired[4], "/");
 					header("Location: {$_SERVER['PHP_SELF']}");
+				} else {
+					echo("wrong password !");
 				}
 			}
 			if(!isset($this->cookie['pass']) || ((isset($this->cookie['pass']) && ($this->cookie['pass'] != $this->password)))){
