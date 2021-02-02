@@ -1,8 +1,7 @@
 <?php
 /**
- * $2y$10$k7Sp./C4F28EIFPCT81zSu2yg/SVkQKIyxDaNG/.0BH4XOE4gg.yK
+ *
  */
-// echo sha1(md5("pe"));
 class FileSystem
 {
 	public $path;
