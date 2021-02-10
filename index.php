@@ -97,10 +97,11 @@ class FileSystem
 				[
 					$filename["path"], // full path
 					$value, // single file
-					(is_dir($value)) ? null : $this->formatSize(filesize($filename["path"])), // get format size
+					(is_dir($value)) ? null : $this->formatSize(@filesize($filename["path"])), // get format size
 					date("d/m/Y - H:i:s", $this->ftime($filename["path"])), // get filetime
 					$this->writeable($value, $this->get($filename["path"])->perms()), // get permission
 					$this->get($filename["path"])->modefile(), // get file mode
+					$this->getIcon($filename["path"]),
 
 					[
 						"?x=".self::strtohex($this->path)."&e=".self::strtohex($filename["path"])."", // edit
@@ -185,33 +186,114 @@ class FileSystem
 	}
 
 	/*
-		Function cd
+		end Function cd
 	*/
 
 	/*
 		Function pwd
 	*/
 
-	public function pwd()
+	public function pwd($no)
 	{
-		$path = preg_split("/(\\\|\/)/", $this->path);
+		?>
+		<nav aria-label="breadcrumb">
+			<ol class="breadcrumb">
+		<?php
+		if ($no === 1) {
+			?> <a href="?x=<?= self::strtohex(dirname($this->path)) ?>"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>&nbsp;&nbsp;&nbsp;<?php print(basename($this->path));
+		} elseif ($no === 2) {
+			?> <a href="?x=<?= self::strtohex($this->path) ?>"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>&nbsp;&nbsp;&nbsp; Edit<?php
+		}
+		/*$path = preg_split("/(\\\|\/)/", $this->path);
 		foreach ($path as $key => $value) {
 			if ($value == "" && $key = 0) {
-				print("<a href='?x=2f'>2f</a>");
+				print("<li class='breadcrumb-item'><a href='?x=2f'>2f</a></li>");
 			}
 			if ($value == "") continue;
-			print("<a href='?x=");
+			print("<li class='breadcrumb-item'><a href='?x=");
 			for ($i=0; $i <= $key ; $i++) { 
 				print(self::strtohex($path[$i]));
 				if ($i != $key) {
 					print("2f");
 				}
-			} print("'>{$value}</a>/");
+			} print("'>{$value}</a></li>");
+		}*/
+		?>
+		</ol>
+		</nav>
+		<?php
+	}
+
+	/*
+		end Function pwd
+	*/
+
+	/*
+		Function getIcon
+	*/
+
+	public function getIcon($filename)
+	{
+		if (is_dir($filename)) {
+			return "https://image.flaticon.com/icons/svg/715/715676.svg";
+		} else {
+			switch ($this->getExtension($filename)) {
+				case 'php1':
+				case 'php2':
+				case 'php3':
+				case 'php4':
+				case 'php5':
+				case 'php6':
+				case 'phtml':
+				case 'php':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306154.svg');break;
+				case 'html':
+				case 'htm':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306098.svg');break;
+				case 'css':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306041.svg');break;
+				case 'js':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306122.svg');break;
+				case 'json':return('https://image.flaticon.com/icons/svg/136/136525.svg');break;
+				case 'xml':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306209.svg');break;
+				case 'py':return('https://www.flaticon.com/svg/static/icons/svg/2721/2721287.svg');break;
+				case 'zip':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306214.svg');break;
+				case 'rar':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306170.svg');break;
+				case 'htaccess':return('https://image.flaticon.com/icons/png/128/1720/1720444.png');break;
+				case 'txt':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306185.svg');break;
+				case 'ini':return('https://image.flaticon.com/icons/svg/1126/1126890.svg');break;
+				case 'mp3':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306139.svg');break;
+				case 'mp4':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306142.svg');break;
+				case 'log':
+				case 'log1':
+				case 'log2':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306124.svg');break;
+				case 'psd':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306166.svg');break;
+				case 'dat':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306050.svg');break;
+				case 'exe':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306085.svg');break;
+				case 'apk':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306016.svg');break;
+				case 'yaml':return('https://cdn1.iconfinder.com/data/icons/hawcons/32/698694-icon-103-document-file-yml-512.png');break;
+				case 'xlsx':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306200.svg');break;
+				case 'bak':return('https://image.flaticon.com/icons/svg/2125/2125736.svg');break;
+				case 'ico':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306102.svg');break;
+				case 'png':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306156.svg');break;
+				case 'jpg':
+				case 'webp':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306117.svg');break;
+				case 'jpeg':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306114.svg');break;
+				case 'svg':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306179.svg');break;
+				case 'gif':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306094.svg');break;
+				case 'pdf':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306145.svg');break;
+				case 'asp':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306019.svg");break;
+				case 'doc':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306060.svg");break;
+				case 'docx':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306065.svg");break;
+				case 'otf':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306149.svg");break;
+				case 'ttf':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306182.svg");break;
+				case 'wav':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306188.svg");break;
+				case 'sql':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306173.svg");break;
+				case 'csv':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306046.svg");break;
+				case 'bat':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306025.svg");break;
+				default:return('https://image.flaticon.com/icons/svg/833/833524.svg');break;
+			}
 		}
 	}
 
 	/*
-		Function pwd
+		end Function getIcon
 	*/
 
 	/*
@@ -274,7 +356,7 @@ class FileSystem
 
 	public function ftime($filename)
 	{
-		return filemtime($filename);
+		return @filemtime($filename);
 	}
 
 	/*
@@ -326,7 +408,7 @@ class FileSystem
 
 	public function perms()
 	{
-		$perms = fileperms($this->filename);
+		$perms = @fileperms($this->filename);
 
 		switch ($perms & 0xF000) {
 		    case 0xC000: // socket
@@ -415,7 +497,7 @@ class FileSystem
 
 	public function modefile()
 	{
-		return substr(sprintf("%o", fileperms($this->filename)), - 4);
+		return substr(sprintf("%o", @fileperms($this->filename)), - 4);
 	}
 
 	/*
@@ -515,9 +597,11 @@ $FileSystem = new FileSystem;
     	<meta name="viewport" content="width=device-width, initial-scale=1">
     	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
   		<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+  		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"/>
   		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.1.4/tailwind.min.css">
-    	<title>Hello, world!</title>
+  		<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    	<title></title>
   	</head>
   	<style type="text/css">
   		*,
@@ -551,8 +635,8 @@ $FileSystem = new FileSystem;
   			width: 100%;
   			max-height: 100%;
   			overflow: auto;
-  			padding-right: 15px;
-  			padding-left: 15px;
+  			padding-right: 25px;
+  			padding-left: 25px;
   			/*background-color: #F03861;*/
   		}
   		.tutorial .information {
@@ -631,445 +715,175 @@ $FileSystem = new FileSystem;
   			max-width: 1200px;
   			margin: auto;
   		}
-
-  		strong {
-  			font-weight: 600;
+  		.icon {
+  			width:50px;
+  			height: 50px;
+  		}
+  		.info {
+  			font-size:12px;
+  		}
+  		.nav-item a:hover {
+  			background: transparent;
+  		}
+  		input[type=text] {
+  			width: 130px;
+  			box-sizing: border-box;
+  			border: 2px solid #ccc;
+  			border-radius: 4px;
+  			font-size: 16px;
+  			background-color: white;
+  			background-image: url('searchicon.png');
+  			background-position: 10px 10px; 
+  			background-repeat: no-repeat;
+  			padding: 12px 20px 12px 40px;
+  			-webkit-transition: width 0.4s ease-in-out;
+  			transition: width 0.4s ease-in-out;
   		}
 
-  		hr {
-  			border: none;
-  			height: 1px;
-  			background-color: rgba(51, 153, 204, 0.2);
-  		}
-
-  		.img-placeholder {
-  			background-image: url("http://placehold.it/200x100/CC99CC/ffffff&text=Feature");
-  			background-size: cover;
-  			min-height: 100px;
-  			min-width: 100px;
-  		}
-
-  		/*Basic Grid Styles*/
-  		.Grid {
-  			display: flex;
-  			flex-flow: row;
-  			flex-wrap: wrap;
-  		}
-
-  		.u-textCenter {
-  			text-align: center;
-  		}
-
-  		.Grid-cell {
-  			flex: 1;
-  		}
-
-  		.Demo {
-  			padding: .8em 1em 0;
-  			margin-bottom: 1em;
-  			background: rgba(51, 153, 204, 0.2);
-  			transition: background-color 0.3s ease;
-  			border: 1px solid #33cccc;
-  			border-radius: 3px;
-  		}
-  		.Demo:after {
-  			content: "";
-  			display: block;
-  			margin-top: .8em;
-  			height: 1px;
-  		}
-  		.Demo:hover {
-  			background: rgba(51, 153, 204, 0.6);
-  		}
-
-  		.Demo.Holly {
-  			background: rgba(102, 51, 255, 0.1);
-  		}
-  		.Demo.Holly:hover {
-  			background: rgba(102, 51, 255, 0.25);
-  		}
-
-  		/* With gutters*/
-  		.Grid--gutters {
-  			margin-left: -1em;
-  		}
-  		.Grid--gutters .Grid-cell {
-  			padding-left: 1em;
-  		}
-  		.Grid--gutters .Grid--nested .Grid-cell:first-of-type .Demo {
-  			margin-right: 1em;
-  		}
-
-  		/* Justify per row*/
-  		.Grid--right {
-  			justify-content: flex-end;
-  		}
-
-  		.Grid--center {
-  			justify-content: center;
-  		}
-
-  		/* Alignment per row */
-  		.Grid--top {
-  			align-items: flex-start;
-  		}
-
-  		.Grid--bottom {
-  			align-items: flex-end;
-  		}
-
-  		.Grid--center {
-  			align-items: center;
-  		}
-
-  		/* Alignment per cell */
-  		.Grid-cell--top {
-  			align-self: flex-start;
-  		}
-
-  		.Grid-cell--bottom {
-  			align-self: flex-end;
-  		}
-
-  		.Grid-cell--center {
-  			align-self: center;
-  		}
-
-  		.navigation {
-  			list-style: none;
-  			/*background: deepskyblue;*/
-  			background: rgba(102, 51, 255, 0.1);
-  			margin: 0 0 1em;
-  			border: 1px solid #33cccc;
-  			border-radius: 3px;
-  			display: flex;
-  			-webkit-flex-flow: row wrap;
-  			justify-content: flex-end;
-  		}
-  		.navigation a {
-  			text-decoration: none;
-  			display: block;
-  			padding: 1em;
-  			color: #333;
-  		}
-  		.navigation a:hover {
-  			background: rgba(64, 0, 255, 0.1);
-  			border-radius: 3px;
-  		}
-  		.navigation:hover {
-  			background: rgba(102, 51, 255, 0.25);
-  		}
-
-  		@media all and (max-width: 800px) {
-  			.navigation {
-  				justify-content: space-around;
-  			}
-  		}
-  		@media all and (max-width: 600px) {
-  			.navigation {
-  				-webkit-flex-flow: column wrap;
-  				flex-flow: column wrap;
-  				padding: 0;
-  			}
-  			.navigation a {
-  				text-align: center;
-  				padding: 10px;
-  				border-top: 1px solid rgba(255, 255, 255, 0.3);
-  				border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  			}
-  			.navigation li:last-of-type a {
-  				border-bottom: none;
-  			}
-  		}
-  		/*===========================================*/
-  		/* Base classes for all media - Mobile first */
-  		.Grid--cols-2 > .Grid-cell {
-  			flex: 0 0 100%;
-  		}
-
-  		.Grid--cols-3 > .Grid-cell {
-  			flex: 0 0 100%;
-  		}
-
-  		.Grid--cols-4 > .Grid-cell {
-  			flex: 0 0 100%;
-  		}
-
-  		.Grid--cols-6 > .Grid-cell {
-  			flex: 0 0 calc(50% - 1em);
-  		}
-
-  		.Grid--cols-12 > .Grid-cell {
-  			flex: 0 0 calc(33.3333% - 1em);
-  		}
-
-  		.Grid--holly-grail .aside, .Grid--holly-grail .main {
-  			flex: 1 100%;
-  		}
-
-  		/* One of -- columns*/
-  		.Grid--1of2 > .Grid-cell,
-  		.Grid--1of4 > .Grid-cell:first-of-type,
-  		.Grid--1of3 > .Grid-cell:first-of-type {
-  			flex: 0 0 100%;
-  		}
-
-  		.Grid--1of6 > .Grid-cell:first-of-type {
-  			flex: 0 0 50%;
-  		}
-
-  		.Grid--fit > .Grid-cell {
-  			flex: 1;
-  		}
-
-  		.Grid--full > .Grid-cell {
-  			flex: 0 0 100%;
-  		}
-
-  		/* Tablet (medium) screens */
-  		@media (min-width: 30em) {
-  			.Grid--cols-4 > .Grid-cell {
-  				flex: 0 0 calc(50% - 1em);
-  			}
-
-  			.Grid--cols-6 > .Grid-cell {
-  				flex: 0 0 calc(33.3333% - 1em);
-  			}
-
-  			.Grid--cols-12 > .Grid-cell {
-  				flex: 0 0 calc(16.6666% - 1em);
-  			}
-
-  			.Grid--holly-grail .aside {
-  				flex: 1 calc(25% - 1em);
-  			}
-
-  			.Grid--1of2 > .Grid-cell {
-  				flex: 0 0 50%;
-  			}
-
-  			.Grid--1of6 > .Grid-cell:first-of-type {
-  				flex: 0 0 30%;
-  			}
-
-  			.Grid--1of4 > .Grid-cell:first-of-type {
-  				flex: 0 0 50%;
-  			}
-
-  			.Grid--1of3 > .Grid-cell:first-of-type {
-  				flex: 0 0 100%;
-  			}
-  		}
-  		/* Large screens */
-  		@media (min-width: 48em) {
-  			.Grid--cols-2 > .Grid-cell,
-  			.Grid--cols-3 > .Grid-cell,
-  			.Grid--cols-4 > .Grid-cell,
-  			.Grid--cols-6 > .Grid-cell,
-  			.Grid--cols-12 > .Grid-cell {
-  				flex: 1;
-  			}
-
-  			.Grid--holly-grail .main {
-  				flex: 2;
-  			}
-  			.Grid--holly-grail .aside {
-  				flex: 1;
-  			}
-  			.Grid--holly-grail .aside-1 {
-  				order: 1;
-  			}
-  			.Grid--holly-grail .main {
-  				order: 2;
-  			}
-  			.Grid--holly-grail .aside-2 {
-  				order: 3;
-  			}
-
-  			.Grid--1of2 > .Grid-cell {
-  				flex: 0 0 50%;
-  			}
-
-  			.Grid--1of6 > .Grid-cell:first-of-type {
-  				flex: 0 0 16.6666%;
-  			}
-
-  			.Grid--1of4 > .Grid-cell:first-of-type {
-  				flex: 0 0 25%;
-  			}
-
-  			.Grid--1of3 > .Grid-cell:first-of-type {
-  				flex: 0 0 30%;
-  			}
-
-  			.Grid--gutters.Grid--nested .Grid-cell:first-of-type .Demo {
-  				margin-right: 0;
-  			}
-  		}
-  		.content-1of1::before {
-  			content: "1";
-  		}
-
-  		.content-1of2::before {
-  			content: "1/2";
-  		}
-
-  		.content-1of3::before {
-  			content: "1/3";
-  		}
-
-  		.content-1of4::before {
-  			content: "1/4";
-  		}
-
-  		.content-1of6::before {
-  			content: "1/6";
-  		}
-
-  		.content-1of12::before {
-  			content: "1/12";
-  		}
-
-
-  		#display {
-  			padding-bottom: 10px;
-  			width: auto;
-  			height: auto;
-  			font-weight: bold;
-  			color: white;
-  			/* create border around text */
-  			text-shadow: 2px 0 0 #000, -2px 0 0 #000, 0 2px 0 #000, 0 -2px 0 #000, 1px 1px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  		input[type=text]:focus {
+  			width: 100%;
   		}
   	</style>
   	<body>
   		<div class="container">
   			<div class="tutorial">
-  				<ul>
-  					<li><h3>PHPFilemanager</h3></li>
-  					<li></li>
+  				<ul class="nav rounded" id="pills-tab" role="tablist">
+  					<li class="nav-item">
+  						<a class="nav-link" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Files</a>
+  					</li>
+  					<li class="nav-item">
+  						<a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Profile</a>
+  					</li>
+  					<li class="nav-item">
+  						<a class="nav-link" id="pills-about-tab" data-toggle="pill" href="#pills-about" role="tab" aria-controls="pills-about" aria-selected="false">About</a>
+  					</li>
   				</ul>
-  				<div class="slider">
-  					<?php
-  					if (isset($_GET['e'])) {
-  						$filename = FileSystem::hextostr($_GET['e']);
-  						print("edit ".$filename);
-  						exit();
-  					}
-
-  					if (isset($_GET['r'])) {
-  						$filename = FileSystem::hextostr($_GET['r']);
-  						print("rename ".$filename);
-  						exit();
-  					}
-
-  					if (isset($_GET['d'])) {
-  						$filename = FileSystem::hextostr($_GET['d']);
-  						print("delete ".$filename);
-  						exit();
-  					}
-
-  					if (isset($_GET['c'])) {
-  						$filename = FileSystem::hextostr($_GET['c']);
-  						print("chmode ".$filename);
-  						exit();
-  					}
-  					if (isset($_GET['dl'])) {
-  						$filename = FileSystem::hextostr($_GET['dl']);
-  						print("download ".$filename);
-  						exit();
-  					}
-
-  					foreach ($FileSystem->dirs() as $key => $value) { ?>
-  						<div class="Grid Grid--full">
-  							<div class="Grid-cell">
-  								<div class="Grid Grid--gutters Grid--cols-3">
-  									<div class="Grid-cell">
-  										<a href="?x=<?= $FileSystem->strtohex($value[0]) ?>"><?= $value[1] ?></a>
-  									</div>
-  									<div class="Grid-cell"><?= $value[2] ?></div>
-  									<div class="Grid-cell"><?= $value[3] ?></div>
-  									<div class="Grid-cell"><?= $value[4] ?></div>
+  				<div class="tab-content" id="pills-tabContent">
+  					<div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+  						<div class="slider">
+  							<?php
+  							if (isset($_GET['e'])) {
+  								$filename = FileSystem::hextostr($_GET['e']);
+  								?>
+  								<div class="head">
+  									<?= $FileSystem->pwd(2); ?>
   								</div>
-  							</div>
-  						</div>
-  						<!-- <a href="<?= $value[6][1] ?>">rename</a>
-  							<a href="<?= $value[6][2] ?>">delete</a> -->
-  					<?php }
+  								<form method="post">
+  									<textarea><?= $FileSystem->get($filename)->read() ?></textarea>
+  								</form>
+  								<?php
+  								// print("edit ".$filename);
+  								exit();
+  							}
 
-  					foreach ($FileSystem->files() as $key => $value) { ?>
-  						<div class="Grid Grid--full">
-  							<div class="Grid-cell">
-  								<div class="Grid Grid--gutters Grid--cols-3">
-  									<div class="Grid-cell">
-  										<?= $value[1] ?>
-  									</div>
-  									<div class="Grid-cell"><?= $value[2] ?></div>
-  									<div class="Grid-cell"><?= $value[3] ?></div>
-  									<div class="Grid-cell"><?= $value[4] ?></div>
-  								</div>
+  							if (isset($_GET['r'])) {
+  								$filename = FileSystem::hextostr($_GET['r']);
+  								print("rename ".$filename);
+  								exit();
+  							}
+
+  							if (isset($_GET['d'])) {
+  								$filename = FileSystem::hextostr($_GET['d']);
+  								print("delete ".$filename);
+  								exit();
+  							}
+
+  							if (isset($_GET['c'])) {
+  								$filename = FileSystem::hextostr($_GET['c']);
+  								print("chmode ".$filename);
+  								exit();
+  							}
+  							if (isset($_GET['dl'])) {
+  								$filename = FileSystem::hextostr($_GET['dl']);
+  								print("download ".$filename);
+  								exit();
+  							}
+							?>
+  							<div class="head">
+  								<?= $FileSystem->pwd(1); ?>
   							</div>
+  							<?php
+
+  							foreach ($FileSystem->dirs() as $key => $value) { ?>
+  								<div class="media">
+  									<img class="align-self-center mr-3 icon" src="<?= $value[6] ?>" alt="Generic placeholder image">
+  									<div class="media-body clickable text-truncate" data-href="?x=<?= $FileSystem->strtohex($value[0]) ?>">
+  										<h5 class="mt-0 font-weight-bold"><?= $value[1] ?></h5>
+  										<div class="info">
+  											<?= $value[2] ?>
+  											<?= $value[3] ?>&nbsp;
+  											<?= $value[4] ?>
+  										</div>
+  									</div>
+  									<div class="ml-3">
+  										<div class="dropdown">
+  											<button class="" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  												<i class="fa fa-sort-desc" aria-hidden="true"></i>
+  											</button>
+  											<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+  												<a class="dropdown-item" href="<?= $value[7][1] ?>">Rename</a>
+  												<a class="dropdown-item" href="<?= $value[7][2] ?>">Delete</a>
+  											</div>
+  										</div>
+  									</div>
+  								</div>
+  							<?php }
+
+	  						foreach ($FileSystem->files() as $key => $value) { ?>
+	  							<div class="media">
+	  								<img class="align-self-center mr-3 icon" src="<?= $value[6] ?>" alt="Generic placeholder image">
+	  								<div class="media-body text-truncate">
+	  									<h5 class="mt-0 font-weight-bold"><?= $value[1] ?></h5>
+	  									<div class="info">
+	  										<?= $value[2] ?> &nbsp;
+	  										<?= $value[3] ?> &nbsp;
+	  										<?= $value[4] ?>
+	  									</div>
+	  								</div>
+	  								<div class="ml-3">
+	  									<div class="dropdown">
+	  										<button class="" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	  											<i class="fa fa-sort-desc" aria-hidden="true"></i>
+	  										</button>
+	  										<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+	  											<a class="dropdown-item" href="<?= $value[7][0] ?>">Edit</a>
+	  											<a class="dropdown-item" href="<?= $value[7][1] ?>">Rename</a>
+	  											<a class="dropdown-item" href="<?= $value[7][2] ?>">Delete</a>
+	  											<a class="dropdown-item" href="<?= $value[7][3] ?>">Change Mode</a>
+	  											<a class="dropdown-item" href="<?= $value[7][4] ?>">Download</a>
+	  										</div>
+	  									</div>
+	  								</div>
+	  							</div>
+	  					<?php }
+	  					?>
+	  				</div>
+  					</div>
+  					<div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+  						<div class="slider">
+  							Profile
   						</div>
-  						
-  						<!-- <a href="<?= $value[6][0] ?>">edit</a>
-  						<a href="<?= $value[6][1] ?>">rename</a>
-  						<a href="<?= $value[6][2] ?>">delete</a>
-  						<a href="<?= $value[6][3] ?>">chmode</a>
-  						<a href="<?= $value[6][4] ?>">download</a> -->
-  					<?php }
-  					?>
+  					</div>
+  					<div class="tab-pane fade" id="pills-about" role="tabpanel" aria-labelledby="pills-about-tab">
+  						<div class="slider">
+  							About
+  						</div>
+  					</div>
   				</div>
   				<div class="information">
   					<div id="display"></div>
   				</div>
   			</div>
   		</div>
-  		<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js" type="text/javascript"></script>
   		<script type="text/javascript">
-  			var quoteArray = [
-  			'"You have to learn the rules of the game. And then you have to play better than anyone else." -Albert Einstein',
-  			'"The secret of getting ahead is getting started." -Mark Twain', 
-  			'"If you can dream it, you can do it." -Walt Disney', 
-  			'"Hi." -Ryan Spoone'
-  			];
-
-
-  			display = document.getElementById('display');
-
-  			var currentElement;
-
-
-  			function shuffle(array) {
-  				var currentIndex = array.length,
-  				temporaryValue, randomIndex;
-
-  				
-  				while (0 !== currentIndex) {
-  					randomIndex = Math.floor(Math.random() * currentIndex);
-  					currentIndex -= 1;
-  					temporaryValue = array[currentIndex];
-  					array[currentIndex] = array[randomIndex];
-  					array[randomIndex] = temporaryValue;
-  				}
-
-  				return array;
-  			}
-  			function updateDisplay() {
-  				var randomElement = quoteArray[Math.floor(Math.random() * quoteArray.length)];
-  				if (randomElement != currentElement) {
-  					$("#display").fadeOut("slow", function() {
-  						display.innerHTML = randomElement;
-  						$("#display").fadeIn("slow");
-  					});
-  					currentElement = randomElement;
-  				} else {
-  					updateDisplay();
-  				}
-  			}
-  			updateDisplay();
-  			setInterval(function() {
-  				updateDisplay();
-  			}, 3000);
+  			jQuery(document).ready(function($) {
+  				$(".clickable").click(function() {
+  					window.location = $(this).data("href");
+  				});
+  			});
   		</script>
-  		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </body>
 </html>
