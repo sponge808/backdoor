@@ -435,8 +435,15 @@ if (!function_exists("showFiles")) {
 		$output .= "</tr></thead><tbody>";
 
 		foreach (listFiles(get_cwd(), "dir") as $key => $value) {
+			$cboxException = "";
+			if (($value[0] == ".") || ($value[0] == "..")) {
+				$action  = "actiondot";
+				$cboxException = " cBoxException";
+			} else {
+				$action = "actionfolder";
+			}
 			$output .= "<td style='white-space:normal;'>
-							<a class='navigate'>".html_safe($d)."</a>
+							<a class='navigate'>".html_safe($value[1])."</a>
 							<span class='".$action." floatRight'>action</span>
 						</td>
 						<td>DIR</td>";
