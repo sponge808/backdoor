@@ -254,6 +254,77 @@ if(!function_exists('write_file')){
 	}
 }
 
+if (!function_exists("viewFile")) {
+	function viewFile($filename, $type, $preserveTimestamp = "true")
+	{
+		$output = "";
+		if (is_file($filename)) {
+			$dir = dirname($filename);
+
+			$owner = "";
+			if (!is_win()) {
+				$owner = "<tr>
+							<td>Owner</td>
+							<td>" .getFileowner($filename). "</td>
+						  </tr>";
+			}
+
+			$imageInfo 	= @getimagesize($filename);
+			$mimeList  	= get_resource("mime");
+			$mime 	   	= "";
+			$fileExtPos = strrpos($filename, ".");
+			if ($fileExtPos !== false) {
+				$fileExt = trim(substr($filename, $fileExtPos), ".");
+				if (preg_match("/([^\s]+) .*\b" .$fileExt. "\b.*/i", $mimeList, $match)) {
+					$mime = $match[1];
+				}
+			}
+
+			if ($type == "auto") {
+				if (is_array($imageInfo)) {
+					$type = "image";
+				} elseif (!empty($mime)) {
+					$type = "multimedia";
+				} else {
+					$type = "raw";
+				}
+			}
+
+			$content = "";
+			if ($type == "code") {
+				$highlightArray = array(
+					"highlightDefault" => ini_get("highlight.default"),
+					"highlightKeyword" => ini_get("highlight.keyword"),
+					"highlightString"  => ini_get("highlight.string"),
+					"highlightHtml"    => ini_get("highlight.html"),
+					"highlightComment" => ini_get("highlight.comment")
+				);
+
+				$content = highlight_string(read_file($filename), true);
+				foreach ($highlightArray as $key => $value) {
+					$content = str_replace("<font color=\"".$value."\">", "<font class='".$key."'>", $content);
+					$content = str_replace("<span style=\"color: ".$value."\">", "<span class='".$key."'>", $content);
+				}
+			} elseif ($type == "image") {
+				$width  = (int) $imageInfo[0];
+				$height = (int) $imageInfo[1];
+				$imageInfoH = "Image Type = " .$imageInfo["mime"]. "<br>
+							   Image Size = " .$width. " x " .$height. "";
+				if ($width > 800) {
+					$width = 800;
+					$imgLink = "<a id='viewFullsize'>View Full Size</a>";
+				} else {
+					$imglink = "";
+				}
+
+				$content = "<center>" .$imageInfoH. "<br>" .$imgLink. "
+							<img id='viewImage' style='width:".$width."px;' src='data:".$imageInfo['mime'].";base64,".base64_encode(read_file($filename))."' alt='".$filename."'></center>
+				";
+			}
+		}
+	}
+}
+
 if(!function_exists('view_file')){
 	function view_file($file, $type, $preserveTimestamp='true'){
 		$output = "";
