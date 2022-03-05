@@ -1532,7 +1532,7 @@ if(!function_exists('decode_line')){
 		<form action='<?php echo getSelf(); ?>' method='post' id='form' target='_blank'></form>
 		<script type='text/javascript'>
 			var targeturl = '<?php echo getSelf(); ?>';
-			var moduleLoad = '<?php echo "explorer";?>';
+			var moduleLoad = '<?php echo implode(",", $GLOBALS['moduleLoad']);?>';
 			var win = <?php echo (isWin())?'true':'false';?>;
 			var init_shell = true;
 			/* Zepto v1.1.2 - zepto event ajax form ie - zeptojs.com/license */
@@ -2131,7 +2131,7 @@ function view_entry(el){
 
 function ren(path){
 	title = "Rename";
-	content = "<table class='boxtbl'><tr><td class='colFit'>Rename to</td><td><input type='text' class='renameFileTo' value='" +path+"' onkeydown=\"trap_enter(event, 'ren_go');\"><input type='hidden' class='renameFile' value='"+path+"'></td></tr><tr><td colspan='2'><span class='button' onclick='ren_go();'>rename</span></td></tr></table>";
+	content = "<table class='boxtbl'><tr><td class='colFit'>Rename to</td><td><input type='text' class='renameFileTo' value='" +baseName(path)+"' onkeydown=\"trap_enter(event, 'ren_go');\"><input type='hidden' class='renameFile' value='"+path+"'></td></tr><tr><td colspan='2'><span class='button' onclick='ren_go();'>rename</span></td></tr></table>";
 	show_box(title, content);
 }
 
